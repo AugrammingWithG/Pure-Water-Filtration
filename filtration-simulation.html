@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Whole-house Filtration — 3D Simulation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-deep:#050F1C;
+    --navy:#0A1E32;
+    --panel:rgba(10,28,46,0.78);
+    --cyan:#3FD8FF;
+    --azure:#2E8FE0;
+    --mint:#7CF2D0;
+    --amber:#FFB37A;
+    --ink:#EAF4FB;
+    --ink-dim:#8FADC4;
+    --line:rgba(255,255,255,0.08);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:'Inter',sans-serif;
+    background:
+      radial-gradient(ellipse 900px 500px at 85% 10%, rgba(63,216,255,0.10), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 5% 95%, rgba(46,143,224,0.10), transparent 60%),
+      var(--navy-deep);
+    color:var(--ink);
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{font-family:'Space Grotesk',sans-serif;}
+  button{font-family:inherit; cursor:pointer; border:none; background:none; color:inherit;}
+
+  .app{height:100vh; display:flex; flex-direction:column;}
+
+  /* ---------- HEADER ---------- */
+  header{
+    display:flex; align-items:flex-start; justify-content:space-between;
+    padding:22px 30px 16px;
+  }
+  header h1{font-size:18px; font-weight:600;}
+  header p{font-size:12.5px; color:var(--ink-dim); margin-top:4px; max-width:420px; line-height:1.5;}
+  .browse-btn{
+    font-size:12.5px; font-weight:600; color:var(--ink-dim);
+    border:1px solid var(--line); padding:8px 16px; border-radius:20px;
+    background:rgba(255,255,255,0.03);
+  }
+  .browse-btn:hover{color:var(--ink); border-color:rgba(255,255,255,0.25);}
+
+  /* ---------- MAIN LAYOUT ---------- */
+  main{flex:1; display:flex; position:relative; min-height:0;}
+
+  /* sidebar */
+  .sidebar{
+    width:76px; flex-shrink:0; display:flex; flex-direction:column;
+    align-items:center; gap:10px; padding-top:8px;
+  }
+  .side-btn{
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+    padding:10px 6px; border-radius:12px; width:64px;
+  }
+  .side-btn .ico{
+    width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center;
+    border:1px solid var(--line); background:rgba(255,255,255,0.02);
+  }
+  .side-btn span{font-size:9.5px; color:var(--ink-dim); font-weight:600; text-align:center; line-height:1.2;}
+  .side-btn.active .ico{border-color:rgba(63,216,255,0.5); background:rgba(63,216,255,0.12); box-shadow:0 0 16px rgba(63,216,255,0.25);}
+  .side-btn.active span{color:var(--cyan);}
+  .side-btn:hover .ico{border-color:rgba(255,255,255,0.25);}
+
+  /* canvas region */
+  .stage-region{flex:1; position:relative; min-width:0;}
+  #simCanvasWrap{position:absolute; inset:0; cursor:grab;}
+  #simCanvasWrap.dragging{cursor:grabbing;}
+  #simCanvasWrap canvas{display:block; width:100%; height:100%;}
+
+  .view-controls{
+    position:absolute; top:16px; right:16px; z-index:6; display:flex; gap:8px;
+  }
+  .chip-btn{
+    font-size:11px; font-weight:600; color:var(--ink-dim);
+    background:rgba(6,20,35,0.6); backdrop-filter:blur(6px);
+    padding:6px 12px; border-radius:7px; border:1px solid var(--line);
+  }
+  .chip-btn:hover{color:var(--cyan); border-color:rgba(63,216,255,0.4);}
+
+  /* floating cards */
+  .float-card{
+    position:absolute; z-index:5;
+    background:var(--panel); backdrop-filter:blur(12px);
+    border:1px solid rgba(255,255,255,0.09);
+    border-radius:14px; padding:16px 18px;
+    box-shadow:0 20px 50px rgba(0,0,0,0.4);
+    pointer-events:none;
+  }
+  .float-card .fc-label{font-size:10px; text-transform:uppercase; letter-spacing:0.07em; color:var(--ink-dim); font-weight:700; margin-bottom:10px;}
+
+  .card-cost{top:15%; left:6%; width:190px;}
+  .cost-row{display:flex; gap:18px; align-items:flex-end; margin-bottom:12px;}
+  .cost-col span{display:block; font-size:9.5px; color:var(--ink-dim);}
+  .cost-col b{font-family:'Space Grotesk',sans-serif; font-size:19px; font-weight:600;}
+  .cost-before b{color:var(--amber);}
+  .cost-after b{color:var(--mint);}
+  .savings-pill{
+    display:inline-flex; align-items:center; gap:6px; background:rgba(124,242,208,0.14);
+    color:var(--mint); font-size:12px; font-weight:700; padding:6px 12px; border-radius:8px;
+  }
+
+  .card-trend{bottom:9%; left:6%; width:190px;}
+  .trend-legend{display:flex; gap:14px; margin-top:8px; font-size:10px; color:var(--ink-dim);}
+  .trend-legend span{display:inline-flex; align-items:center; gap:5px;}
+  .dot{width:6px; height:6px; border-radius:50%; display:inline-block;}
+
+  .card-impact{bottom:9%; right:6%; width:190px;}
+  .impact-row{display:flex; justify-content:space-between; margin-bottom:10px;}
+  .impact-row:last-child{margin-bottom:0;}
+  .impact-row b{font-family:'Space Grotesk',sans-serif; font-size:17px; font-weight:600; color:var(--ink);}
+  .impact-row span{font-size:10px; color:var(--ink-dim); display:block; margin-top:2px;}
+
+  .card-detail{
+    top:15%; right:6%; width:220px; pointer-events:auto;
+    transition:opacity 0.35s ease, transform 0.35s ease;
+  }
+  .card-detail .fc-eyebrow{font-size:10px; color:var(--cyan); font-weight:700; margin-bottom:4px;}
+  .card-detail h3{font-size:16px; font-weight:600; margin-bottom:8px;}
+  .card-detail p{font-size:12px; line-height:1.55; color:var(--ink-dim); margin-bottom:14px;}
+  .detail-actions{display:flex; gap:6px; flex-wrap:wrap;}
+  .detail-actions button{
+    font-size:10.5px; font-weight:600; color:var(--ink-dim);
+    border:1px solid var(--line); padding:6px 10px; border-radius:7px;
+    background:rgba(255,255,255,0.03);
+  }
+  .detail-actions button.primary{color:#04121F; background:linear-gradient(135deg,var(--cyan),var(--mint)); border-color:transparent;}
+
+  @media(max-width:980px){
+    .card-cost, .card-trend, .card-impact, .card-detail{width:150px; padding:12px 14px;}
+    .cost-col b{font-size:15px;}
+  }
+  @media(max-width:760px){
+    .card-trend, .card-impact{display:none;}
+  }
+
+  /* ---------- BOTTOM PLAYBACK BAR ---------- */
+  .playbar-wrap{
+    display:flex; flex-direction:column; align-items:center; gap:10px;
+    padding:0 0 22px;
+  }
+  .playbar{
+    display:flex; align-items:center; gap:14px;
+    background:var(--panel); backdrop-filter:blur(12px);
+    border:1px solid rgba(255,255,255,0.09);
+    border-radius:999px; padding:8px 10px 8px 8px;
+    box-shadow:0 16px 40px rgba(0,0,0,0.4);
+  }
+  .play-btn{
+    width:34px; height:34px; border-radius:50%;
+    background:linear-gradient(135deg,var(--cyan),var(--azure));
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .progress-track{width:220px; height:4px; border-radius:3px; background:rgba(255,255,255,0.1); position:relative; overflow:hidden;}
+  .progress-fill{position:absolute; inset:0 auto 0 0; width:50%; background:linear-gradient(90deg,var(--cyan),var(--mint)); border-radius:3px; transition:width 0.5s ease;}
+  .stage-count{font-size:11.5px; color:var(--ink-dim); white-space:nowrap; padding-right:6px;}
+
+  .stage-dots{display:flex; gap:22px;}
+  .stage-dot-btn{display:flex; flex-direction:column; align-items:center; gap:6px;}
+  .stage-dot-btn .dotmark{width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.18); transition:all 0.25s ease;}
+  .stage-dot-btn span{font-size:10px; color:var(--ink-dim); font-weight:600;}
+  .stage-dot-btn.active .dotmark{background:var(--cyan); box-shadow:0 0 10px rgba(63,216,255,0.7);}
+  .stage-dot-btn.active span{color:var(--cyan);}
+  .stage-dot-btn:hover span{color:var(--ink);}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header>
+    <div>
+      <h1 id="sysTitle">Whole-house filtration</h1>
+      <p id="sysSubtitle">Sits on the main line where water enters — every tap in the house runs through it.</p>
+    </div>
+    <button class="browse-btn">Browse plans</button>
+  </header>
+
+  <main>
+    <div class="sidebar">
+      <button class="side-btn active" data-sys="whole">
+        <span class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3FD8FF" stroke-width="1.8"><path d="M3 11l9-7 9 7"/><path d="M5 10v9h14v-9"/></svg></span>
+        <span>Whole House</span>
+      </button>
+      <button class="side-btn" data-sys="undersink">
+        <span class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8FADC4" stroke-width="1.8"><path d="M4 13a8 8 0 0116 0"/><path d="M12 13v7"/><path d="M9 20h6"/></svg></span>
+        <span>Under Sink</span>
+      </button>
+      <button class="side-btn" data-sys="rain">
+        <span class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8FADC4" stroke-width="1.8"><path d="M7 15a5 5 0 010-10 6 6 0 0111.5 2A4.5 4.5 0 0117 15H7z"/><path d="M8 19l-1 2M12 19l-1 2M16 19l-1 2"/></svg></span>
+        <span>Rain Water</span>
+      </button>
+    </div>
+
+    <div class="stage-region">
+      <div id="simCanvasWrap"></div>
+
+      <div class="view-controls">
+        <button class="chip-btn" id="simReset">Reset view</button>
+      </div>
+
+      <div class="float-card card-cost">
+        <div class="fc-label">Annual water cost</div>
+        <div class="cost-row">
+          <div class="cost-col cost-before"><span>Before</span><b id="costBefore">$1,240</b></div>
+          <div class="cost-col cost-after"><span>Filtered</span><b id="costAfter">$610</b></div>
+        </div>
+        <div class="savings-pill">Saves <span id="costSavings">$630</span>/yr</div>
+      </div>
+
+      <div class="float-card card-trend">
+        <div class="fc-label">Water quality over time</div>
+        <svg width="150" height="46" viewBox="0 0 150 46">
+          <polyline points="0,34 25,30 50,24 75,26 100,16 125,12 150,8" fill="none" stroke="#3FD8FF" stroke-width="2" stroke-linecap="round"/>
+          <polyline points="0,40 25,39 50,40 75,38 100,39 125,38 150,39" fill="none" stroke="#FFB37A" stroke-width="2" stroke-linecap="round" opacity="0.7"/>
+        </svg>
+        <div class="trend-legend">
+          <span><i class="dot" style="background:#3FD8FF;"></i>Filtered</span>
+          <span><i class="dot" style="background:#FFB37A;"></i>Unfiltered</span>
+        </div>
+      </div>
+
+      <div class="float-card card-impact">
+        <div class="fc-label">Estimated this year</div>
+        <div class="impact-row">
+          <div><b id="impactBottles">3,650</b><span>Bottles avoided</span></div>
+        </div>
+        <div class="impact-row">
+          <div><b id="impactWaste">61 kg</b><span>Plastic waste diverted</span></div>
+        </div>
+      </div>
+
+      <div class="float-card card-detail" id="detailCard">
+        <div class="fc-eyebrow" id="detailEyebrow">STAGE 2 OF 4</div>
+        <h3 id="detailTitle">Carbon Block</h3>
+        <p id="detailDesc">Chlorine, taste and smell get pulled out here — this is the stage that removes what most people notice first.</p>
+        <div class="detail-actions">
+          <button class="primary">Overview</button>
+          <button>How it works</button>
+          <button>Specs</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="playbar-wrap">
+    <div class="playbar">
+      <button class="play-btn" id="playBtn">
+        <svg id="playIcon" width="13" height="13" viewBox="0 0 24 24" fill="#04121F"><polygon points="6,4 20,12 6,20"/></svg>
+      </button>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <span class="stage-count" id="stageCount">Stage 2 of 4 stages</span>
+    </div>
+    <div class="stage-dots" id="stageDots">
+      <button class="stage-dot-btn" data-stage="sediment"><span class="dotmark"></span><span>Sediment</span></button>
+      <button class="stage-dot-btn active" data-stage="carbon"><span class="dotmark"></span><span>Carbon</span></button>
+      <button class="stage-dot-btn" data-stage="ro"><span class="dotmark"></span><span>RO / UV</span></button>
+      <button class="stage-dot-btn" data-stage="tap"><span class="dotmark"></span><span>Output</span></button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ============================================================
+// Drag-to-orbit camera rig with focus/zoom support
+// ============================================================
+function makeOrbit(el, camera, target, opts){
+  opts = opts || {};
+  var defaultRadius = opts.radius || 7;
+  var minRadius = opts.minRadius || 2;
+  var maxRadius = opts.maxRadius || 14;
+  var defaultTheta = opts.theta !== undefined ? opts.theta : 0.6;
+  var defaultPhi = opts.phi !== undefined ? opts.phi : 1.1;
+  var autoRotateSpeed = opts.autoRotateSpeed !== undefined ? opts.autoRotateSpeed : 0.05;
+  var initialTarget = target.clone();
+  var state = {theta:defaultTheta, phi:defaultPhi, radius:defaultRadius};
+  var dragging = false, lastX = 0, lastY = 0, idleTime = 0, moved = 0;
+
+  function clampPhi(p){ return Math.max(0.3, Math.min(Math.PI - 0.3, p)); }
+  function updateCamera(){
+    camera.position.x = target.x + state.radius * Math.sin(state.phi) * Math.sin(state.theta);
+    camera.position.y = target.y + state.radius * Math.cos(state.phi);
+    camera.position.z = target.z + state.radius * Math.sin(state.phi) * Math.cos(state.theta);
+    camera.lookAt(target);
+  }
+  updateCamera();
+
+  el.addEventListener('pointerdown', function(e){
+    dragging = true; lastX = e.clientX; lastY = e.clientY; idleTime = 0; moved = 0;
+    el.classList.add('dragging');
+    try{ el.setPointerCapture(e.pointerId); }catch(err){}
+  });
+  el.addEventListener('pointerup', function(e){
+    dragging = false; el.classList.remove('dragging');
+    if(moved < 6 && typeof el._onClickPick === 'function') el._onClickPick(e);
+  });
+  el.addEventListener('pointerleave', function(){ dragging = false; el.classList.remove('dragging'); });
+  el.addEventListener('pointermove', function(e){
+    if(!dragging) return;
+    var dx = e.clientX - lastX, dy = e.clientY - lastY;
+    lastX = e.clientX; lastY = e.clientY;
+    moved += Math.abs(dx) + Math.abs(dy);
+    state.theta -= dx * 0.006;
+    state.phi = clampPhi(state.phi - dy * 0.006);
+    idleTime = 0;
+    updateCamera();
+  });
+  el.addEventListener('wheel', function(e){
+    e.preventDefault();
+    state.radius = Math.min(maxRadius, Math.max(minRadius, state.radius + e.deltaY * 0.01));
+    updateCamera();
+  }, {passive:false});
+
+  function tweenTo(toTarget, toRadius, toTheta, toPhi, duration){
+    var startTarget = target.clone();
+    var startRadius = state.radius, startTheta = state.theta, startPhi = state.phi;
+    var t0 = performance.now(); duration = duration || 850;
+    function step(){
+      var t = Math.min(1, (performance.now() - t0) / duration);
+      var e = 1 - Math.pow(1 - t, 3);
+      target.lerpVectors(startTarget, toTarget, e);
+      state.radius = startRadius + (toRadius - startRadius) * e;
+      if(toTheta !== null) state.theta = startTheta + (toTheta - startTheta) * e;
+      if(toPhi !== null) state.phi = startPhi + (toPhi - startPhi) * e;
+      updateCamera();
+      if(t < 1) requestAnimationFrame(step);
+    }
+    idleTime = 0;
+    step();
+  }
+
+  return {
+    tick: function(dt){
+      idleTime += dt;
+      if(!dragging && idleTime > 2.2){
+        state.theta += autoRotateSpeed * dt;
+        updateCamera();
+      }
+    },
+    focus: function(pos, radius, duration){
+      tweenTo(pos, radius, null, null, duration);
+    },
+    reset: function(){
+      tweenTo(initialTarget, defaultRadius, defaultTheta, defaultPhi, 800);
+    },
+    setClickHandler: function(fn){ el._onClickPick = fn; }
+  };
+}
+
+// ============================================================
+// SIMULATION SCENE
+// ============================================================
+var orbit, camera, scene, renderer, raycaster, pointer;
+var pickables = [];
+var stagePositions = {};
+var stageCores = {};
+
+function buildScene(){
+  var container = document.getElementById('simCanvasWrap');
+  scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x050f1c, 0.045);
+
+  camera = new THREE.PerspectiveCamera(42, container.clientWidth / container.clientHeight, 0.1, 100);
+  renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(container.clientWidth, container.clientHeight);
+  renderer.setClearColor(0x000000, 0);
+  container.appendChild(renderer.domElement);
+
+  scene.add(new THREE.AmbientLight(0x2a3f55, 1.2));
+  var dir = new THREE.DirectionalLight(0x9fd8ff, 0.45);
+  dir.position.set(4, 6, 3);
+  scene.add(dir);
+
+  var grid = new THREE.GridHelper(20, 20, 0x1c3654, 0x101f36);
+  grid.position.y = 0;
+  scene.add(grid);
+
+  // ---------------- house ----------------
+  var houseGroup = new THREE.Group();
+  houseGroup.position.set(-0.4, 0, -0.2);
+  scene.add(houseGroup);
+
+  var wallMat = new THREE.MeshStandardMaterial({color:0x0e2136, roughness:0.85, metalness:0.05});
+  var walls = new THREE.Mesh(new THREE.BoxGeometry(4.4, 1.9, 3.2), wallMat);
+  walls.position.set(0, 0.95, 0);
+  houseGroup.add(walls);
+
+  var roofShape = new THREE.Shape();
+  roofShape.moveTo(-2.3, 0);
+  roofShape.lineTo(2.3, 0);
+  roofShape.lineTo(0, 1.25);
+  roofShape.lineTo(-2.3, 0);
+  var roofGeo = new THREE.ExtrudeGeometry(roofShape, {depth:3.4, bevelEnabled:false});
+  var roofMat = new THREE.MeshStandardMaterial({color:0x152a42, roughness:0.7, metalness:0.1});
+  var roof = new THREE.Mesh(roofGeo, roofMat);
+  roof.position.set(0, 1.9, -1.7);
+  houseGroup.add(roof);
+
+  var winMat = new THREE.MeshStandardMaterial({color:0xffcf8a, emissive:0xffcf8a, emissiveIntensity:1.1});
+  var winPositions = [
+    [-1.4, 1.2, 1.61], [-0.5, 1.2, 1.61], [0.9, 1.2, 1.61], [1.7, 1.2, 1.61],
+    [-1.4, 1.2, -1.61], [1.4, 1.2, -1.61]
+  ];
+  winPositions.forEach(function(p){
+    var w = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.5, 0.03), winMat);
+    w.position.set(p[0], p[1], p[2]);
+    houseGroup.add(w);
+  });
+  var door = new THREE.Mesh(new THREE.BoxGeometry(0.62, 1.1, 0.03), new THREE.MeshStandardMaterial({color:0x081019, roughness:0.9}));
+  door.position.set(0.2, 0.55, 1.61);
+  houseGroup.add(door);
+
+  var outlinePts = [
+    new THREE.Vector3(-2.5, 0.02, -1.9), new THREE.Vector3(2.5, 0.02, -1.9),
+    new THREE.Vector3(2.5, 0.02, 1.9), new THREE.Vector3(-2.5, 0.02, 1.9),
+    new THREE.Vector3(-2.5, 0.02, -1.9)
+  ];
+  var outline = new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints(outlinePts),
+    new THREE.LineBasicMaterial({color:0x3fd8ff, transparent:true, opacity:0.35})
+  );
+  houseGroup.add(outline);
+
+  var rackPlate = new THREE.Mesh(
+    new THREE.BoxGeometry(0.06, 2.0, 0.55),
+    new THREE.MeshStandardMaterial({color:0x0a1826, roughness:0.9})
+  );
+  rackPlate.position.set(-2.18, 1.45, 0);
+  houseGroup.add(rackPlate);
+
+  var driveway = new THREE.Mesh(
+    new THREE.BoxGeometry(4.2, 0.02, 1.1),
+    new THREE.MeshStandardMaterial({color:0x1a2c3f, roughness:1})
+  );
+  driveway.position.set(-3.2, 0.01, 0.3);
+  houseGroup.add(driveway);
+
+  // ---------------- service line: street meter -> wall rack -> into the house ----------------
+  var pts = [
+    new THREE.Vector3(-4.6, 0.15, 0.7).add(houseGroup.position),
+    new THREE.Vector3(-4.6, 0.15, 0.0).add(houseGroup.position),
+    new THREE.Vector3(-2.3, 0.15, 0.0).add(houseGroup.position),
+    new THREE.Vector3(-2.15, 0.85, 0.0).add(houseGroup.position),
+    new THREE.Vector3(-2.15, 1.45, 0.0).add(houseGroup.position),
+    new THREE.Vector3(-2.15, 2.05, 0.0).add(houseGroup.position),
+    new THREE.Vector3(0.6, 2.05, -1.3).add(houseGroup.position),
+    new THREE.Vector3(1.9, 0.65, 1.55).add(houseGroup.position)
+  ];
+  var curve = new THREE.CatmullRomCurve3(pts, false, 'catmullrom', 0.2);
+
+  var tubeGeo = new THREE.TubeGeometry(curve, 220, 0.075, 12, false);
+  var tubeMat = new THREE.MeshStandardMaterial({color:0x18314c, metalness:0.6, roughness:0.35});
+  scene.add(new THREE.Mesh(tubeGeo, tubeMat));
+
+  var meterMark = new THREE.Mesh(
+    new THREE.SphereGeometry(0.14, 16, 16),
+    new THREE.MeshStandardMaterial({color:0x3fd8ff, emissive:0x3fd8ff, emissiveIntensity:0.6})
+  );
+  meterMark.position.copy(pts[0]);
+  scene.add(meterMark);
+
+  function addCanister(pos, color, r, h, key){
+    var g = new THREE.Group();
+    var glass = new THREE.Mesh(
+      new THREE.CylinderGeometry(r, r, h, 24, 1, true),
+      new THREE.MeshPhysicalMaterial({color:color, transparent:true, opacity:0.28, roughness:0.15, metalness:0, transmission:0.5, thickness:0.4, side:THREE.DoubleSide})
+    );
+    var core = new THREE.Mesh(
+      new THREE.CylinderGeometry(r * 0.55, r * 0.55, h * 0.86, 16),
+      new THREE.MeshStandardMaterial({color:color, emissive:color, emissiveIntensity:0.3, roughness:0.5})
+    );
+    var hit = new THREE.Mesh(
+      new THREE.SphereGeometry(Math.max(r, h * 0.6), 12, 12),
+      new THREE.MeshBasicMaterial({visible:false})
+    );
+    g.add(glass); g.add(core); g.add(hit);
+    g.position.copy(pos);
+    scene.add(g);
+    if(key){
+      [glass, core, hit].forEach(function(m){ m.userData.stageKey = key; pickables.push(m); });
+      stagePositions[key] = g.position.clone();
+      stageCores[key] = core;
+    }
+    return g;
+  }
+  addCanister(pts[3], 0xd99a55, 0.3, 0.52, 'sediment');
+  addCanister(pts[4], 0x8fa6b3, 0.3, 0.52, 'carbon');
+  addCanister(pts[5], 0x3fd8ff, 0.3, 0.58, 'ro');
+
+  var tapGlass = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.22, 0.16, 0.5, 20),
+    new THREE.MeshPhysicalMaterial({color:0x9fe9ff, transparent:true, opacity:0.5, transmission:0.6, roughness:0.05})
+  );
+  tapGlass.position.copy(pts[7]).add(new THREE.Vector3(0, -0.32, 0));
+  scene.add(tapGlass);
+  tapGlass.userData.stageKey = 'tap';
+  pickables.push(tapGlass);
+  stagePositions['tap'] = tapGlass.position.clone();
+  stageCores['tap'] = tapGlass;
+
+  var STREAM_COUNT = 28;
+  var pulseGeo = new THREE.SphereGeometry(0.045, 8, 8);
+  var pulses = [];
+  for(var i = 0; i < STREAM_COUNT; i++){
+    var mat = new THREE.MeshBasicMaterial({color:0xffb37a, transparent:true, opacity:0.9});
+    var mesh = new THREE.Mesh(pulseGeo, mat);
+    scene.add(mesh);
+    pulses.push({mesh:mesh, phase:i / STREAM_COUNT, mat:mat});
+  }
+
+  // contaminant specks: raw water carries these in, and they visibly vanish once a filter stage catches them
+  var CONTAM_COUNT = 16;
+  var contamGeo = new THREE.SphereGeometry(0.028, 6, 6);
+  var contaminants = [];
+  for(var j = 0; j < CONTAM_COUNT; j++){
+    var cmat = new THREE.MeshBasicMaterial({color:0x9a7a4a, transparent:true, opacity:0.85});
+    var cmesh = new THREE.Mesh(contamGeo, cmat);
+    scene.add(cmesh);
+    contaminants.push({
+      mesh:cmesh, mat:cmat,
+      phase: Math.random() * 0.28,
+      vanishAt: 0.12 + Math.random() * 0.46,
+      jitter: new THREE.Vector3((Math.random() - 0.5) * 0.07, (Math.random() - 0.5) * 0.07, (Math.random() - 0.5) * 0.07)
+    });
+  }
+
+  var glowLight1 = new THREE.PointLight(0x3fd8ff, 1.3, 3.5);
+  var glowLight2 = new THREE.PointLight(0xffb37a, 1.0, 3);
+  scene.add(glowLight1, glowLight2);
+
+  // water landing in a glass at the tap
+  var spoutPos = pts[7].clone();
+  var glassTopY = tapGlass.position.y + 0.25;
+  var tapStream = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.015, 0.015, Math.max(0.05, spoutPos.y - glassTopY), 8, 1, true),
+    new THREE.MeshBasicMaterial({color:0xcdf5ff, transparent:true, opacity:0.55})
+  );
+  tapStream.position.set(spoutPos.x, (spoutPos.y + glassTopY) / 2, spoutPos.z);
+  scene.add(tapStream);
+
+  var fillBaseY = tapGlass.position.y - 0.23;
+  var waterFill = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.17, 0.12, 1, 20),
+    new THREE.MeshStandardMaterial({color:0x9ff7e0, emissive:0x9ff7e0, emissiveIntensity:0.4, transparent:true, opacity:0.85})
+  );
+  waterFill.scale.y = 0.001;
+  waterFill.position.set(tapGlass.position.x, fillBaseY, tapGlass.position.z);
+  scene.add(waterFill);
+
+  var colorStops = [
+    {t:0.00, c:new THREE.Color(0xffb37a)},
+    {t:0.32, c:new THREE.Color(0xffb37a)},
+    {t:0.34, c:new THREE.Color(0x9fb8c7)},
+    {t:0.62, c:new THREE.Color(0x9fb8c7)},
+    {t:0.65, c:new THREE.Color(0x7ce0ff)},
+    {t:0.88, c:new THREE.Color(0x7ce0ff)},
+    {t:0.92, c:new THREE.Color(0x9ff7e0)},
+    {t:1.00, c:new THREE.Color(0x9ff7e0)}
+  ];
+  function colorAt(t){
+    for(var k = 0; k < colorStops.length - 1; k++){
+      var a = colorStops[k], b = colorStops[k + 1];
+      if(t >= a.t && t <= b.t){
+        var local = b.t === a.t ? 0 : (t - a.t) / (b.t - a.t);
+        return a.c.clone().lerp(b.c, local);
+      }
+    }
+    return colorStops[colorStops.length - 1].c.clone();
+  }
+
+  orbit = makeOrbit(renderer.domElement, camera, new THREE.Vector3(-0.4, 1.1, -0.2), {radius:9.8, theta:0.75, phi:1.2, minRadius:2.5, maxRadius:15});
+
+  raycaster = new THREE.Raycaster();
+  pointer = new THREE.Vector2();
+  orbit.setClickHandler(function(e){
+    var rect = renderer.domElement.getBoundingClientRect();
+    pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+    raycaster.setFromCamera(pointer, camera);
+    var hits = raycaster.intersectObjects(pickables);
+    if(hits.length > 0){
+      var key = hits[0].object.userData.stageKey;
+      if(key) selectStage(key);
+    }
+  });
+
+  var speed = 0.11;
+  var clock = new THREE.Clock();
+  var elapsed = 0;
+  function animate(){
+    requestAnimationFrame(animate);
+    var dt = Math.min(clock.getDelta(), 0.05);
+    elapsed += dt;
+    orbit.tick(dt);
+
+    pulses.forEach(function(p, i){
+      p.phase = (p.phase + dt * speed) % 1;
+      var pos = curve.getPointAt(p.phase);
+      p.mesh.position.copy(pos);
+      var c = colorAt(p.phase);
+      p.mat.color.copy(c);
+      if(i === 0){ glowLight1.position.copy(pos); glowLight1.color.copy(c); }
+      if(i === 4){ glowLight2.position.copy(pos); glowLight2.color.copy(c); }
+    });
+
+    contaminants.forEach(function(c){
+      c.phase += dt * speed * 0.9;
+      if(c.phase >= c.vanishAt){
+        c.phase = 0;
+        c.vanishAt = 0.12 + Math.random() * 0.46;
+        c.jitter.set((Math.random() - 0.5) * 0.07, (Math.random() - 0.5) * 0.07, (Math.random() - 0.5) * 0.07);
+      }
+      var pos = curve.getPointAt(Math.min(c.phase, 0.999));
+      c.mesh.position.set(pos.x + c.jitter.x, pos.y + c.jitter.y, pos.z + c.jitter.z);
+      var fadeStart = c.vanishAt - 0.06;
+      var fade = c.phase < fadeStart ? 1 : Math.max(0, 1 - (c.phase - fadeStart) / 0.06);
+      c.mat.opacity = 0.85 * fade;
+    });
+
+    tapStream.material.opacity = 0.4 + 0.25 * Math.abs(Math.sin(elapsed * 6));
+    var fillCycle = (elapsed % 7) / 7;
+    var h = Math.max(0.02, fillCycle * 0.36);
+    waterFill.scale.y = h;
+    waterFill.position.y = fillBaseY + h / 2;
+
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', function(){
+    if(!container.clientWidth) return;
+    camera.aspect = container.clientWidth / container.clientHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(container.clientWidth, container.clientHeight);
+  });
+}
+
+// ============================================================
+// STAGE / SYSTEM DATA + UI WIRING
+// ============================================================
+var stageOrder = ['sediment', 'carbon', 'ro', 'tap'];
+var stageDataBySystem = {
+  whole: {
+    sediment: {title:'Sediment Pre-Filter', desc:'Reduces sediment before it reaches the rest of the system, so every stage downstream lasts longer.'},
+    carbon:   {title:'Carbon Block', desc:'Reduces chlorine — the taste and smell most people notice first from Australian tap water.'},
+    ro:       {title:'Mineral Balance', desc:'Balances excess minerals so water stays gentle on skin, hair and appliances at every outlet.'},
+    tap:      {title:'Filtered Output', desc:'Every tap, shower and appliance in the house now delivers filtered water.'}
+  },
+  undersink: {
+    sediment: {title:'Sediment Pre-Filter', desc:'Pre-filters incoming water before it reaches the drinking-water cartridges.'},
+    carbon:   {title:'Carbon Block', desc:'Removes the chlorine taste and odour that puts most people off Australian tap water.'},
+    ro:       {title:'Reverse Osmosis', desc:'A final membrane clears what the earlier cartridges miss, for great-tasting water on demand.'},
+    tap:      {title:'Drinking Tap', desc:'Clean, filtered drinking water straight from the kitchen tap — no bottled water required.'}
+  },
+  rain: {
+    sediment: {title:'Three-Stage Canisters', desc:'Filter out leaf litter, dirt and sediment collected in the tank.'},
+    carbon:   {title:'Carbon Stage', desc:'Clears any taste or odour the tank water has picked up.'},
+    ro:       {title:'UV Sterilisation', desc:'Eliminates the bacteria and pathogens untreated tank water can carry.'},
+    tap:      {title:'Safe Output', desc:'Safe to drink, cook with and bathe in, every day, straight from the tank.'}
+  }
+};
+var roDotLabel = {whole:'Minerals', undersink:'RO', rain:'UV'};
+var systemData = {
+  whole: {title:'Whole-house filtration', subtitle:'Sits on the main line where water enters — every tap in the house runs through it.', before:'$1,240', after:'$610', savings:'$630', bottles:'3,650', waste:'61 kg'},
+  undersink: {title:'Under-sink filtration', subtitle:'Fits beneath the kitchen sink and treats water right before it reaches the tap.', before:'$480', after:'$260', savings:'$220', bottles:'1,900', waste:'24 kg'},
+  rain: {title:'Rainwater filtration', subtitle:'UV treatment for tank water, making every drop safe to drink, cook and bathe with.', before:'$380', after:'$340', savings:'$40', bottles:'900', waste:'11 kg'}
+};
+
+var currentStage = 'carbon';
+var currentSystem = 'whole';
+var autoplayTimer = null;
+var isPlaying = false;
+
+function selectStage(key, skipZoom){
+  currentStage = key;
+  var d = stageDataBySystem[currentSystem][key];
+  var idx = stageOrder.indexOf(key);
+
+  document.getElementById('detailEyebrow').textContent = 'STAGE ' + (idx + 1) + ' OF ' + stageOrder.length;
+  document.getElementById('detailTitle').textContent = d.title;
+  document.getElementById('detailDesc').textContent = d.desc;
+  document.getElementById('stageCount').textContent = 'Stage ' + (idx + 1) + ' of ' + stageOrder.length + ' stages';
+  document.getElementById('progressFill').style.width = (((idx + 1) / stageOrder.length) * 100) + '%';
+
+  document.querySelectorAll('.stage-dot-btn').forEach(function(btn){
+    btn.classList.toggle('active', btn.dataset.stage === key);
+  });
+
+  Object.keys(stageCores).forEach(function(k){
+    var mat = stageCores[k].material;
+    if(mat && 'emissiveIntensity' in mat) mat.emissiveIntensity = (k === key) ? 0.9 : 0.28;
+  });
+
+  if(!skipZoom && orbit && stagePositions[key]){
+    var closeRadius = key === 'tap' ? 1.6 : 2.1;
+    orbit.focus(stagePositions[key], closeRadius, 850);
+  }
+}
+
+document.querySelectorAll('.stage-dot-btn').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    stopAutoplay();
+    selectStage(btn.dataset.stage);
+  });
+});
+
+document.getElementById('simReset').addEventListener('click', function(){
+  stopAutoplay();
+  if(orbit) orbit.reset();
+});
+
+function stopAutoplay(){
+  isPlaying = false;
+  clearInterval(autoplayTimer);
+  document.getElementById('playIcon').innerHTML = '<polygon points="6,4 20,12 6,20"/>';
+}
+function startAutoplay(){
+  isPlaying = true;
+  document.getElementById('playIcon').innerHTML = '<rect x="5" y="4" width="5" height="16"/><rect x="14" y="4" width="5" height="16"/>';
+  autoplayTimer = setInterval(function(){
+    var idx = stageOrder.indexOf(currentStage);
+    var next = stageOrder[(idx + 1) % stageOrder.length];
+    selectStage(next);
+  }, 3200);
+}
+document.getElementById('playBtn').addEventListener('click', function(){
+  if(isPlaying) stopAutoplay(); else startAutoplay();
+});
+
+function selectSystem(sysKey){
+  currentSystem = sysKey;
+  document.querySelectorAll('.side-btn').forEach(function(btn){
+    btn.classList.toggle('active', btn.dataset.sys === sysKey);
+  });
+  var s = systemData[sysKey];
+  document.getElementById('sysTitle').textContent = s.title;
+  document.getElementById('sysSubtitle').textContent = s.subtitle;
+  document.getElementById('costBefore').textContent = s.before;
+  document.getElementById('costAfter').textContent = s.after;
+  document.getElementById('costSavings').textContent = s.savings;
+  document.getElementById('impactBottles').textContent = s.bottles;
+  document.getElementById('impactWaste').textContent = s.waste;
+  var roDot = document.querySelector('.stage-dot-btn[data-stage="ro"] span:last-child');
+  if(roDot) roDot.textContent = roDotLabel[sysKey];
+  stopAutoplay();
+  if(orbit) orbit.reset();
+  selectStage(currentStage, true);
+}
+document.querySelectorAll('.side-btn').forEach(function(btn){
+  btn.addEventListener('click', function(){ selectSystem(btn.dataset.sys); });
+});
+
+window.addEventListener('load', function(){
+  buildScene();
+  selectStage('carbon');
+});
+</script>
+</body>
+</html>
