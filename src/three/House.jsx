@@ -6,22 +6,22 @@ import { CHIMNEY, DECK, FRONT_SOLID_X1, HOUSE, STEPPING_STONES } from './layout'
 import FadeGroup from './parts/FadeGroup'
 
 /** Base colours only — the timber surfaces are the ones slated for textures later. */
-const CLADDING = { color: 0x2c3136, roughness: 0.85, metalness: 0.05 }
-const ROOF = { color: 0xbcc1c6, roughness: 0.55, metalness: 0.25 }
-const SEAM = { color: 0xa7adb3, roughness: 0.5, metalness: 0.3 }
+const CLADDING = { color: 0x4E575F, roughness: 5, metalness: 0 }
+const ROOF = { color: 0x4E575F, roughness: 0.55, metalness: 0.25 }
+const SEAM = { color: 0x4E575F, roughness: 0.5, metalness: 0.3 }
 const OAK = { color: 0xd6b48a, roughness: 0.7, metalness: 0 }
-const DECK_TIMBER = { color: 0xdcbf95, roughness: 0.75, metalness: 0 }
-const FLOOR_TIMBER = { color: 0xd9c4a2, roughness: 0.8, metalness: 0 }
-const LINING = { color: 0xf2f1ec, roughness: 0.9, metalness: 0 }
-const FLUE = { color: 0xe4e4e0, roughness: 0.4, metalness: 0.3 }
-const STONE = { color: 0xb6bbc0, roughness: 0.9, metalness: 0 }
+const DECK_TIMBER = { color: 0x4E575F, roughness: 0.75, metalness: 0 }
+const FLOOR_TIMBER = { color: 0x4E575F, roughness: 0.8, metalness: 0 }
+const LINING = { color: 0x4E575F, roughness: 0.9, metalness: 0 }
+const FLUE = { color: 0x4E575F, roughness: 0.4, metalness: 0.3 } // the fucking chimney
+const STONE = { color: 0x4E575F, roughness: 0.9, metalness: 0 }
 const GLASS = {
   color: 0xcfe6f2,
   roughness: 0.08,
   metalness: 0,
   envMapIntensity: 0.4,
   transparent: true,
-  opacity: 0.2,
+  opacity: 0.4,
 }
 
 const { w: W, d: D, wallH, ridgeH, overhang: OV, wallT, floorY } = HOUSE
