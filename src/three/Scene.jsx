@@ -1,32 +1,32 @@
 import { useEffect } from 'react'
-import * as THREE from 'three'
 import { useOrbitRig } from '../hooks/useOrbitRig'
-import { LEGACY_LIGHT_SCALE } from './lighting'
-import { CANISTERS } from './waterline'
-import Canister from './Canister'
+import Grass from './Grass'
+import Ground from './Ground'
 import House from './House'
-import ServiceLine from './ServiceLine'
-import TapAssembly from './TapAssembly'
+import Kitchen from './Kitchen'
+import Lighting from './Lighting'
+import SceneEnvironment from './SceneEnvironment'
 import WaterFlow from './WaterFlow'
+import RainwaterUnit from './products/RainwaterUnit'
+import UnderSinkUnit from './products/UnderSinkUnit'
+import WholeHouseUnit from './products/WholeHouseUnit'
+import { HOME_VIEW, SYSTEMS } from './systems'
 
-/** Opening framing — roughly chest height at the middle of the house. */
-const ORBIT_TARGET = new THREE.Vector3(-0.4, 1.1, -0.2)
 const ORBIT_OPTIONS = {
-  target: ORBIT_TARGET,
-  radius: 9.8,
-  theta: 0.75,
-  phi: 1.2,
-  minRadius: 2.5,
-  maxRadius: 15,
+  ...HOME_VIEW,
+  minRadius: 1.1,
+  maxRadius: 20,
+  autoRotateSpeed: 0.04,
 }
 
 /**
  * Everything inside the <Canvas>. Owns the camera rig and publishes its
- * imperative API (focus/reset) to `rigRef` so the surrounding UI can drive
+ * imperative API (flyTo/reset) to `rigRef` so the surrounding UI can drive
  * the camera without re-rendering the scene.
  */
-export default function Scene({ currentStage, onSelectStage, rigRef }) {
+export default function Scene({ currentSystem, currentStage, focused, onPick, rigRef }) {
   const rig = useOrbitRig(ORBIT_OPTIONS)
+  const system = SYSTEMS[currentSystem]
 
   useEffect(() => {
     rigRef.current = rig
@@ -36,47 +36,39 @@ export default function Scene({ currentStage, onSelectStage, rigRef }) {
   }, [rig, rigRef])
 
   /**
-   * Suppress selection when the pointer was dragged: the same 6px threshold
-   * the legacy rig used before it fired its raycast. stopPropagation keeps
-   * only the nearest hit, matching the old `hits[0]` behaviour.
+   * Products call this with a stage key (or null for "the unit as a whole").
+   * A drag that happens to end on a mesh is not a pick — same 6px threshold
+   * the rig uses to tell the two apart.
    */
-  const pick = (stageKey) => (event) => {
-    event.stopPropagation()
+  const pickFor = (systemKey) => (stageKey) => {
     if (!rig.wasClick()) return
-    onSelectStage(stageKey)
+    onPick(systemKey, stageKey)
   }
+
+  const unitProps = (key) => ({
+    active: currentSystem === key,
+    /** covers go see-through only once the camera has flown in */
+    revealed: focused && currentSystem === key,
+    selectedStage: currentStage,
+    accent: SYSTEMS[key].accentColor,
+    onPick: pickFor(key),
+  })
 
   return (
     <>
-      <fogExp2 attach="fog" args={[0x050f1c, 0.045]} />
+      <SceneEnvironment intensity={0.55} />
+      <Lighting accent={system.accentColor} />
 
-      <ambientLight color={0x2a3f55} intensity={1.2 * LEGACY_LIGHT_SCALE} />
-      <directionalLight
-        color={0x9fd8ff}
-        intensity={0.45 * LEGACY_LIGHT_SCALE}
-        position={[4, 6, 3]}
-      />
+      <Ground accent={system.accentColor} />
+      <Grass accent={system.accentColor} />
+      <House cutaway={focused && currentSystem === 'undersink'} />
+      <Kitchen accent={SYSTEMS.undersink.accent} />
 
-      <gridHelper args={[20, 20, 0x1c3654, 0x101f36]} position={[0, 0, 0]} />
+      <WholeHouseUnit {...unitProps('whole')} />
+      <UnderSinkUnit {...unitProps('undersink')} />
+      <RainwaterUnit {...unitProps('rain')} />
 
-      <House />
-      <ServiceLine />
-
-      {CANISTERS.map((c) => (
-        <Canister
-          key={c.key}
-          position={c.position}
-          color={c.color}
-          radius={c.radius}
-          height={c.height}
-          selected={currentStage === c.key}
-          onClick={pick(c.key)}
-        />
-      ))}
-
-      <TapAssembly selected={currentStage === 'tap'} onClick={pick('tap')} />
-
-      <WaterFlow />
+      <WaterFlow key={currentSystem} system={system} />
     </>
   )
 }

@@ -19,9 +19,10 @@ export default function Sidebar({ currentSystem, onSelectSystem }) {
             className={`side-btn${active ? ' active' : ''}`}
             onClick={() => onSelectSystem(key)}
             aria-pressed={active}
+            data-system={key}
           >
             <span className="ico">
-              <Icon active={active} />
+              <Icon />
             </span>
             <span>{SIDEBAR_LABELS[key]}</span>
           </button>

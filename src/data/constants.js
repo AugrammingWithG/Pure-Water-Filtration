@@ -1,7 +1,7 @@
 // ============================================================
-// Stage / system copy — ported verbatim from the legacy prototype
-// (legacy/filtration-simulation.html). Nothing here is derived from
-// the 3D scene; components read all of their strings from this file.
+// Stage / system copy. Nothing here is derived from the 3D scene;
+// components read all of their strings from this file. The matching
+// geometry (camera views, focus points, water paths) is in three/systems.js.
 // ============================================================
 
 export const STAGE_ORDER = ['sediment', 'carbon', 'ro', 'tap']
@@ -65,9 +65,11 @@ export const STAGE_DATA_BY_SYSTEM = {
 
 export const SYSTEM_DATA = {
   whole: {
-    title: 'Whole-house filtration',
+    title: 'Whole-House Water Filter',
     subtitle:
-      'Sits on the main line where water enters — every tap in the house runs through it.',
+      'A multi-stage unit that treats water where the mains enters the home — reduces sediment, chlorine and excess minerals for every tap.',
+    placement:
+      'At the point of entry — outside wall, garage or utility cupboard where the main line comes in.',
     before: '$1,240',
     after: '$610',
     savings: '$630',
@@ -75,9 +77,10 @@ export const SYSTEM_DATA = {
     waste: '61 kg',
   },
   undersink: {
-    title: 'Under-sink filtration',
+    title: 'Under-Sink Filter (Reverse Osmosis)',
     subtitle:
-      'Fits beneath the kitchen sink and treats water right before it reaches the tap.',
+      'A drinking-water unit that tucks under the kitchen bench and feeds its own dedicated tap.',
+    placement: 'Inside the under-sink cabinet in the kitchen.',
     before: '$480',
     after: '$260',
     savings: '$220',
@@ -85,9 +88,10 @@ export const SYSTEM_DATA = {
     waste: '24 kg',
   },
   rain: {
-    title: 'Rainwater filtration',
+    title: 'Rainwater Filtration (UV)',
     subtitle:
-      'UV treatment for tank water, making every drop safe to drink, cook and bathe with.',
+      'Three filter canisters plus a UV unit that makes tank water safe to drink.',
+    placement: 'Outside by the rainwater tank, or where the tank line enters the house.',
     before: '$380',
     after: '$340',
     savings: '$40',
@@ -111,11 +115,11 @@ export const SYSTEM_ORDER = ['whole', 'undersink', 'rain']
 export const SIDEBAR_LABELS = {
   whole: 'Whole House',
   undersink: 'Under Sink',
-  rain: 'Rain Water',
+  rain: 'Rainwater',
 }
 
 export const DEFAULT_SYSTEM = 'whole'
-export const DEFAULT_STAGE = 'carbon'
+export const DEFAULT_STAGE = 'sediment'
 
 /** Autoplay advances one stage every 3.2s, matching the legacy setInterval. */
 export const AUTOPLAY_INTERVAL_MS = 3200

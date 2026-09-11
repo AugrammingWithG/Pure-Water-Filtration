@@ -1,4 +1,4 @@
-/** Static sparkline — the legacy markup hard-codes both polylines. */
+/** Static sparkline; the filtered line takes the active system's accent. */
 export default function TrendCard() {
   return (
     <div className="float-card card-trend">
@@ -7,14 +7,14 @@ export default function TrendCard() {
         <polyline
           points="0,34 25,30 50,24 75,26 100,16 125,12 150,8"
           fill="none"
-          stroke="#3FD8FF"
+          style={{ stroke: 'var(--accent)' }}
           strokeWidth="2"
           strokeLinecap="round"
         />
         <polyline
           points="0,40 25,39 50,40 75,38 100,39 125,38 150,39"
           fill="none"
-          stroke="#FFB37A"
+          style={{ stroke: 'var(--amber)' }}
           strokeWidth="2"
           strokeLinecap="round"
           opacity="0.7"
@@ -22,11 +22,11 @@ export default function TrendCard() {
       </svg>
       <div className="trend-legend">
         <span>
-          <i className="dot" style={{ background: '#3FD8FF' }} />
+          <i className="dot" style={{ background: 'var(--accent)' }} />
           Filtered
         </span>
         <span>
-          <i className="dot" style={{ background: '#FFB37A' }} />
+          <i className="dot" style={{ background: 'var(--amber)' }} />
           Unfiltered
         </span>
       </div>
