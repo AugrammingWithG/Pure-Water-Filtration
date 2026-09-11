@@ -1,0 +1,171 @@
+/* ============================================================
+   Ported from the legacy prototype's <style> block. Only the
+   canvas-wrapper selectors changed (id -> class), plus the
+   grabbing-cursor rule now targets the canvas the rig flags.
+   ============================================================ */
+
+:root{
+  --navy-deep:#050F1C;
+  --navy:#0A1E32;
+  --panel:rgba(10,28,46,0.78);
+  --cyan:#3FD8FF;
+  --azure:#2E8FE0;
+  --mint:#7CF2D0;
+  --amber:#FFB37A;
+  --ink:#EAF4FB;
+  --ink-dim:#8FADC4;
+  --line:rgba(255,255,255,0.08);
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body,#root{height:100%;}
+body{
+  font-family:'Inter',sans-serif;
+  background:
+    radial-gradient(ellipse 900px 500px at 85% 10%, rgba(63,216,255,0.10), transparent 60%),
+    radial-gradient(ellipse 700px 500px at 5% 95%, rgba(46,143,224,0.10), transparent 60%),
+    var(--navy-deep);
+  color:var(--ink);
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,.display{font-family:'Space Grotesk',sans-serif;}
+button{font-family:inherit; cursor:pointer; border:none; background:none; color:inherit;}
+
+.app{height:100vh; display:flex; flex-direction:column;}
+
+/* ---------- HEADER ---------- */
+header{
+  display:flex; align-items:flex-start; justify-content:space-between;
+  padding:22px 30px 16px;
+}
+header h1{font-size:18px; font-weight:600;}
+header p{font-size:12.5px; color:var(--ink-dim); margin-top:4px; max-width:420px; line-height:1.5;}
+.browse-btn{
+  font-size:12.5px; font-weight:600; color:var(--ink-dim);
+  border:1px solid var(--line); padding:8px 16px; border-radius:20px;
+  background:rgba(255,255,255,0.03);
+}
+.browse-btn:hover{color:var(--ink); border-color:rgba(255,255,255,0.25);}
+
+/* ---------- MAIN LAYOUT ---------- */
+main{flex:1; display:flex; position:relative; min-height:0;}
+
+/* sidebar */
+.sidebar{
+  width:76px; flex-shrink:0; display:flex; flex-direction:column;
+  align-items:center; gap:10px; padding-top:8px;
+}
+.side-btn{
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+  padding:10px 6px; border-radius:12px; width:64px;
+}
+.side-btn .ico{
+  width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center;
+  border:1px solid var(--line); background:rgba(255,255,255,0.02);
+}
+.side-btn span{font-size:9.5px; color:var(--ink-dim); font-weight:600; text-align:center; line-height:1.2;}
+.side-btn.active .ico{border-color:rgba(63,216,255,0.5); background:rgba(63,216,255,0.12); box-shadow:0 0 16px rgba(63,216,255,0.25);}
+.side-btn.active span{color:var(--cyan);}
+.side-btn:hover .ico{border-color:rgba(255,255,255,0.25);}
+
+/* canvas region */
+.stage-region{flex:1; position:relative; min-width:0;}
+.sim-canvas-wrap{position:absolute; inset:0; cursor:grab;}
+.sim-canvas-wrap canvas{display:block; width:100%; height:100%;}
+/* the orbit rig toggles .dragging on the canvas element it listens to */
+.sim-canvas-wrap canvas.dragging{cursor:grabbing;}
+
+.view-controls{
+  position:absolute; top:16px; right:16px; z-index:6; display:flex; gap:8px;
+}
+.chip-btn{
+  font-size:11px; font-weight:600; color:var(--ink-dim);
+  background:rgba(6,20,35,0.6); backdrop-filter:blur(6px);
+  padding:6px 12px; border-radius:7px; border:1px solid var(--line);
+}
+.chip-btn:hover{color:var(--cyan); border-color:rgba(63,216,255,0.4);}
+
+/* floating cards */
+.float-card{
+  position:absolute; z-index:5;
+  background:var(--panel); backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,0.09);
+  border-radius:14px; padding:16px 18px;
+  box-shadow:0 20px 50px rgba(0,0,0,0.4);
+  pointer-events:none;
+}
+.float-card .fc-label{font-size:10px; text-transform:uppercase; letter-spacing:0.07em; color:var(--ink-dim); font-weight:700; margin-bottom:10px;}
+
+.card-cost{top:15%; left:6%; width:190px;}
+.cost-row{display:flex; gap:18px; align-items:flex-end; margin-bottom:12px;}
+.cost-col span{display:block; font-size:9.5px; color:var(--ink-dim);}
+.cost-col b{font-family:'Space Grotesk',sans-serif; font-size:19px; font-weight:600;}
+.cost-before b{color:var(--amber);}
+.cost-after b{color:var(--mint);}
+.savings-pill{
+  display:inline-flex; align-items:center; gap:6px; background:rgba(124,242,208,0.14);
+  color:var(--mint); font-size:12px; font-weight:700; padding:6px 12px; border-radius:8px;
+}
+
+.card-trend{bottom:9%; left:6%; width:190px;}
+.trend-legend{display:flex; gap:14px; margin-top:8px; font-size:10px; color:var(--ink-dim);}
+.trend-legend span{display:inline-flex; align-items:center; gap:5px;}
+.dot{width:6px; height:6px; border-radius:50%; display:inline-block;}
+
+.card-impact{bottom:9%; right:6%; width:190px;}
+.impact-row{display:flex; justify-content:space-between; margin-bottom:10px;}
+.impact-row:last-child{margin-bottom:0;}
+.impact-row b{font-family:'Space Grotesk',sans-serif; font-size:17px; font-weight:600; color:var(--ink);}
+.impact-row span{font-size:10px; color:var(--ink-dim); display:block; margin-top:2px;}
+
+.card-detail{
+  top:15%; right:6%; width:220px; pointer-events:auto;
+  transition:opacity 0.35s ease, transform 0.35s ease;
+}
+.card-detail .fc-eyebrow{font-size:10px; color:var(--cyan); font-weight:700; margin-bottom:4px;}
+.card-detail h3{font-size:16px; font-weight:600; margin-bottom:8px;}
+.card-detail p{font-size:12px; line-height:1.55; color:var(--ink-dim); margin-bottom:14px;}
+.detail-actions{display:flex; gap:6px; flex-wrap:wrap;}
+.detail-actions button{
+  font-size:10.5px; font-weight:600; color:var(--ink-dim);
+  border:1px solid var(--line); padding:6px 10px; border-radius:7px;
+  background:rgba(255,255,255,0.03);
+}
+.detail-actions button.primary{color:#04121F; background:linear-gradient(135deg,var(--cyan),var(--mint)); border-color:transparent;}
+
+@media(max-width:980px){
+  .card-cost, .card-trend, .card-impact, .card-detail{width:150px; padding:12px 14px;}
+  .cost-col b{font-size:15px;}
+}
+@media(max-width:760px){
+  .card-trend, .card-impact{display:none;}
+}
+
+/* ---------- BOTTOM PLAYBACK BAR ---------- */
+.playbar-wrap{
+  display:flex; flex-direction:column; align-items:center; gap:10px;
+  padding:0 0 22px;
+}
+.playbar{
+  display:flex; align-items:center; gap:14px;
+  background:var(--panel); backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,0.09);
+  border-radius:999px; padding:8px 10px 8px 8px;
+  box-shadow:0 16px 40px rgba(0,0,0,0.4);
+}
+.play-btn{
+  width:34px; height:34px; border-radius:50%;
+  background:linear-gradient(135deg,var(--cyan),var(--azure));
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.progress-track{width:220px; height:4px; border-radius:3px; background:rgba(255,255,255,0.1); position:relative; overflow:hidden;}
+.progress-fill{position:absolute; inset:0 auto 0 0; width:50%; background:linear-gradient(90deg,var(--cyan),var(--mint)); border-radius:3px; transition:width 0.5s ease;}
+.stage-count{font-size:11.5px; color:var(--ink-dim); white-space:nowrap; padding-right:6px;}
+
+.stage-dots{display:flex; gap:22px;}
+.stage-dot-btn{display:flex; flex-direction:column; align-items:center; gap:6px;}
+.stage-dot-btn .dotmark{width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.18); transition:all 0.25s ease;}
+.stage-dot-btn span{font-size:10px; color:var(--ink-dim); font-weight:600;}
+.stage-dot-btn.active .dotmark{background:var(--cyan); box-shadow:0 0 10px rgba(63,216,255,0.7);}
+.stage-dot-btn.active span{color:var(--cyan);}
+.stage-dot-btn:hover span{color:var(--ink);}
