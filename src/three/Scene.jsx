@@ -4,6 +4,7 @@ import Grass from './Grass'
 import Ground from './Ground'
 import House from './House'
 import Kitchen from './Kitchen'
+import Lighting from './Lighting'
 import SceneEnvironment from './SceneEnvironment'
 import WaterFlow from './WaterFlow'
 import RainwaterUnit from './products/RainwaterUnit'
@@ -55,26 +56,8 @@ export default function Scene({ currentSystem, currentStage, focused, onPick, ri
 
   return (
     <>
-      <SceneEnvironment intensity={0.6} />
-
-      <hemisphereLight args={[0xffffff, 0xd6dde4, 0.55]} />
-      <directionalLight
-        color={0xfff4e6}
-        intensity={2.4}
-        position={[7, 11, 6]}
-        castShadow
-        shadow-mapSize={[2048, 2048]}
-        shadow-bias={-0.0004}
-        shadow-normalBias={0.02}
-        shadow-camera-left={-9}
-        shadow-camera-right={9}
-        shadow-camera-top={9}
-        shadow-camera-bottom={-9}
-        shadow-camera-near={1}
-        shadow-camera-far={40}
-      />
-      {/* soft fill from the opposite side so the shadowed faces are not black */}
-      <directionalLight color={0xdfe9f5} intensity={0.5} position={[-6, 5, -4]} />
+      <SceneEnvironment intensity={0.55} />
+      <Lighting accent={system.accentColor} />
 
       <Ground accent={system.accentColor} />
       <Grass accent={system.accentColor} />

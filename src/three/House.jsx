@@ -1,5 +1,7 @@
 import { useMemo } from 'react'
+import { useTexture } from '@react-three/drei'
 import * as THREE from 'three'
+import woodCladdingMapUrl from '../assets/textures/wood/house-cladding.jpg'
 import { CHIMNEY, DECK, FRONT_SOLID_X1, HOUSE, STEPPING_STONES } from './layout'
 import FadeGroup from './parts/FadeGroup'
 
@@ -30,6 +32,105 @@ const SLAB_T = 0.08
 const SEAM_PITCH = 0.42
 const FRONT_Z = D / 2 - wallT / 2
 const HEADER_H = 0.22
+/** Posts between the glazed units, and the short wall under the window. */
+const POSTS = [0.325, 2.425]
+const POST_W = 0.15
+const SILL = { x0: 2.5, x1: 3.08, h: 0.95 }
+
+/**
+ * Vertical board cladding, built as geometry rather than a texture. Each
+ * board is a slab standing `proud` of the wall face with a 45° `chamfer`
+ * round its front edge, so where two boards meet there's a V-groove that
+ * catches the light. `pitch` is the board spacing — lower it for more, thinner
+ * boards, keeping `groove` well under it so each board keeps a flat face.
+ */
+const BOARD = { pitch: 0.08, groove: 0.014, chamfer: 0.006, proud: 0.018 }
+/** A board narrower than this would lose its whole face to the chamfer. */
+const MIN_BOARD = BOARD.groove * 2
+const BOARD_EXTRUDE = {
+  depth: BOARD.proud - BOARD.chamfer,
+  bevelEnabled: true,
+  bevelThickness: BOARD.chamfer,
+  bevelSize: BOARD.chamfer,
+  // pull the front face in by half a groove; the bevel then slopes back out
+  // to the board's full width, and the rear bevel sinks into the wall
+  bevelOffset: -BOARD.groove / 2,
+  bevelSegments: 1,
+}
+
+/** Height of the gable at `z`, measured from the wall's centre plane. */
+const gableTop = (z) => wallH + RISE * (1 - Math.abs(z) / (D / 2))
+
+/**
+ * Panels for each face, in that face's own plane: x along the face, y up.
+ * The gable runs `proud` past both corners so it wraps the ends of the
+ * boards on the back and front walls.
+ */
+const BACK_PANELS = [{ x0: -W / 2, x1: W / 2, y1: wallH }]
+const GABLE_PANELS = [
+  { x0: -D / 2 - BOARD.proud, x1: D / 2 + BOARD.proud, top: gableTop, breaks: [0] },
+]
+const FRONT_PANELS = [
+  { x0: -W / 2, x1: FRONT_SOLID_X1, y1: wallH },
+  { x0: FRONT_SOLID_X1, x1: W / 2, y0: wallH - HEADER_H, y1: wallH },
+  ...POSTS.map((x) => ({ x0: x - POST_W / 2, x1: x + POST_W / 2, y1: wallH - HEADER_H })),
+  { x0: SILL.x0, x1: SILL.x1, y1: SILL.h },
+]
+
+/**
+ * Board outlines for a run of panels that share a face. Boards sit on a
+ * common grid (`origin` is a board edge) so the grooves line up across the
+ * pieces of one wall — the header over the glazing continues the lines of
+ * the solid section beside it. A panel is either a rectangle (`y1`) or has a
+ * `top(x)` roof line, with `breaks` listing the x's where that line kinks
+ * (the ridge) so a board spanning one gets a vertex there.
+ */
+function boardShapes(panels, origin) {
+  const shapes = []
+  for (const { x0, x1, y0 = 0, y1, top, breaks = [] } of panels) {
+    const topAt = top ?? (() => y1)
+    const edges = [x0]
+    const first = Math.ceil((x0 - origin) / BOARD.pitch - 1e-6)
+    for (let x = origin + first * BOARD.pitch; x < x1 - 1e-6; x += BOARD.pitch) {
+      if (x > x0 + 1e-6) edges.push(x)
+    }
+    edges.push(x1)
+    // a sliver at either end reads as a mistake; fold it into its neighbour
+    if (edges.length > 2 && edges[1] - edges[0] < MIN_BOARD) edges.splice(1, 1)
+    if (edges.length > 2 && edges.at(-1) - edges.at(-2) < MIN_BOARD) edges.splice(-2, 1)
+
+    const kinks = [...breaks].sort((a, b) => b - a) // walked right to left along the top
+    for (let i = 0; i < edges.length - 1; i++) {
+      const bx0 = edges[i]
+      const bx1 = edges[i + 1]
+      const s = new THREE.Shape()
+      s.moveTo(bx0, y0)
+      s.lineTo(bx1, y0)
+      s.lineTo(bx1, topAt(bx1))
+      for (const k of kinks) if (k > bx0 && k < bx1) s.lineTo(k, topAt(k))
+      s.lineTo(bx0, topAt(bx0))
+      s.closePath()
+      shapes.push(s)
+    }
+  }
+  return shapes
+}
+
+/**
+ * One face's worth of cladding as a single mesh. Place it on the wall's
+ * outer surface with local +z pointing out of the wall.
+ */
+function Boards({ panels, origin = 0, ...props }) {
+  const geometry = useMemo(
+    () => new THREE.ExtrudeGeometry(boardShapes(panels, origin), BOARD_EXTRUDE),
+    [panels, origin],
+  )
+  return (
+    <mesh geometry={geometry} castShadow receiveShadow {...props}>
+      <meshStandardMaterial {...CLADDING} />
+    </mesh>
+  )
+}
 
 /** Gable end: a pentagon in the y/z plane, one wall-thickness deep. */
 function useGableGeometry() {
@@ -50,7 +151,7 @@ function useGableGeometry() {
 }
 
 /** A glazed opening: oak frame, optional centre mullion, a pane of glass. */
-function Glazing({ x0, x1, y0, y1, mullion = false }) {
+function Glazing({ x0, x1, y0, y1, mullion = false, frameMap }) {
   const fw = 0.06 // frame width
   const fd = 0.1 // frame depth
   const cx = (x0 + x1) / 2
@@ -61,24 +162,24 @@ function Glazing({ x0, x1, y0, y1, mullion = false }) {
     <group position={[cx, cy, FRONT_Z]}>
       <mesh position={[0, h / 2 - fw / 2, 0]} castShadow>
         <boxGeometry args={[w, fw, fd]} />
-        <meshStandardMaterial {...OAK} />
+        <meshStandardMaterial {...OAK} color={0xffffff} map={frameMap} />
       </mesh>
       <mesh position={[0, -h / 2 + fw / 2, 0]} castShadow>
         <boxGeometry args={[w, fw, fd]} />
-        <meshStandardMaterial {...OAK} />
+        <meshStandardMaterial {...OAK} color={0xffffff} map={frameMap} />
       </mesh>
       <mesh position={[-w / 2 + fw / 2, 0, 0]} castShadow>
         <boxGeometry args={[fw, h, fd]} />
-        <meshStandardMaterial {...OAK} />
+        <meshStandardMaterial {...OAK} color={0xffffff} map={frameMap} />
       </mesh>
       <mesh position={[w / 2 - fw / 2, 0, 0]} castShadow>
         <boxGeometry args={[fw, h, fd]} />
-        <meshStandardMaterial {...OAK} />
+        <meshStandardMaterial {...OAK} color={0xffffff} map={frameMap} />
       </mesh>
       {mullion && (
         <mesh position={[0, 0, 0.005]} castShadow>
           <boxGeometry args={[fw * 0.8, h - fw * 2, fd * 0.8]} />
-          <meshStandardMaterial {...OAK} />
+          <meshStandardMaterial {...OAK} color={0xffffff} map={frameMap} />
         </mesh>
       )}
       <mesh>
@@ -121,6 +222,20 @@ function RoofSlab({ front }) {
 export default function House({ cutaway = false }) {
   const gable = useGableGeometry()
   const chimneyBaseY = ridgeH - Math.abs(CHIMNEY.z) * Math.tan(SLOPE)
+  const woodBaseMap = useTexture(woodCladdingMapUrl)
+  const [floorMap, frameMap, deckMap] = useMemo(() => {
+    const configureMap = (repeatX, repeatY) => {
+      const map = woodBaseMap.clone()
+      map.wrapS = THREE.RepeatWrapping
+      map.wrapT = THREE.RepeatWrapping
+      map.repeat.set(repeatX, repeatY)
+      map.colorSpace = THREE.SRGBColorSpace
+      map.needsUpdate = true
+      return map
+    }
+
+    return [configureMap(4.5, 4.5), configureMap(1.2, 3.5), configureMap(6, 2.5)]
+  }, [woodBaseMap])
 
   return (
     <group>
@@ -129,7 +244,7 @@ export default function House({ cutaway = false }) {
       {/* floor slab */}
       <mesh position={[0, floorY / 2, 0]} receiveShadow>
         <boxGeometry args={[W - wallT * 2, floorY, D - wallT * 2]} />
-        <meshStandardMaterial {...FLOOR_TIMBER} />
+        <meshStandardMaterial {...FLOOR_TIMBER} color={0xffffff} map={floorMap} />
       </mesh>
 
       {/* back wall + white lining */}
@@ -141,6 +256,7 @@ export default function House({ cutaway = false }) {
         <boxGeometry args={[W - wallT * 2, wallH, 0.02]} />
         <meshStandardMaterial {...LINING} />
       </mesh>
+      <Boards panels={BACK_PANELS} origin={-W / 2} position={[0, 0, -D / 2]} rotation={[0, Math.PI, 0]} />
 
       {/* gable ends + linings */}
       {[-1, 1].map((s) => (
@@ -157,6 +273,12 @@ export default function House({ cutaway = false }) {
             <boxGeometry args={[0.02, wallH, D - wallT * 2]} />
             <meshStandardMaterial {...LINING} />
           </mesh>
+          <Boards
+            panels={GABLE_PANELS}
+            origin={-D / 2 - BOARD.proud}
+            position={[(s * W) / 2, 0, 0]}
+            rotation={[0, (s * Math.PI) / 2, 0]}
+          />
         </group>
       ))}
 
@@ -180,21 +302,23 @@ export default function House({ cutaway = false }) {
           <meshStandardMaterial {...CLADDING} />
         </mesh>
         {/* posts between the units */}
-        {[0.325, 2.425].map((x) => (
+        {POSTS.map((x) => (
           <mesh key={x} position={[x, (wallH - HEADER_H) / 2, FRONT_Z]} castShadow>
-            <boxGeometry args={[0.15, wallH - HEADER_H, wallT]} />
+            <boxGeometry args={[POST_W, wallH - HEADER_H, wallT]} />
             <meshStandardMaterial {...CLADDING} />
           </mesh>
         ))}
         {/* wall under the window sill */}
-        <mesh position={[2.79, 0.95 / 2, FRONT_Z]} castShadow>
-          <boxGeometry args={[0.58, 0.95, wallT]} />
+        <mesh position={[(SILL.x0 + SILL.x1) / 2, SILL.h / 2, FRONT_Z]} castShadow>
+          <boxGeometry args={[SILL.x1 - SILL.x0, SILL.h, wallT]} />
           <meshStandardMaterial {...CLADDING} />
         </mesh>
+        {/* boards grid from the glazing edge so a joint lands there, not a sliver */}
+        <Boards panels={FRONT_PANELS} origin={FRONT_SOLID_X1} position={[0, 0, D / 2]} />
 
-        <Glazing x0={-1.7} x1={0.25} y0={floorY} y1={wallH - HEADER_H} mullion />
-        <Glazing x0={0.4} x1={2.35} y0={floorY} y1={wallH - HEADER_H} mullion />
-        <Glazing x0={2.5} x1={3.08} y0={0.95} y1={wallH - HEADER_H} />
+        <Glazing x0={-1.7} x1={0.25} y0={floorY} y1={wallH - HEADER_H} mullion frameMap={frameMap} />
+        <Glazing x0={0.4} x1={2.35} y0={floorY} y1={wallH - HEADER_H} mullion frameMap={frameMap} />
+        <Glazing x0={2.5} x1={3.08} y0={0.95} y1={wallH - HEADER_H} frameMap={frameMap} />
       </FadeGroup>
 
       {/* ---------- roof (fades for the cutaway) ---------- */}
@@ -232,7 +356,7 @@ export default function House({ cutaway = false }) {
         receiveShadow
       >
         <boxGeometry args={[DECK.x1 - DECK.x0, DECK.h, DECK.z1 - DECK.z0]} />
-        <meshStandardMaterial {...DECK_TIMBER} />
+        <meshStandardMaterial {...DECK_TIMBER} color={0xffffff} map={deckMap} />
       </mesh>
       {/* step down at the right end */}
       <mesh
@@ -241,7 +365,7 @@ export default function House({ cutaway = false }) {
         receiveShadow
       >
         <boxGeometry args={[0.45, DECK.h / 2, DECK.z1 - DECK.z0]} />
-        <meshStandardMaterial {...DECK_TIMBER} />
+        <meshStandardMaterial {...DECK_TIMBER} color={0xffffff} map={deckMap} />
       </mesh>
 
       {/* stepping stones out toward the street */}

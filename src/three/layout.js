@@ -126,3 +126,15 @@ export const RAIN_UNIT = {
 
 /** Where the flue pokes through the back roof slab. */
 export const CHIMNEY = { x: 2.3, z: -0.55, r: 0.07, top: 4.15 }
+
+/**
+ * Directions the two main lights come from, shared by the direct rig
+ * (Lighting.jsx) and the studio bake it reflects (SceneEnvironment.jsx) so
+ * highlights on metal and glass line up with the shadows. Set for the home
+ * view, which looks in from the front-right: key sun from the front-left,
+ * rim from behind-right.
+ */
+export const LIGHTS = {
+  key: new THREE.Vector3(-7, 8, 9),
+  rim: new THREE.Vector3(5, 5, -9),
+}
