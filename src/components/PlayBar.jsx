@@ -35,6 +35,7 @@ export default function PlayBar({
             key={key}
             className={`stage-dot-btn${key === currentStage ? ' active' : ''}`}
             onClick={() => onSelectStage(key)}
+            data-stage={key}
           >
             <span className="dotmark" />
             <span>{dotLabelFor(key, currentSystem)}</span>

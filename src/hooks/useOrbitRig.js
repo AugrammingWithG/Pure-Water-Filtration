@@ -20,6 +20,16 @@ const MAX_DELTA = 0.05
 
 const clampPhi = (p) => Math.max(0.3, Math.min(Math.PI - 0.3, p))
 
+const TWO_PI = Math.PI * 2
+
+/** The angle equivalent to `to` (mod 2π) that is closest to `from`. */
+function nearestAngle(from, to) {
+  let d = (to - from) % TWO_PI
+  if (d > Math.PI) d -= TWO_PI
+  if (d < -Math.PI) d += TWO_PI
+  return from + d
+}
+
 export function useOrbitRig({
   target,
   radius = 7,
@@ -47,6 +57,9 @@ export function useOrbitRig({
       idleTime: 0,
       moved: 0,
       tween: null,
+      // idle drift is only wanted at the wide framing; a close-up would
+      // slowly orbit the camera into whatever the product is mounted on
+      autoRotate: true,
     }
   }
 
@@ -164,7 +177,9 @@ export function useOrbitRig({
         startPhi: s.phi,
         toTarget: toTarget.clone(),
         toRadius,
-        toTheta,
+        // theta is unbounded (auto-rotate keeps adding to it), so aim for the
+        // equivalent angle nearest to where we are instead of unwinding laps.
+        toTheta: toTheta === null ? null : nearestAngle(s.theta, toTheta),
         toPhi,
         t0: performance.now(),
         duration: duration || 850,
@@ -198,7 +213,7 @@ export function useOrbitRig({
     }
 
     s.idleTime += dt
-    if (!s.dragging && s.idleTime > IDLE_BEFORE_AUTOROTATE) {
+    if (s.autoRotate && !s.dragging && s.idleTime > IDLE_BEFORE_AUTOROTATE) {
       s.theta += d.autoRotateSpeed * dt
       updateCamera()
     }
@@ -206,14 +221,19 @@ export function useOrbitRig({
 
   return useMemo(
     () => ({
-      /** Fly the camera to `pos` at `radius`, keeping the current angles. */
-      focus(pos, toRadius, duration) {
-        tweenTo(pos, toRadius, null, null, duration)
+      /**
+       * Fly the camera to a view. `theta`/`phi` are optional — leave them out
+       * to keep whatever angle the user has orbited to.
+       */
+      flyTo({ target: to, radius: toRadius, theta: toTheta, phi: toPhi }, duration) {
+        stateRef.current.autoRotate = false
+        tweenTo(to, toRadius, toTheta ?? null, toPhi ?? null, duration)
       },
       /** Return to the opening framing. */
       reset() {
         const d = defaultsRef.current
-        tweenTo(d.initialTarget, d.radius, d.theta, d.phi, 800)
+        stateRef.current.autoRotate = true
+        tweenTo(d.initialTarget, d.radius, d.theta, d.phi, 900)
       },
       /**
        * True when the gesture that just ended was a click rather than a drag.

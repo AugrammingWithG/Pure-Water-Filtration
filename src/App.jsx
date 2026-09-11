@@ -15,40 +15,38 @@ import {
   STAGE_ORDER,
   SYSTEM_DATA,
 } from './data/constants'
-import { focusRadiusFor, STAGE_POSITIONS } from './three/waterline'
+import { stageView, SYSTEMS } from './three/systems'
 
-/** Camera fly-to duration when a stage is selected. */
-const FOCUS_DURATION = 850
+/** Camera fly-to duration for a stage; a little longer when changing system. */
+const STAGE_FLY_MS = 850
+const SYSTEM_FLY_MS = 1100
 
 export default function App() {
   const [currentSystem, setCurrentSystem] = useState(DEFAULT_SYSTEM)
   const [currentStage, setCurrentStage] = useState(DEFAULT_STAGE)
   const [isPlaying, setIsPlaying] = useState(false)
+  /**
+   * False at the wide opening view, true once the camera has flown to a
+   * product or stage. Drives the x-ray covers and the house cutaway, so the
+   * diorama stays intact until the user asks to look inside something.
+   */
+  const [focused, setFocused] = useState(false)
 
   /** Imperative handle on the camera rig, published by <Scene>. */
   const rigRef = useRef(null)
 
-  /** Mirror of currentStage the autoplay interval can read without resubscribing. */
+  /** Mirrors the autoplay interval can read without resubscribing. */
+  const systemRef = useRef(currentSystem)
   const stageRef = useRef(currentStage)
   useEffect(() => {
+    systemRef.current = currentSystem
     stageRef.current = currentStage
-  }, [currentStage])
+  }, [currentSystem, currentStage])
 
-  const selectStage = useCallback((key, skipZoom) => {
-    setCurrentStage(key)
-    if (!skipZoom) {
-      rigRef.current?.focus(STAGE_POSITIONS[key], focusRadiusFor(key), FOCUS_DURATION)
-    }
-  }, [])
-
-  // Opening move: the prototype flew to the default stage on load. Child
-  // effects run first, so the rig is already published by this point.
-  useEffect(() => {
-    rigRef.current?.focus(
-      STAGE_POSITIONS[DEFAULT_STAGE],
-      focusRadiusFor(DEFAULT_STAGE),
-      FOCUS_DURATION,
-    )
+  const selectStage = useCallback((systemKey, stageKey) => {
+    setCurrentStage(stageKey)
+    setFocused(true)
+    rigRef.current?.flyTo(stageView(systemKey, stageKey), STAGE_FLY_MS)
   }, [])
 
   useEffect(() => {
@@ -56,7 +54,7 @@ export default function App() {
     const id = setInterval(() => {
       const next =
         STAGE_ORDER[(STAGE_ORDER.indexOf(stageRef.current) + 1) % STAGE_ORDER.length]
-      selectStage(next)
+      selectStage(systemRef.current, next)
     }, AUTOPLAY_INTERVAL_MS)
     return () => clearInterval(id)
   }, [isPlaying, selectStage])
@@ -65,31 +63,43 @@ export default function App() {
   const handleStageDot = useCallback(
     (key) => {
       setIsPlaying(false)
-      selectStage(key)
+      selectStage(systemRef.current, key)
     },
     [selectStage],
   )
 
   /**
-   * Clicking a canister in the scene selects it but leaves autoplay running,
-   * matching the prototype (only the UI controls stopped it).
+   * Sidebar: switch system and fly the camera to that product. Clicking the
+   * system that is already active still flies there, so it doubles as a
+   * "take me to it" button after the user has orbited away.
+   */
+  const handleSelectSystem = useCallback((key) => {
+    setCurrentSystem(key)
+    setIsPlaying(false)
+    setFocused(true)
+    rigRef.current?.flyTo(SYSTEMS[key].view, SYSTEM_FLY_MS)
+  }, [])
+
+  /**
+   * Clicking a product in the scene. A stage key focuses that part (and
+   * switches system if the part belongs to another one); null means the
+   * unit as a whole was clicked, which behaves like the sidebar button.
    */
   const handleScenePick = useCallback(
-    (key) => {
-      selectStage(key)
+    (systemKey, stageKey) => {
+      if (stageKey === null) {
+        handleSelectSystem(systemKey)
+        return
+      }
+      setCurrentSystem(systemKey)
+      selectStage(systemKey, stageKey)
     },
-    [selectStage],
+    [handleSelectSystem, selectStage],
   )
 
   const handleResetView = useCallback(() => {
     setIsPlaying(false)
-    rigRef.current?.reset()
-  }, [])
-
-  /** Switching systems swaps all copy and returns the camera to the wide view. */
-  const handleSelectSystem = useCallback((key) => {
-    setCurrentSystem(key)
-    setIsPlaying(false)
+    setFocused(false)
     rigRef.current?.reset()
   }, [])
 
@@ -98,7 +108,7 @@ export default function App() {
   const stageIndex = STAGE_ORDER.indexOf(currentStage)
 
   return (
-    <div className="app">
+    <div className="app" data-system={currentSystem}>
       <Header title={system.title} subtitle={system.subtitle} />
 
       <main>
@@ -106,8 +116,10 @@ export default function App() {
 
         <div className="stage-region">
           <SimCanvas
+            currentSystem={currentSystem}
             currentStage={currentStage}
-            onSelectStage={handleScenePick}
+            focused={focused}
+            onPick={handleScenePick}
             rigRef={rigRef}
           />
 
@@ -117,17 +129,14 @@ export default function App() {
             </button>
           </div>
 
-          <CostCard
-            before={system.before}
-            after={system.after}
-            savings={system.savings}
-          />
+          <CostCard before={system.before} after={system.after} savings={system.savings} />
           <TrendCard />
           <ImpactCard bottles={system.bottles} waste={system.waste} />
           <DetailCard
             eyebrow={`STAGE ${stageIndex + 1} OF ${STAGE_ORDER.length}`}
             title={stage.title}
             desc={stage.desc}
+            placement={system.placement}
           />
         </div>
       </main>
