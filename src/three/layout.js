@@ -7,6 +7,9 @@ import * as THREE from 'three'
  * (systems.js) are all derived from the numbers here.
  */
 
+/** The circular plinth the whole diorama sits on. */
+export const GROUND = { radius: 7.4 }
+
 export const HOUSE = {
   w: 6.4, // along x
   d: 3.4, // along z
@@ -43,6 +46,30 @@ export const WHOLE_UNIT = {
 
 /** Street water meter the mains arrives from. */
 export const STREET_METER = new THREE.Vector3(-5.0, 0.06, 3.9)
+
+/**
+ * Gravel path from the edge of the plinth past the meter to the point of
+ * entry beside the deck. The buried mains runs under it, so the water pulses
+ * stay visible instead of disappearing into the grass. Points are [x, z]; the
+ * first one is deliberately past the rim and gets clamped to it.
+ */
+export const PATH = {
+  points: [
+    [-6.2, 4.45],
+    [-5.0, 3.9],
+    [-3.5, 3.25],
+    [-2.3, 2.45],
+    [-1.95, 1.75],
+  ],
+  halfWidth: 0.6,
+}
+
+/** Stepping stones set into the path, [x, z]. */
+export const STEPPING_STONES = [
+  [-2.35, 2.85],
+  [-2.9, 3.15],
+  [-3.45, 3.45],
+]
 
 /** Kitchen run along the inside of the back wall. */
 export const KITCHEN = {

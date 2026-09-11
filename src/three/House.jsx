@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import * as THREE from 'three'
-import { CHIMNEY, DECK, FRONT_SOLID_X1, HOUSE } from './layout'
+import { CHIMNEY, DECK, FRONT_SOLID_X1, HOUSE, STEPPING_STONES } from './layout'
 import FadeGroup from './parts/FadeGroup'
 
 /** Base colours only — the timber surfaces are the ones slated for textures later. */
@@ -245,11 +245,7 @@ export default function House({ cutaway = false }) {
       </mesh>
 
       {/* stepping stones out toward the street */}
-      {[
-        [-2.35, 2.85],
-        [-2.9, 3.15],
-        [-3.45, 3.45],
-      ].map(([x, z], i) => (
+      {STEPPING_STONES.map(([x, z], i) => (
         <mesh key={i} position={[x, 0.02, z]} rotation={[0, i * 0.5, 0]} receiveShadow>
           <cylinderGeometry args={[0.24, 0.26, 0.04, 10]} />
           <meshStandardMaterial {...STONE} />

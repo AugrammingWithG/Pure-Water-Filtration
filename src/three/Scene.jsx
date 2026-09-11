@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useOrbitRig } from '../hooks/useOrbitRig'
+import Grass from './Grass'
 import Ground from './Ground'
 import House from './House'
 import Kitchen from './Kitchen'
@@ -76,6 +77,7 @@ export default function Scene({ currentSystem, currentStage, focused, onPick, ri
       <directionalLight color={0xdfe9f5} intensity={0.5} position={[-6, 5, -4]} />
 
       <Ground accent={system.accentColor} />
+      <Grass accent={system.accentColor} />
       <House cutaway={focused && currentSystem === 'undersink'} />
       <Kitchen accent={SYSTEMS.undersink.accent} />
 
