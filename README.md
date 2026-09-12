@@ -39,13 +39,16 @@ That structure is what the scene reads:
   colour, so it is clear which product the walkthrough is on. See the note
   below on why edges rather than a grown shell.
 - **Water that changes where it is treated.** The colour ramp sits *across*
-  each element, so a droplet visibly clears while it is working through the
+  each element, so a bubble visibly clears while it is working through the
   cartridge instead of changing colour once it is already out the far side.
-- **Water that slows where it should.** Droplets are spaced evenly in *time*,
-  not distance, so they crowd together through media and in the pressure tank
-  and draw apart again in open pipe. Each stretches along its direction of
-  travel in proportion to its speed. Every system takes the same ten seconds
-  end to end however much of its route is slow.
+- **Water that slows where it should.** The stream is a column of fine bubbles,
+  spaced evenly in *time* rather than distance, so they crowd together through
+  media and in the pressure tank and draw apart again in open pipe — and can
+  never overtake one another. Each rides at its own distance from the
+  centreline and turns slowly around it, so the column churns instead of
+  sliding past rigid, and each stretches along its direction of travel in
+  proportion to its speed. Every system takes the same ten seconds end to end
+  however much of its route is slow.
 - **Grit that gets caught.** Specks riding in with the raw water are each given
   a point on the face of the first element to stop at, biased toward the
   leading edge, and sit there a moment before fading.
@@ -85,7 +88,7 @@ src/
     Ground.jsx             The diorama plinth
     House.jsx              Cabin shell, roof, glazing, deck; roof + front wall are a cutaway
     Kitchen.jsx            Bench, open sink cabinet, sink, mixer + filtered taps
-    WaterFlow.jsx          Route line, instanced droplets and grit along the active route
+    WaterFlow.jsx          Route line, instanced bubbles and grit along the active route
     StageMarkers.jsx       Numbered badges at the four stage positions
     products/
       WholeHouseUnit.jsx   Chamfered white cabinet, label plate, riser, street meter

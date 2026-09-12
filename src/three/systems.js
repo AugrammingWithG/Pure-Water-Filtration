@@ -224,7 +224,12 @@ function build({
      */
     markerOffset,
     markerScale,
-    /** Droplet size — the under-sink unit is small, so its water is too. */
+    /**
+     * Radius of the stream of bubbles: how wide the water runs, not how big
+     * one bubble is. The under-sink unit is small, so its water is too — and
+     * WaterFlow sizes and counts the bubbles off this, so the stream reads the
+     * same on all three however fine its gauge.
+     */
     pulseRadius,
     /**
      * The guide line tracing the route. Thinner than the narrowest pipe it
