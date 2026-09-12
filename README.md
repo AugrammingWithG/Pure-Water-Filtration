@@ -157,7 +157,8 @@ src/
   components/
     SimCanvas.jsx          <Canvas> wrapper and renderer configuration
     CostCard.jsx           Now vs filtered yearly spend; counts up as it arrives, saving derived on screen
-    Header.jsx Sidebar.jsx TrendCard.jsx ImpactCard.jsx
+    SavingsCard.jsx        The same two figures accumulated over five years: two lines from one origin, the gap the saving
+    Header.jsx Sidebar.jsx ImpactCard.jsx
     DetailCard.jsx icons.jsx
     PlayBar.jsx            Play/pause and the stage timeline: markers to jump, track to scrub
   styles/
