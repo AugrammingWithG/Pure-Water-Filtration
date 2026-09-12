@@ -579,9 +579,10 @@ export default function WaterFlow({ system, currentStage, paused = false, subscr
         stream={pulseRadius}
         count={count}
         activeSpan={activeSpan}
+        clock={clock}
         calmSpan={calmSpan}
       />
-      <Grit path={path} ride={ride} radius={pulseRadius * GRIT_SCALE} />
+      <Grit path={path} ride={ride} radius={pulseRadius * GRIT_SCALE} clock={clock} />
     </group>
   )
 }
