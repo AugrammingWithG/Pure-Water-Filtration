@@ -12,10 +12,10 @@
     "semantic_hash": "82374b667b85bf9e5a23644ffb5d77d7"
   },
   "src/App.jsx": {
-    "mtime": 1789198854.995597,
-    "seen": 1789199767.9773426,
-    "ast_hash": "11c11fb4036dde7e99c54bfb8137e310",
-    "semantic_hash": "11c11fb4036dde7e99c54bfb8137e310"
+    "mtime": 1789200225.401782,
+    "seen": 1789201581.9632576,
+    "ast_hash": "4673938a83e79829f7d72e9e593b4b5a",
+    "semantic_hash": "4673938a83e79829f7d72e9e593b4b5a"
   },
   "src/components/CostCard.jsx": {
     "mtime": 1789127548.2956774,
@@ -42,10 +42,10 @@
     "semantic_hash": "c6932f8061019398a5798d1a6862e01e"
   },
   "src/components/PlayBar.jsx": {
-    "mtime": 1789198855.0513663,
-    "seen": 1789199767.9773479,
-    "ast_hash": "491fe5a849863dbec7586abec1866ae8",
-    "semantic_hash": "491fe5a849863dbec7586abec1866ae8"
+    "mtime": 1789200225.4077814,
+    "seen": 1789201581.9632702,
+    "ast_hash": "e4d19f63e301b36b3c92bd76793a6e3c",
+    "semantic_hash": "e4d19f63e301b36b3c92bd76793a6e3c"
   },
   "src/components/Sidebar.jsx": {
     "mtime": 1789198855.0611582,
@@ -54,10 +54,10 @@
     "semantic_hash": "c696eef8fb95dceb2b0ba7b02e14f30d"
   },
   "src/components/SimCanvas.jsx": {
-    "mtime": 1789198855.0665865,
-    "seen": 1789199767.977351,
-    "ast_hash": "5cdabb0d18781c86e65ea66050b4f080",
-    "semantic_hash": "5cdabb0d18781c86e65ea66050b4f080"
+    "mtime": 1789200225.4125392,
+    "seen": 1789201581.9632747,
+    "ast_hash": "1c5ad6fb9364cc3729d53367d1dff5f4",
+    "semantic_hash": "1c5ad6fb9364cc3729d53367d1dff5f4"
   },
   "src/components/TrendCard.jsx": {
     "mtime": 1789198855.072744,
@@ -72,10 +72,10 @@
     "semantic_hash": "801bc9f54331121adb353aeb4c5029b0"
   },
   "src/data/constants.js": {
-    "mtime": 1789198855.120788,
-    "seen": 1789199767.97736,
-    "ast_hash": "974f60c77fbf07b144a76477a7105056",
-    "semantic_hash": "974f60c77fbf07b144a76477a7105056"
+    "mtime": 1789200225.4186854,
+    "seen": 1789201581.9632814,
+    "ast_hash": "523d3fcd80e610dc84803ab055baae76",
+    "semantic_hash": "523d3fcd80e610dc84803ab055baae76"
   },
   "src/hooks/useOrbitRig.js": {
     "mtime": 1789198855.1317873,
@@ -120,10 +120,10 @@
     "semantic_hash": "a512b443bfe5f10ecf7523a25e3c0ae0"
   },
   "src/three/Scene.jsx": {
-    "mtime": 1789198855.2264404,
-    "seen": 1789199767.9773715,
-    "ast_hash": "e625c255eac3da8fa5c5e89d57302378",
-    "semantic_hash": "e625c255eac3da8fa5c5e89d57302378"
+    "mtime": 1789200225.4346669,
+    "seen": 1789201581.9632995,
+    "ast_hash": "6a485e07d76197f35f46ccffac74beee",
+    "semantic_hash": "6a485e07d76197f35f46ccffac74beee"
   },
   "src/three/SceneEnvironment.jsx": {
     "mtime": 1789198855.2434626,
@@ -138,10 +138,10 @@
     "semantic_hash": "fd02d03dbed10691e628649a1141269a"
   },
   "src/three/WaterFlow.jsx": {
-    "mtime": 1789198855.2562482,
-    "seen": 1789199767.9773748,
-    "ast_hash": "de6ff670c0d57568bbc3242618cc80c0",
-    "semantic_hash": "de6ff670c0d57568bbc3242618cc80c0"
+    "mtime": 1789200225.4396667,
+    "seen": 1789201581.9633057,
+    "ast_hash": "dd43f1b920a55eb9200c85c17cee201f",
+    "semantic_hash": "dd43f1b920a55eb9200c85c17cee201f"
   },
   "src/three/layout.js": {
     "mtime": 1789198855.2622483,
@@ -216,10 +216,10 @@
     "semantic_hash": "8b024ff36b27793afed35e69ae6ed80f"
   },
   "src/three/systems.js": {
-    "mtime": 1789198855.3351028,
-    "seen": 1789199767.9773865,
-    "ast_hash": "3a8e3e2cd6af881e043ce0c7e016a4b4",
-    "semantic_hash": "3a8e3e2cd6af881e043ce0c7e016a4b4"
+    "mtime": 1789200225.4456658,
+    "seen": 1789201581.9633348,
+    "ast_hash": "496bbf57b408377613cb1f802c67c071",
+    "semantic_hash": "496bbf57b408377613cb1f802c67c071"
   },
   "vite.config.js": {
     "mtime": 1789127548.3046756,
@@ -228,10 +228,10 @@
     "semantic_hash": "199e1221ae03d6974fdc8b5e23787b98"
   },
   "README.md": {
-    "mtime": 1789198854.9569483,
-    "seen": 1789199767.9773884,
-    "ast_hash": "9e7371ef8d3dc9993fbb1bcdf6b75cba",
-    "semantic_hash": "9e7371ef8d3dc9993fbb1bcdf6b75cba"
+    "mtime": 1789200225.3957846,
+    "seen": 1789201581.9633427,
+    "ast_hash": "56716b3af433dda51a7fafff82c28224",
+    "semantic_hash": "56716b3af433dda51a7fafff82c28224"
   },
   "index.html": {
     "mtime": 1789198854.963625,
@@ -250,5 +250,23 @@
     "seen": 1789199767.977391,
     "ast_hash": "cf88e30cf44417987076bce8ade291b7",
     "semantic_hash": "cf88e30cf44417987076bce8ade291b7"
+  },
+  ".claude/settings.json": {
+    "mtime": 1789199910.617029,
+    "seen": 1789201581.9632406,
+    "ast_hash": "f54f03695056b81e22b71690d66f938e",
+    "semantic_hash": "f54f03695056b81e22b71690d66f938e"
+  },
+  "src/hooks/useWalkthrough.js": {
+    "mtime": 1789200225.4239495,
+    "seen": 1789201581.9632852,
+    "ast_hash": "b8a6ea470c8a0a89d93984208e8a8530",
+    "semantic_hash": "b8a6ea470c8a0a89d93984208e8a8530"
+  },
+  "CLAUDE.md": {
+    "mtime": 1789199969.1575763,
+    "seen": 1789201581.9633403,
+    "ast_hash": "8a6643a420fdad6bfb583523bc6cef16",
+    "semantic_hash": "8a6643a420fdad6bfb583523bc6cef16"
   }
 }
