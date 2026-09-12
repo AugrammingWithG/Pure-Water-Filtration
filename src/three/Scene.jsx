@@ -6,6 +6,8 @@ import Ground from './Ground'
 import House from './House'
 import Kitchen from './Kitchen'
 import Lighting from './Lighting'
+import Precompile from './Precompile'
+import QualityGovernor from './QualityGovernor'
 import SceneEnvironment from './SceneEnvironment'
 import StageCard from './StageCard'
 import StageMarkers from './StageMarkers'
@@ -52,6 +54,7 @@ export default function Scene({
   cardContent,
   showCard,
   onPick,
+  onReady,
   rigRef,
 }) {
   const { width, height } = useThree((s) => s.size)
@@ -91,6 +94,7 @@ export default function Scene({
 
   return (
     <>
+      <QualityGovernor />
       <SceneEnvironment intensity={0.2} />
       <Lighting accent={system.accentColor} />
 
@@ -122,6 +126,8 @@ export default function Scene({
       {currentSystem === 'whole' && <WholeHouseEffects system={system} />}
       {currentSystem === 'undersink' && <UnderSinkEffects system={system} />}
       {currentSystem === 'rain' && <RainwaterEffects system={system} />}
+
+      <Precompile onReady={onReady} />
     </>
   )
 }

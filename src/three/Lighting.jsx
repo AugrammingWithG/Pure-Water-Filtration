@@ -2,6 +2,7 @@ import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { GROUND, LIGHTS } from './layout'
+import { useQuality } from './quality'
 
 /**
  * Three-point rig for the diorama, set up for the home framing (camera
@@ -77,6 +78,7 @@ function PlinthShadow() {
 export default function Lighting({ accent }) {
   const rim = useRef()
   const rimTarget = useRef(new THREE.Color())
+  const { shadowMap } = useQuality()
 
   useFrame((_, delta) => {
     if (!rim.current) return
@@ -98,7 +100,7 @@ export default function Lighting({ accent }) {
         intensity={3.8}
         position={LIGHTS.key}
         castShadow
-        shadow-mapSize={[2048, 2048]}
+        shadow-mapSize={[shadowMap, shadowMap]}
         shadow-bias={-0.0004}
         shadow-normalBias={0.02}
         shadow-radius={4}

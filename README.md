@@ -134,7 +134,10 @@ src/
     path.js                Builds a route from its legs: stage spans, colour, pace
     systems.js             Per-system camera views, stage focus points, route legs + colours
     Scene.jsx              Canvas contents: lights, environment, house, products, flow
-    SceneEnvironment.jsx   Image-based lighting from three's RoomEnvironment (no fetch)
+    SceneEnvironment.jsx   Image-based lighting from a pre-baked sky (assets/textures/env)
+    Precompile.jsx         Builds the shaders off the main thread before the scene is shown
+    quality.js             Quality tiers (foliage density, dpr cap, shadow map size)
+    QualityGovernor.jsx    Steps the tier down when the measured frame rate can't hold
     Ground.jsx             The diorama plinth
     Grass.jsx              The lawn: instanced blades, wind in the vertex shader
     Trees.jsx              Pines behind the house: cone cores under a shell of instanced needles, same wind
@@ -165,6 +168,8 @@ src/
     PlayBar.jsx            Play/pause and the stage timeline: markers to jump, track to scrub
   styles/
     index.css              Light theme; accent colour switched by data-system on .app
+scripts/
+  bake-environment.mjs     Clamps + downsamples the source HDRI into the shipped environment map
 ```
 
 The UI chrome is plain React and CSS layered over the canvas — none of it is
@@ -185,13 +190,38 @@ the compiled shader, so it sets `needsUpdate` when the flag changes. Without
 that a material that started opaque stays opaque no matter what `opacity` is.
 
 The scene is fill-rate bound, not geometry bound — halving the resolution
-roughly doubles the frame rate. Two deliberate choices follow from that, and
-both look like omissions if you don't know why they are there: `dpr` is capped
-at 1.5 rather than 2, and the rim light does **not** cast shadows. Measured on
-integrated graphics at 1600x1000, the pair take a high-DPI display from about
-12fps to about 24. Smooth motion matters more here than either would give back,
-because water that stutters stops reading as water. If you re-enable either,
-measure first.
+roughly doubles the frame rate — and the foliage is most of the fill: tens of
+thousands of thin double-sided blades and needles, most of the plinth covered
+several times over. Several deliberate choices follow from that, and they look
+like omissions if you don't know why they are there: `dpr` is capped at 1.5
+rather than 2; the rim light does **not** cast shadows; the lawn and the pines
+use `MeshLambertMaterial` rather than standard (on integrated graphics the
+standard material's specular and environment lookups on the foliage cost more
+per frame than the rest of the scene put together, for a sheen that on matte
+green was never visible); and there are quality tiers (`three/quality.js`).
+Blades and needles are laid down in random order, so a tier thins them by
+drawing only the first fraction of each instanced mesh — nothing is rebuilt.
+Phones start one tier down, and `QualityGovernor` steps any device down
+further when a second's average drops below 45 fps twice running. It never
+steps back up: v-sync hides how much headroom a fast scene has, so it would
+be a guess. Smooth motion matters more here than any of these would give
+back, because water that stutters stops reading as water. If you re-enable
+any of them, measure first.
+
+Loading is dominated by the shaders, not the assets. Every texture together
+is under half a megabyte: the environment map is the 4k HDRI clamped and
+resampled to 1k by `scripts/bake-environment.mjs` and shipped as an UltraHDR
+JPEG (270 KB against 28 MB for the source), and the lawn's speckle is a 512-px
+tile mirrored across the plinth. What used to freeze the page for a couple of
+seconds after that was the first frame compiling twenty-odd programs at once
+— twice, because the environment map arrived in a passive effect after the
+first frame and changed every material's program. `SceneEnvironment` sets
+the map in a layout effect so there is one compile, `Precompile` runs it
+through `KHR_parallel_shader_compile` with the scene hidden and fades the
+canvas in when the driver reports the programs linked, and the renderer's
+`checkShaderErrors` is off in production (reading each program's log waits
+for its compile). Safari has no parallel compile, so it still stalls once,
+but only once.
 
 Anything animated per frame damps with `Math.min(1, delta * rate)`, never a
 fixed per-frame fraction — otherwise transitions run at different speeds on

@@ -14,6 +14,7 @@ import {
 } from './layout'
 import { makeBladeGeometry, WIND_FIELD } from './parts/blade'
 import { mulberry32 } from './parts/random'
+import { useQuality } from './quality'
 import { TANK_OUTLET } from './systems'
 
 /** Blades stop just short of the rim so the plinth edge stays crisp. */
@@ -212,11 +213,19 @@ const FRAGMENT_COLOR = /* glsl */ `
   diffuseColor.rgb *= grass;
 `
 
+/**
+ * Lambert, not standard: the lawn is the most fill-heavy thing in the scene
+ * (tens of thousands of thin double-sided blades, most of the plinth covered
+ * several times over), and on an integrated GPU the standard material's GGX
+ * lobe and split-sum environment lookups cost more per frame than everything
+ * else in the scene put together. Lambert still takes the three lights, the
+ * hemisphere, the house's shadow and the environment's irradiance; what it
+ * drops is a specular sheen that at roughness 0.5 on a matte green was never
+ * visible. Measured on an Intel UHD: 55 ms → 32 ms a frame for the same lawn.
+ */
 function makeMaterial(uniforms) {
-  const mat = new THREE.MeshStandardMaterial({
+  const mat = new THREE.MeshLambertMaterial({
     color: 0xffffff,
-    roughness: 0.5,
-    metalness: 0,
     side: THREE.DoubleSide,
     envMapIntensity: 0.35,
   })
@@ -273,13 +282,19 @@ function createCenters(rand, count, radiusRange) {
   return centers
 }
 
+/**
+ * Called for every candidate blade of every hotspot layer — a few hundred
+ * thousand times at mount — so the square root and the fractional power
+ * are only paid for centres the point is actually inside.
+ */
 function hotspotWeight(x, z, centers, falloff) {
   let best = 0
   for (const center of centers) {
     const dx = x - center.x
     const dz = z - center.z
-    const dist = Math.sqrt(dx * dx + dz * dz)
-    const influence = Math.max(0, 1 - dist / center.radius)
+    const d2 = dx * dx + dz * dz
+    if (d2 >= center.radius * center.radius) continue
+    const influence = 1 - Math.sqrt(d2) / center.radius
     best = Math.max(best, center.strength * influence ** falloff)
   }
   return Math.min(1, best)
@@ -336,17 +351,22 @@ function makeLawn(count, uniforms, options = {}) {
   mesh.castShadow = false
   // bounding sphere is the unit blade at the origin — useless for culling
   mesh.frustumCulled = false
-  return mesh
+  return { mesh, placed }
 }
 
 /**
  * The lawn: a dense base mesh plus a few lower-density hotspot overlays,
  * all scattered over the plinth while skipping the house, deck, tank and
  * path. Wind is done in the vertex shader; the rest of the shading is
- * three's standard PBR so the blades receive the house's shadow and pick up
- * the same light as everything else.
+ * three's Lambert so the blades receive the house's shadow and pick up the
+ * same light as everything else.
+ *
+ * The blades land in random order, so the quality tier thins the lawn by
+ * drawing only the first fraction of each layer — a uniform sample, and
+ * nothing to rebuild when the tier changes.
  */
 export default function Grass({ accent, count = 60000, wind = 0.55 }) {
+  const { foliage } = useQuality()
   const layers = useMemo(() => {
     const baseUniforms = {
       uTime: { value: 0 },
@@ -358,9 +378,9 @@ export default function Grass({ accent, count = 60000, wind = 0.55 }) {
       uAccentMix: { value: 0.08 },
       uWidthJitter: { value: 0 },
     }
-    const baseMesh = makeLawn(count, baseUniforms)
+    const base = makeLawn(count, baseUniforms)
 
-    const hotspotMeshes = HOTSPOT_LAYERS.map((layer) => {
+    const hotspots = HOTSPOT_LAYERS.map((layer) => {
       const uniforms = {
         uTime: { value: 0 },
         uWindDir: { value: WIND },
@@ -371,11 +391,11 @@ export default function Grass({ accent, count = 60000, wind = 0.55 }) {
         uAccentMix: { value: layer.accentMix },
         uWidthJitter: { value: layer.widthJitter },
       }
-      const mesh = makeLawn(Math.round(count * layer.share), uniforms, layer)
-      return { mesh, uniforms }
+      const { mesh, placed } = makeLawn(Math.round(count * layer.share), uniforms, layer)
+      return { mesh, placed, uniforms }
     })
 
-    return [{ mesh: baseMesh, uniforms: baseUniforms }, ...hotspotMeshes]
+    return [{ ...base, uniforms: baseUniforms }, ...hotspots]
   }, [count])
 
   useEffect(
@@ -387,6 +407,10 @@ export default function Grass({ accent, count = 60000, wind = 0.55 }) {
     },
     [layers],
   )
+
+  useEffect(() => {
+    for (const { mesh, placed } of layers) mesh.count = Math.round(placed * foliage)
+  }, [layers, foliage])
 
   useFrame(({ clock }, delta) => {
     for (const { uniforms } of layers) {
