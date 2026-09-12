@@ -20,7 +20,7 @@ const STAGE_LOOK = [
   { key: 'ro', color: 0xd7e4ec, cap: 0x2b3138 },
 ]
 
-const { center, w, h, depth, riserX, canisterOffsets } = WHOLE_UNIT
+const { center, w, h, depth, riserX, canisterOffsets, canisterRadius } = WHOLE_UNIT
 const CHAMFER = 0.1
 /** Opacity the cover drops to when this system is active — enough to see inside. */
 const XRAY_OPACITY = 0.18
@@ -124,7 +124,7 @@ export default function WholeHouseUnit({ active, revealed, selectedStage, accent
         <Canister
           key={s.key}
           position={[center.x + canisterOffsets[i], topY, center.z]}
-          radius={0.09}
+          radius={canisterRadius}
           height={0.6}
           color={s.color}
           capColor={s.cap}

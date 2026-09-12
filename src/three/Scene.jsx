@@ -9,6 +9,9 @@ import Lighting from './Lighting'
 import SceneEnvironment from './SceneEnvironment'
 import StageMarkers from './StageMarkers'
 import WaterFlow from './WaterFlow'
+import RainwaterEffects from './effects/RainwaterEffects'
+import UnderSinkEffects from './effects/UnderSinkEffects'
+import WholeHouseEffects from './effects/WholeHouseEffects'
 import RainwaterUnit from './products/RainwaterUnit'
 import UnderSinkUnit from './products/UnderSinkUnit'
 import WholeHouseUnit from './products/WholeHouseUnit'
@@ -94,6 +97,9 @@ export default function Scene({ currentSystem, currentStage, focused, onPick, ri
         currentStage={currentStage}
         onPick={pickFor(currentSystem)}
       />
+      {currentSystem === 'whole' && <WholeHouseEffects system={system} />}
+      {currentSystem === 'undersink' && <UnderSinkEffects system={system} />}
+      {currentSystem === 'rain' && <RainwaterEffects system={system} />}
     </>
   )
 }
