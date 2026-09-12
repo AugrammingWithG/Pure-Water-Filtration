@@ -73,22 +73,24 @@ export default function App() {
   )
 
   /**
-   * Play from rest starts the tour at the stage on screen and flies straight
-   * in, rather than sitting at the wide view until the first stage change.
-   * Resuming from a pause does not touch the camera: the user may have orbited
-   * to look at something while the water was held, and it should stay there
-   * until the tour moves on.
+   * Play from rest flies straight in to the stage the playhead is on, rather
+   * than sitting at the wide view until the first stage change. It never moves
+   * the playhead: the knob is the position, and where the user last scrubbed
+   * it to is where the tour picks up — a marker is the way to ask for the
+   * start of a stage. Resuming from a pause does not touch the camera: the
+   * user may have orbited to look at something while the water was held, and
+   * it should stay there until the tour moves on.
    */
   const handleTogglePlay = useCallback(() => {
     if (status === 'playing') {
       pause()
       return
     }
-    if (status === 'idle') pickStage(systemRef.current, currentStage)
+    if (status === 'idle') selectStage(systemRef.current, currentStage)
     play()
-  }, [status, currentStage, pickStage, play, pause])
+  }, [status, currentStage, selectStage, play, pause])
 
-  const handleStageDot = useCallback(
+  const handleStageMarker = useCallback(
     (key) => pickStage(systemRef.current, key),
     [pickStage],
   )
@@ -181,6 +183,7 @@ export default function App() {
             currentStage={currentStage}
             focused={focused}
             paused={status === 'paused'}
+            subscribe={walkthrough.subscribe}
             onPick={handleScenePick}
             rigRef={rigRef}
           />
@@ -209,7 +212,7 @@ export default function App() {
         status={status}
         waterColours={SYSTEMS[currentSystem].colours}
         onTogglePlay={handleTogglePlay}
-        onSelectStage={handleStageDot}
+        onSelectStage={handleStageMarker}
         onScrub={walkthrough.seekFraction}
         onScrubStart={walkthrough.beginScrub}
         onScrubEnd={walkthrough.endScrub}

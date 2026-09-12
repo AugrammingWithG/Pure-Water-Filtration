@@ -18,6 +18,12 @@ import { FLOW_SPEED } from './systems'
  * the element, and resuming picks the stream up from exactly that frame. Only
  * the water stops — the route highlight and every other transition in the
  * scene are UI motion and carry on settling.
+ *
+ * The clock also follows the walkthrough's seeks (`subscribe`): every second
+ * the playhead is dragged or jumped, the water moves by too. So the timeline
+ * is the water's time as well as the tour's — scrubbing it back runs the
+ * stream backwards under the finger, a held frame moves when the bar is
+ * scrubbed, and jumping to a stage lands the water where it would have been.
  */
 
 const MAX_DELTA = 0.05
@@ -374,7 +380,9 @@ function Bubbles({ path, ride, stream, count, activeSpan, clock }) {
     const { at, matrix, colour } = scratch
     const { point, along, across, third } = at
     const time = clock.time
-    const base = (time * FLOW_SPEED) % 1
+    // Scrubbing back past the start takes the clock negative; `%` keeps the sign.
+    let base = (time * FLOW_SPEED) % 1
+    if (base < 0) base += 1
     const spread = stream * BUBBLE_SPREAD
 
     for (let i = 0; i < count; i++) {
@@ -513,7 +521,7 @@ function Grit({ path, ride, radius, clock }) {
   )
 }
 
-export default function WaterFlow({ system, currentStage, paused = false }) {
+export default function WaterFlow({ system, currentStage, paused = false, subscribe }) {
   const { path, pulseRadius, routeRadius } = system
   const activeSpan = path.spans[currentStage] ?? null
   const count = Math.max(
@@ -527,10 +535,22 @@ export default function WaterFlow({ system, currentStage, paused = false }) {
    * frame. Advanced at a negative priority so it is stepped before the bubbles
    * and grit read it — r3f runs frame callbacks in priority order, and only a
    * priority above zero takes over rendering.
+   *
+   * Seeks arrive between frames and are banked in `jump`, then taken in one
+   * step with the next frame's time so the bubbles and grit see a single
+   * consistent delta. A jump is not capped the way a stall is: it is the
+   * user's own doing, and can be as large or as negative as the drag was.
    */
-  const clock = useMemo(() => ({ time: 0, dt: 0 }), [])
+  const clock = useMemo(() => ({ time: 0, dt: 0, jump: 0 }), [])
+  useEffect(() => {
+    if (!subscribe) return undefined
+    return subscribe((_, jump) => {
+      clock.jump += jump
+    })
+  }, [subscribe, clock])
   useFrame((_, delta) => {
-    const dt = paused ? 0 : Math.min(delta, MAX_STALL)
+    const dt = (paused ? 0 : Math.min(delta, MAX_STALL)) + clock.jump
+    clock.jump = 0
     clock.time += dt
     clock.dt = dt
   }, -1)
