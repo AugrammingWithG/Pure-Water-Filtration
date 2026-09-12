@@ -46,6 +46,12 @@ body{
 }
 h1,h2,h3,.display{font-family:'Space Grotesk',sans-serif;}
 button{font-family:inherit; cursor:pointer; border:none; background:none; color:inherit;}
+/* Read out but never drawn — for text that stands in for something the eye
+   gets another way (a figure mid-count, an icon). */
+.sr-only{
+  position:absolute; width:1px; height:1px; overflow:hidden;
+  clip-path:inset(50%); white-space:nowrap;
+}
 
 .app{
   height:100vh;
@@ -152,7 +158,20 @@ main{flex:1; display:flex; position:relative; min-height:0; min-width:0;}
 }
 .float-card .fc-label{font-size:10px; text-transform:uppercase; letter-spacing:0.07em; color:var(--ink-dim); font-weight:700; margin-bottom:10px;}
 
-.card-cost{top:15%; left:6%; width:190px;}
+/* The card arrives rather than simply being there: it is carrying figures
+   that count up, and landing them needs something to land into. .is-shown is
+   set by the card as its count starts, so the two run together. */
+.card-cost{
+  top:15%; left:6%; width:190px;
+  opacity:0; transform:translateY(8px);
+  transition:opacity 0.45s ease, transform 0.45s ease;
+}
+.card-cost.is-shown{opacity:1; transform:none;}
+/* Asked for less motion: the card is simply there, with its figures already
+   counted. Kept next to the rules it overrides, which nothing below touches. */
+@media (prefers-reduced-motion:reduce){
+  .card-cost{transition:none;}
+}
 .cost-row{display:flex; gap:18px; align-items:flex-end; margin-bottom:12px;}
 .cost-col span{display:block; font-size:9.5px; color:var(--ink-dim);}
 .cost-col b{font-family:'Space Grotesk',sans-serif; font-size:19px; font-weight:600;}

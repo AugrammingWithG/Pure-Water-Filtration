@@ -19,6 +19,7 @@ export default function SimCanvas({
   subscribe,
   onPick,
   rigRef,
+  onFirstFrame,
 }) {
   return (
     <div className="sim-canvas-wrap">
@@ -50,6 +51,7 @@ export default function SimCanvas({
           subscribe={subscribe}
           onPick={onPick}
           rigRef={rigRef}
+          onFirstFrame={onFirstFrame}
         />
       </Canvas>
     </div>

@@ -35,6 +35,15 @@ export default function App() {
   /** Imperative handle on the camera rig, published by <Scene>. */
   const rigRef = useRef(null)
 
+  /**
+   * True once the scene has drawn a frame. First load holds the page for a
+   * second or two compiling shaders; the cost card waits for this so that its
+   * figures make their entrance counting, not sitting at zero over an empty
+   * canvas until the wait is over.
+   */
+  const [sceneDrawn, setSceneDrawn] = useState(false)
+  const handleFirstFrame = useCallback(() => setSceneDrawn(true), [])
+
   /** Mirror the walkthrough can read without being rebuilt on every change. */
   const systemRef = useRef(currentSystem)
   useEffect(() => {
@@ -186,6 +195,7 @@ export default function App() {
             subscribe={walkthrough.subscribe}
             onPick={handleScenePick}
             rigRef={rigRef}
+            onFirstFrame={handleFirstFrame}
           />
 
           <div className="view-controls">
@@ -194,7 +204,7 @@ export default function App() {
             </button>
           </div>
 
-          <CostCard before={system.before} after={system.after} savings={system.savings} />
+          <CostCard before={system.before} after={system.after} show={sceneDrawn} />
           <TrendCard />
           <ImpactCard bottles={system.bottles} waste={system.waste} />
           <DetailCard
