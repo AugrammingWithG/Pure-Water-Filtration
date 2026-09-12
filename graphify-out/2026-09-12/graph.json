@@ -264,7 +264,19 @@
       "file_type": "code",
       "norm_label": "blocked()",
       "source_file": "src/three/Grass.jsx",
-      "source_location": "L59"
+      "source_location": "L103"
+    },
+    {
+      "id": "src_three_grass_createcenters",
+      "label": "createCenters()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "systems.js",
+      "file_type": "code",
+      "norm_label": "createcenters()",
+      "source_file": "src/three/Grass.jsx",
+      "source_location": "L238"
     },
     {
       "id": "src_three_grass_disttopolyline",
@@ -276,7 +288,7 @@
       "file_type": "code",
       "norm_label": "disttopolyline()",
       "source_file": "src/three/Grass.jsx",
-      "source_location": "L40"
+      "source_location": "L84"
     },
     {
       "id": "src_three_grass_disttosegment",
@@ -288,7 +300,7 @@
       "file_type": "code",
       "norm_label": "disttosegment()",
       "source_file": "src/three/Grass.jsx",
-      "source_location": "L29"
+      "source_location": "L73"
     },
     {
       "id": "src_three_grass_grass",
@@ -300,7 +312,19 @@
       "file_type": "code",
       "norm_label": "grass()",
       "source_file": "src/three/Grass.jsx",
-      "source_location": "L236"
+      "source_location": "L349"
+    },
+    {
+      "id": "src_three_grass_hotspotweight",
+      "label": "hotspotWeight()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "systems.js",
+      "file_type": "code",
+      "norm_label": "hotspotweight()",
+      "source_file": "src/three/Grass.jsx",
+      "source_location": "L276"
     },
     {
       "id": "src_three_grass_makelawn",
@@ -312,7 +336,7 @@
       "file_type": "code",
       "norm_label": "makelawn()",
       "source_file": "src/three/Grass.jsx",
-      "source_location": "L192"
+      "source_location": "L288"
     },
     {
       "id": "src_three_grass_makematerial",
@@ -324,31 +348,7 @@
       "file_type": "code",
       "norm_label": "makematerial()",
       "source_file": "src/three/Grass.jsx",
-      "source_location": "L169"
-    },
-    {
-      "id": "src_three_ground_ground",
-      "label": "Ground()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "systems.js",
-      "file_type": "code",
-      "norm_label": "ground()",
-      "source_file": "src/three/Ground.jsx",
-      "source_location": "L59"
-    },
-    {
-      "id": "src_three_ground_usepathgeometry",
-      "label": "usePathGeometry()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "systems.js",
-      "file_type": "code",
-      "norm_label": "usepathgeometry()",
-      "source_file": "src/three/Ground.jsx",
-      "source_location": "L18"
+      "source_location": "L215"
     },
     {
       "id": "src_three_kitchen_kitchen",
@@ -1059,6 +1059,30 @@
       "source_location": "L33"
     },
     {
+      "id": "src_three_ground_ground",
+      "label": "Ground()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "Scene.jsx",
+      "file_type": "code",
+      "norm_label": "ground()",
+      "source_file": "src/three/Ground.jsx",
+      "source_location": "L59"
+    },
+    {
+      "id": "src_three_ground_usepathgeometry",
+      "label": "usePathGeometry()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "Scene.jsx",
+      "file_type": "code",
+      "norm_label": "usepathgeometry()",
+      "source_file": "src/three/Ground.jsx",
+      "source_location": "L18"
+    },
+    {
       "id": "src_three_lighting_lighting",
       "label": "Lighting()",
       "_callable": true,
@@ -1419,6 +1443,38 @@
       "source_location": "L24"
     },
     {
+      "id": "index_google_fonts",
+      "label": "Space Grotesk and Inter Google Fonts",
+      "_origin": "ast",
+      "author": null,
+      "captured_at": null,
+      "community": 2,
+      "community_name": "App.jsx",
+      "contributor": null,
+      "description": "The design's type pairing, loaded from fonts.googleapis.com in weights 400-700: Space Grotesk for display and headings, Inter for body. The same stylesheet URL is used by both the Vite entry and the legacy prototype.",
+      "file_type": "concept",
+      "norm_label": "space grotesk and inter google fonts",
+      "source_file": "index.html",
+      "source_location": "L10",
+      "source_url": null
+    },
+    {
+      "id": "index",
+      "label": "index.html",
+      "_origin": "ast",
+      "author": null,
+      "captured_at": null,
+      "community": 2,
+      "community_name": "App.jsx",
+      "contributor": null,
+      "description": "Vite entry page: sets the viewport (viewport-fit=cover), preconnects to Google Fonts, loads Space Grotesk and Inter, and mounts the React app at #root via /src/main.jsx.",
+      "file_type": "document",
+      "norm_label": "index.html",
+      "source_file": "index.html",
+      "source_location": "L1",
+      "source_url": null
+    },
+    {
       "id": "legacy_filtration_simulation_contaminant_specks",
       "label": "Vanishing Contaminant Specks",
       "_origin": "ast",
@@ -1755,22 +1811,6 @@
       "source_url": null
     },
     {
-      "id": "index_google_fonts",
-      "label": "Space Grotesk and Inter Google Fonts",
-      "_origin": "ast",
-      "author": null,
-      "captured_at": null,
-      "community": 7,
-      "community_name": "selectStage",
-      "contributor": null,
-      "description": "The design's type pairing, loaded from fonts.googleapis.com in weights 400-700: Space Grotesk for display and headings, Inter for body. The same stylesheet URL is used by both the Vite entry and the legacy prototype.",
-      "file_type": "concept",
-      "norm_label": "space grotesk and inter google fonts",
-      "source_file": "index.html",
-      "source_location": "L10",
-      "source_url": null
-    },
-    {
       "id": "legacy_filtration_simulation_reset",
       "label": "orbit.reset()",
       "_origin": "ast",
@@ -1784,22 +1824,6 @@
       "norm_label": "orbit.reset()",
       "source_file": "legacy/filtration-simulation.html",
       "source_location": "L352",
-      "source_url": null
-    },
-    {
-      "id": "index",
-      "label": "index.html",
-      "_origin": "ast",
-      "author": null,
-      "captured_at": null,
-      "community": 7,
-      "community_name": "selectStage",
-      "contributor": null,
-      "description": "Vite entry page: sets the viewport (viewport-fit=cover), preconnects to Google Fonts, loads Space Grotesk and Inter, and mounts the React app at #root via /src/main.jsx.",
-      "file_type": "document",
-      "norm_label": "index.html",
-      "source_file": "index.html",
-      "source_location": "L1",
       "source_url": null
     },
     {
@@ -1819,39 +1843,6 @@
       "source_url": null
     },
     {
-      "id": "src_three_layout_street_meter",
-      "label": "STREET_METER",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "RainwaterUnit.jsx",
-      "file_type": "code",
-      "norm_label": "street_meter",
-      "source_file": "src/three/layout.js",
-      "source_location": "L50"
-    },
-    {
-      "id": "src_three_layout_undersink_unit",
-      "label": "UNDERSINK_UNIT",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "RainwaterUnit.jsx",
-      "file_type": "code",
-      "norm_label": "undersink_unit",
-      "source_file": "src/three/layout.js",
-      "source_location": "L94"
-    },
-    {
-      "id": "src_three_layout_whole_unit",
-      "label": "WHOLE_UNIT",
-      "_origin": "ast",
-      "community": 0,
-      "community_name": "RainwaterUnit.jsx",
-      "file_type": "code",
-      "norm_label": "whole_unit",
-      "source_file": "src/three/layout.js",
-      "source_location": "L36"
-    },
-    {
       "id": "src_three_parts_brandlabel",
       "label": "brandLabel.js",
       "_origin": "ast",
@@ -1860,6 +1851,39 @@
       "file_type": "code",
       "norm_label": "brandlabel.js",
       "source_file": "src/three/parts/brandLabel.js",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_three_parts_canister",
+      "label": "Canister.jsx",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "RainwaterUnit.jsx",
+      "file_type": "code",
+      "norm_label": "canister.jsx",
+      "source_file": "src/three/parts/Canister.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_three_parts_canister_black",
+      "label": "BLACK",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "RainwaterUnit.jsx",
+      "file_type": "code",
+      "norm_label": "black",
+      "source_file": "src/three/parts/Canister.jsx",
+      "source_location": "L6"
+    },
+    {
+      "id": "src_three_parts_fadegroup",
+      "label": "FadeGroup.jsx",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "RainwaterUnit.jsx",
+      "file_type": "code",
+      "norm_label": "fadegroup.jsx",
+      "source_file": "src/three/parts/FadeGroup.jsx",
       "source_location": "L1"
     },
     {
@@ -1905,6 +1929,17 @@
       "norm_label": "tubing",
       "source_file": "src/three/parts/materials.js",
       "source_location": "L4"
+    },
+    {
+      "id": "src_three_parts_outline",
+      "label": "Outline.jsx",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "RainwaterUnit.jsx",
+      "file_type": "code",
+      "norm_label": "outline.jsx",
+      "source_file": "src/three/parts/Outline.jsx",
+      "source_location": "L1"
     },
     {
       "id": "src_three_parts_pipe",
@@ -2149,6 +2184,17 @@
       "source_location": "L17"
     },
     {
+      "id": "ref_react",
+      "label": "react",
+      "_origin": "ast",
+      "community": 0,
+      "community_name": "RainwaterUnit.jsx",
+      "file_type": "concept",
+      "norm_label": "react",
+      "source_file": "package.json",
+      "source_location": "L15"
+    },
+    {
       "id": "src_three_grass",
       "label": "Grass.jsx",
       "_origin": "ast",
@@ -2158,6 +2204,17 @@
       "norm_label": "grass.jsx",
       "source_file": "src/three/Grass.jsx",
       "source_location": "L1"
+    },
+    {
+      "id": "src_three_grass_hotspot_layers",
+      "label": "HOTSPOT_LAYERS",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "systems.js",
+      "file_type": "code",
+      "norm_label": "hotspot_layers",
+      "source_file": "src/three/Grass.jsx",
+      "source_location": "L24"
     },
     {
       "id": "src_three_grass_root_color",
@@ -2180,39 +2237,6 @@
       "norm_label": "tip_color",
       "source_file": "src/three/Grass.jsx",
       "source_location": "L23"
-    },
-    {
-      "id": "src_three_ground",
-      "label": "Ground.jsx",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "systems.js",
-      "file_type": "code",
-      "norm_label": "ground.jsx",
-      "source_file": "src/three/Ground.jsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_three_ground_gravel",
-      "label": "GRAVEL",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "systems.js",
-      "file_type": "code",
-      "norm_label": "gravel",
-      "source_file": "src/three/Ground.jsx",
-      "source_location": "L12"
-    },
-    {
-      "id": "src_three_ground_lawn",
-      "label": "LAWN",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "systems.js",
-      "file_type": "code",
-      "norm_label": "lawn",
-      "source_file": "src/three/Ground.jsx",
-      "source_location": "L10"
     },
     {
       "id": "src_three_kitchen",
@@ -2292,6 +2316,17 @@
       "source_location": "L1"
     },
     {
+      "id": "src_three_layout_chimney",
+      "label": "CHIMNEY",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "systems.js",
+      "file_type": "code",
+      "norm_label": "chimney",
+      "source_file": "src/three/layout.js",
+      "source_location": "L130"
+    },
+    {
       "id": "src_three_layout_deck",
       "label": "DECK",
       "_origin": "ast",
@@ -2303,15 +2338,15 @@
       "source_location": "L24"
     },
     {
-      "id": "src_three_layout_ground",
-      "label": "GROUND",
+      "id": "src_three_layout_front_solid_x1",
+      "label": "FRONT_SOLID_X1",
       "_origin": "ast",
       "community": 1,
       "community_name": "systems.js",
       "file_type": "code",
-      "norm_label": "ground",
+      "norm_label": "front_solid_x1",
       "source_file": "src/three/layout.js",
-      "source_location": "L11"
+      "source_location": "L33"
     },
     {
       "id": "src_three_layout_house",
@@ -2334,17 +2369,6 @@
       "norm_label": "kitchen",
       "source_file": "src/three/layout.js",
       "source_location": "L77"
-    },
-    {
-      "id": "src_three_layout_path",
-      "label": "PATH",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "systems.js",
-      "file_type": "code",
-      "norm_label": "path",
-      "source_file": "src/three/layout.js",
-      "source_location": "L58"
     },
     {
       "id": "src_three_layout_rain_tank",
@@ -2380,6 +2404,17 @@
       "source_location": "L70"
     },
     {
+      "id": "src_three_layout_street_meter",
+      "label": "STREET_METER",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "systems.js",
+      "file_type": "code",
+      "norm_label": "street_meter",
+      "source_file": "src/three/layout.js",
+      "source_location": "L50"
+    },
+    {
       "id": "src_three_layout_trees",
       "label": "TREES",
       "_origin": "ast",
@@ -2389,6 +2424,28 @@
       "norm_label": "trees",
       "source_file": "src/three/layout.js",
       "source_location": "L143"
+    },
+    {
+      "id": "src_three_layout_undersink_unit",
+      "label": "UNDERSINK_UNIT",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "systems.js",
+      "file_type": "code",
+      "norm_label": "undersink_unit",
+      "source_file": "src/three/layout.js",
+      "source_location": "L94"
+    },
+    {
+      "id": "src_three_layout_whole_unit",
+      "label": "WHOLE_UNIT",
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "systems.js",
+      "file_type": "code",
+      "norm_label": "whole_unit",
+      "source_file": "src/three/layout.js",
+      "source_location": "L36"
     },
     {
       "id": "src_three_layout_wind",
@@ -2444,17 +2501,6 @@
       "norm_label": "systems.js",
       "source_file": "src/three/systems.js",
       "source_location": "L1"
-    },
-    {
-      "id": "src_three_systems_home_view",
-      "label": "HOME_VIEW",
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "systems.js",
-      "file_type": "code",
-      "norm_label": "home_view",
-      "source_file": "src/three/systems.js",
-      "source_location": "L26"
     },
     {
       "id": "src_three_systems_rainlegs",
@@ -2888,6 +2934,28 @@
       "source_location": "L1"
     },
     {
+      "id": "src_main",
+      "label": "main.jsx",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "main.jsx",
+      "source_file": "src/main.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_three_systems_systems",
+      "label": "SYSTEMS",
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "App.jsx",
+      "file_type": "code",
+      "norm_label": "systems",
+      "source_file": "src/three/systems.js",
+      "source_location": "L256"
+    },
+    {
       "id": "eslint_config",
       "label": "eslint.config.js",
       "_origin": "ast",
@@ -3240,17 +3308,6 @@
       "source_location": "L16"
     },
     {
-      "id": "ref_react_three_drei",
-      "label": "@react-three/drei",
-      "_origin": "ast",
-      "community": 3,
-      "community_name": "package.json",
-      "file_type": "concept",
-      "norm_label": "@react-three/drei",
-      "source_file": "package.json",
-      "source_location": "L13"
-    },
-    {
       "id": "ref_vite",
       "label": "vite",
       "_origin": "ast",
@@ -3282,17 +3339,6 @@
       "norm_label": "path.js",
       "source_file": "src/three/path.js",
       "source_location": "L1"
-    },
-    {
-      "id": "src_three_systems_systems",
-      "label": "SYSTEMS",
-      "_origin": "ast",
-      "community": 4,
-      "community_name": "WaterFlow.jsx",
-      "file_type": "code",
-      "norm_label": "systems",
-      "source_file": "src/three/systems.js",
-      "source_location": "L256"
     },
     {
       "id": "src_three_waterflow",
@@ -3526,28 +3572,6 @@
       "source_location": "L17"
     },
     {
-      "id": "src_three_layout_chimney",
-      "label": "CHIMNEY",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "House.jsx",
-      "file_type": "code",
-      "norm_label": "chimney",
-      "source_file": "src/three/layout.js",
-      "source_location": "L130"
-    },
-    {
-      "id": "src_three_layout_front_solid_x1",
-      "label": "FRONT_SOLID_X1",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "House.jsx",
-      "file_type": "code",
-      "norm_label": "front_solid_x1",
-      "source_file": "src/three/layout.js",
-      "source_location": "L33"
-    },
-    {
       "id": "src_components_simcanvas",
       "label": "SimCanvas.jsx",
       "_origin": "ast",
@@ -3570,6 +3594,50 @@
       "source_location": "L1"
     },
     {
+      "id": "src_three_ground",
+      "label": "Ground.jsx",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "Scene.jsx",
+      "file_type": "code",
+      "norm_label": "ground.jsx",
+      "source_file": "src/three/Ground.jsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "src_three_ground_gravel",
+      "label": "GRAVEL",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "Scene.jsx",
+      "file_type": "code",
+      "norm_label": "gravel",
+      "source_file": "src/three/Ground.jsx",
+      "source_location": "L12"
+    },
+    {
+      "id": "src_three_ground_lawn",
+      "label": "LAWN",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "Scene.jsx",
+      "file_type": "code",
+      "norm_label": "lawn",
+      "source_file": "src/three/Ground.jsx",
+      "source_location": "L10"
+    },
+    {
+      "id": "src_three_layout_ground",
+      "label": "GROUND",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "Scene.jsx",
+      "file_type": "code",
+      "norm_label": "ground",
+      "source_file": "src/three/layout.js",
+      "source_location": "L11"
+    },
+    {
       "id": "src_three_layout_lights",
       "label": "LIGHTS",
       "_origin": "ast",
@@ -3579,6 +3647,17 @@
       "norm_label": "lights",
       "source_file": "src/three/layout.js",
       "source_location": "L162"
+    },
+    {
+      "id": "src_three_layout_path",
+      "label": "PATH",
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "Scene.jsx",
+      "file_type": "code",
+      "norm_label": "path",
+      "source_file": "src/three/layout.js",
+      "source_location": "L58"
     },
     {
       "id": "src_three_lighting",
@@ -3601,50 +3680,6 @@
       "norm_label": "rim_base",
       "source_file": "src/three/Lighting.jsx",
       "source_location": "L33"
-    },
-    {
-      "id": "src_three_parts_canister",
-      "label": "Canister.jsx",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "Scene.jsx",
-      "file_type": "code",
-      "norm_label": "canister.jsx",
-      "source_file": "src/three/parts/Canister.jsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_three_parts_canister_black",
-      "label": "BLACK",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "Scene.jsx",
-      "file_type": "code",
-      "norm_label": "black",
-      "source_file": "src/three/parts/Canister.jsx",
-      "source_location": "L6"
-    },
-    {
-      "id": "src_three_parts_fadegroup",
-      "label": "FadeGroup.jsx",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "Scene.jsx",
-      "file_type": "code",
-      "norm_label": "fadegroup.jsx",
-      "source_file": "src/three/parts/FadeGroup.jsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "src_three_parts_outline",
-      "label": "Outline.jsx",
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "Scene.jsx",
-      "file_type": "code",
-      "norm_label": "outline.jsx",
-      "source_file": "src/three/parts/Outline.jsx",
-      "source_location": "L1"
     },
     {
       "id": "src_three_scene",
@@ -3702,26 +3737,26 @@
       "source_location": "L34"
     },
     {
-      "id": "ref_react",
-      "label": "react",
+      "id": "src_three_systems_home_view",
+      "label": "HOME_VIEW",
       "_origin": "ast",
       "community": 6,
       "community_name": "Scene.jsx",
-      "file_type": "concept",
-      "norm_label": "react",
-      "source_file": "package.json",
-      "source_location": "L15"
+      "file_type": "code",
+      "norm_label": "home_view",
+      "source_file": "src/three/systems.js",
+      "source_location": "L26"
     },
     {
-      "id": "ref_react_three_fiber",
-      "label": "@react-three/fiber",
+      "id": "ref_react_three_drei",
+      "label": "@react-three/drei",
       "_origin": "ast",
       "community": 6,
       "community_name": "Scene.jsx",
       "file_type": "concept",
-      "norm_label": "@react-three/fiber",
+      "norm_label": "@react-three/drei",
       "source_file": "package.json",
-      "source_location": "L14"
+      "source_location": "L13"
     },
     {
       "id": "src_hooks_useorbitrig_rationale_127",
@@ -3744,17 +3779,6 @@
       "norm_label": "ro_dot_label",
       "source_file": "src/data/constants.js",
       "source_location": "L104"
-    },
-    {
-      "id": "src_main",
-      "label": "main.jsx",
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "selectStage",
-      "file_type": "code",
-      "norm_label": "main.jsx",
-      "source_file": "src/main.jsx",
-      "source_location": "L1"
     },
     {
       "id": "src_three_effects_carbonabsorption",
@@ -3955,6 +3979,17 @@
       "source_location": "L34"
     },
     {
+      "id": "ref_react_three_fiber",
+      "label": "@react-three/fiber",
+      "_origin": "ast",
+      "community": 8,
+      "community_name": "three",
+      "file_type": "concept",
+      "norm_label": "@react-three/fiber",
+      "source_file": "package.json",
+      "source_location": "L14"
+    },
+    {
       "id": "ref_three",
       "label": "three",
       "_origin": "ast",
@@ -4061,22 +4096,6 @@
       "file_type": "concept",
       "norm_label": "roof and front wall cutaway",
       "rationale": "The under-sink view fades the roof and front wall away so the camera can get into the kitchen; Reset view puts everything back.",
-      "source_file": "README.md",
-      "source_location": null,
-      "source_url": null
-    },
-    {
-      "id": "readme_light_theme_accent_switch",
-      "label": "Light Theme Accent Switch",
-      "_origin": "semantic",
-      "author": null,
-      "captured_at": null,
-      "community": 0,
-      "community_name": "RainwaterUnit.jsx",
-      "contributor": null,
-      "file_type": "concept",
-      "norm_label": "light theme accent switch",
-      "rationale": "styles/index.css is a light theme whose accent colour is switched by the data-system attribute on .app; picking a system switches the UI accent.",
       "source_file": "README.md",
       "source_location": null,
       "source_url": null
@@ -4258,17 +4277,17 @@
       "source_url": null
     },
     {
-      "id": "readme_stage_badges",
-      "label": "Stage Badges",
+      "id": "readme_grit_capture",
+      "label": "Grit Capture",
       "_origin": "semantic",
       "author": null,
       "captured_at": null,
-      "community": 12,
-      "community_name": "StageMarkers.jsx",
+      "community": 2,
+      "community_name": "App.jsx",
       "contributor": null,
       "file_type": "concept",
-      "norm_label": "stage badges",
-      "rationale": "A numbered badge hangs at each of the four stages, anchored to the middle of that stage's element; the selected one takes the accent colour and grows. Past a few metres the unselected badges fade so the wide view carries one 'you are here' pin rather than four overlapping discs.",
+      "norm_label": "grit capture",
+      "rationale": "Specks riding in with the raw water are each given a point on the face of the first element to stop at, biased toward the leading edge, and sit there a moment before fading.",
       "source_file": "README.md",
       "source_location": null,
       "source_url": null
@@ -4290,6 +4309,54 @@
       "source_url": null
     },
     {
+      "id": "readme_light_theme_accent_switch",
+      "label": "Light Theme Accent Switch",
+      "_origin": "semantic",
+      "author": null,
+      "captured_at": null,
+      "community": 2,
+      "community_name": "App.jsx",
+      "contributor": null,
+      "file_type": "concept",
+      "norm_label": "light theme accent switch",
+      "rationale": "styles/index.css is a light theme whose accent colour is switched by the data-system attribute on .app; picking a system switches the UI accent.",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "readme_route_legs",
+      "label": "Route Legs",
+      "_origin": "semantic",
+      "author": null,
+      "captured_at": null,
+      "community": 2,
+      "community_name": "App.jsx",
+      "contributor": null,
+      "file_type": "concept",
+      "norm_label": "route legs",
+      "rationale": "Each system's route is authored as a chain of legs (one pipe run each) tagged with stage, whether it passes through a filter element, pace, and whether it is buried. Every leg boundary is a real control point of the curve, so each stage's span along the path is measured rather than guessed.",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "readme_route_line",
+      "label": "Route Line",
+      "_origin": "semantic",
+      "author": null,
+      "captured_at": null,
+      "community": 2,
+      "community_name": "App.jsx",
+      "contributor": null,
+      "file_type": "concept",
+      "norm_label": "route line",
+      "rationale": "A thin line traces the whole path carrying the same gradient, faint where the run is buried and lit along the selected stage. It is thinner than the narrowest pipe it runs inside, so it shows only in the gaps: buried runs and inside the cartridges.",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
       "id": "readme_scrubbable_progress_bar",
       "label": "Scrubbable Progress Bar",
       "_origin": "semantic",
@@ -4306,6 +4373,22 @@
       "source_url": null
     },
     {
+      "id": "readme_stage_badges",
+      "label": "Stage Badges",
+      "_origin": "semantic",
+      "author": null,
+      "captured_at": null,
+      "community": 2,
+      "community_name": "App.jsx",
+      "contributor": null,
+      "file_type": "concept",
+      "norm_label": "stage badges",
+      "rationale": "A numbered badge hangs at each of the four stages, anchored to the middle of that stage's element; the selected one takes the accent colour and grows. Past a few metres the unselected badges fade so the wide view carries one 'you are here' pin rather than four overlapping discs.",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
       "id": "readme_stage_seek",
       "label": "Stage Seek Keeps Tour State",
       "_origin": "semantic",
@@ -4317,6 +4400,70 @@
       "file_type": "concept",
       "norm_label": "stage seek keeps tour state",
       "rationale": "Picking a stage from the dots, keyboard or scene seeks: the tour moves there and keeps whatever state it had, so a paused tour can be stepped stage by stage with the water held at each. Switching system or resetting the view ends the tour.",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "readme_ui_chrome_over_canvas",
+      "label": "UI Chrome Over Canvas",
+      "_origin": "semantic",
+      "author": null,
+      "captured_at": null,
+      "community": 2,
+      "community_name": "App.jsx",
+      "contributor": null,
+      "file_type": "concept",
+      "norm_label": "ui chrome over canvas",
+      "rationale": "The UI chrome is plain React and CSS layered over the canvas; none of it is drawn inside Three.js.",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "readme_adding_a_product_checklist",
+      "label": "Adding a Product Checklist",
+      "_origin": "semantic",
+      "author": null,
+      "captured_at": null,
+      "community": 2,
+      "community_name": "App.jsx",
+      "contributor": null,
+      "file_type": "document",
+      "norm_label": "adding a product checklist",
+      "rationale": "Adding a product: a mount point in layout.js, a view / stages / legs entry in systems.js, copy in data/constants.js, a component under three/products/, and render it in Scene.jsx with unitProps(key).",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "readme_colour_ramp_across_element",
+      "label": "Colour Ramp Across Element",
+      "_origin": "semantic",
+      "author": null,
+      "captured_at": null,
+      "community": 2,
+      "community_name": "App.jsx",
+      "contributor": null,
+      "file_type": "rationale",
+      "norm_label": "colour ramp across element",
+      "rationale": "The water colour ramp sits across each filter element so a bubble visibly clears while it is working through the cartridge instead of changing colour once it is already out the far side.",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
+      "id": "readme_media_leg_declaration",
+      "label": "Single media Leg Declaration",
+      "_origin": "semantic",
+      "author": null,
+      "captured_at": null,
+      "community": 2,
+      "community_name": "App.jsx",
+      "contributor": null,
+      "file_type": "rationale",
+      "norm_label": "single media leg declaration",
+      "rationale": "Write legs in flow order, each listing only the points it adds. Marking the run through each filter element media: true with a slow pace is the one declaration that places the colour change, the stage marker and the slowdown. buried: true draws the route line faintly where a run disappears underground or under the floor.",
       "source_file": "README.md",
       "source_location": null,
       "source_url": null
@@ -4386,6 +4533,22 @@
       "source_url": null
     },
     {
+      "id": "readme_time_spaced_bubble_column",
+      "label": "Time-Spaced Bubble Column",
+      "_origin": "semantic",
+      "author": null,
+      "captured_at": null,
+      "community": 2,
+      "community_name": "App.jsx",
+      "contributor": null,
+      "file_type": "rationale",
+      "norm_label": "time-spaced bubble column",
+      "rationale": "Bubbles are spaced evenly in time rather than distance so they crowd through media and the pressure tank and spread out in open pipe, and can never overtake one another. Each rides at its own offset from the centreline and turns slowly around it so the column churns, and stretches along its travel direction in proportion to speed. Every system takes the same ten seconds end to end regardless of how much of the route is slow.",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null
+    },
+    {
       "id": "readme_walkthrough_timeline",
       "label": "Walkthrough as a Timeline",
       "_origin": "semantic",
@@ -4402,125 +4565,13 @@
       "source_url": null
     },
     {
-      "id": "readme_grit_capture",
-      "label": "Grit Capture",
-      "_origin": "semantic",
-      "author": null,
-      "captured_at": null,
-      "community": 4,
-      "community_name": "WaterFlow.jsx",
-      "contributor": null,
-      "file_type": "concept",
-      "norm_label": "grit capture",
-      "rationale": "Specks riding in with the raw water are each given a point on the face of the first element to stop at, biased toward the leading edge, and sit there a moment before fading.",
-      "source_file": "README.md",
-      "source_location": null,
-      "source_url": null
-    },
-    {
-      "id": "readme_route_legs",
-      "label": "Route Legs",
-      "_origin": "semantic",
-      "author": null,
-      "captured_at": null,
-      "community": 4,
-      "community_name": "WaterFlow.jsx",
-      "contributor": null,
-      "file_type": "concept",
-      "norm_label": "route legs",
-      "rationale": "Each system's route is authored as a chain of legs (one pipe run each) tagged with stage, whether it passes through a filter element, pace, and whether it is buried. Every leg boundary is a real control point of the curve, so each stage's span along the path is measured rather than guessed.",
-      "source_file": "README.md",
-      "source_location": null,
-      "source_url": null
-    },
-    {
-      "id": "readme_route_line",
-      "label": "Route Line",
-      "_origin": "semantic",
-      "author": null,
-      "captured_at": null,
-      "community": 4,
-      "community_name": "WaterFlow.jsx",
-      "contributor": null,
-      "file_type": "concept",
-      "norm_label": "route line",
-      "rationale": "A thin line traces the whole path carrying the same gradient, faint where the run is buried and lit along the selected stage. It is thinner than the narrowest pipe it runs inside, so it shows only in the gaps: buried runs and inside the cartridges.",
-      "source_file": "README.md",
-      "source_location": null,
-      "source_url": null
-    },
-    {
-      "id": "readme_adding_a_product_checklist",
-      "label": "Adding a Product Checklist",
-      "_origin": "semantic",
-      "author": null,
-      "captured_at": null,
-      "community": 4,
-      "community_name": "WaterFlow.jsx",
-      "contributor": null,
-      "file_type": "document",
-      "norm_label": "adding a product checklist",
-      "rationale": "Adding a product: a mount point in layout.js, a view / stages / legs entry in systems.js, copy in data/constants.js, a component under three/products/, and render it in Scene.jsx with unitProps(key).",
-      "source_file": "README.md",
-      "source_location": null,
-      "source_url": null
-    },
-    {
-      "id": "readme_colour_ramp_across_element",
-      "label": "Colour Ramp Across Element",
-      "_origin": "semantic",
-      "author": null,
-      "captured_at": null,
-      "community": 4,
-      "community_name": "WaterFlow.jsx",
-      "contributor": null,
-      "file_type": "rationale",
-      "norm_label": "colour ramp across element",
-      "rationale": "The water colour ramp sits across each filter element so a bubble visibly clears while it is working through the cartridge instead of changing colour once it is already out the far side.",
-      "source_file": "README.md",
-      "source_location": null,
-      "source_url": null
-    },
-    {
-      "id": "readme_media_leg_declaration",
-      "label": "Single media Leg Declaration",
-      "_origin": "semantic",
-      "author": null,
-      "captured_at": null,
-      "community": 4,
-      "community_name": "WaterFlow.jsx",
-      "contributor": null,
-      "file_type": "rationale",
-      "norm_label": "single media leg declaration",
-      "rationale": "Write legs in flow order, each listing only the points it adds. Marking the run through each filter element media: true with a slow pace is the one declaration that places the colour change, the stage marker and the slowdown. buried: true draws the route line faintly where a run disappears underground or under the floor.",
-      "source_file": "README.md",
-      "source_location": null,
-      "source_url": null
-    },
-    {
-      "id": "readme_time_spaced_bubble_column",
-      "label": "Time-Spaced Bubble Column",
-      "_origin": "semantic",
-      "author": null,
-      "captured_at": null,
-      "community": 4,
-      "community_name": "WaterFlow.jsx",
-      "contributor": null,
-      "file_type": "rationale",
-      "norm_label": "time-spaced bubble column",
-      "rationale": "Bubbles are spaced evenly in time rather than distance so they crowd through media and the pressure tank and spread out in open pipe, and can never overtake one another. Each rides at its own offset from the centreline and turns slowly around it so the column churns, and stretches along its travel direction in proportion to speed. Every system takes the same ten seconds end to end regardless of how much of the route is slow.",
-      "source_file": "README.md",
-      "source_location": null,
-      "source_url": null
-    },
-    {
       "id": "readme_water_clock_negative_priority",
       "label": "Water Clock at useFrame Priority -1",
       "_origin": "semantic",
       "author": null,
       "captured_at": null,
-      "community": 4,
-      "community_name": "WaterFlow.jsx",
+      "community": 2,
+      "community_name": "App.jsx",
       "contributor": null,
       "file_type": "rationale",
       "norm_label": "water clock at useframe priority -1",
@@ -4574,22 +4625,6 @@
       "norm_label": "timber cladding material",
       "rationale": "The diorama direction is a light product-render cabin with base colours only, where the user textures timber themselves; this light oak texture is the swappable colour map for the cabin's exterior cladding, chosen for its warm low-contrast tone that stays readable under simple PCF shadows without competing with the water-filtration focus.",
       "source_file": "src/assets/textures/wood/house-cladding.jpg",
-      "source_location": null,
-      "source_url": null
-    },
-    {
-      "id": "readme_ui_chrome_over_canvas",
-      "label": "UI Chrome Over Canvas",
-      "_origin": "semantic",
-      "author": null,
-      "captured_at": null,
-      "community": 6,
-      "community_name": "Scene.jsx",
-      "contributor": null,
-      "file_type": "concept",
-      "norm_label": "ui chrome over canvas",
-      "rationale": "The UI chrome is plain React and CSS layered over the canvas; none of it is drawn inside Three.js.",
-      "source_file": "README.md",
       "source_location": null,
       "source_url": null
     },
@@ -4960,7 +4995,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/three/Grass.jsx",
-      "source_location": "L71",
+      "source_location": "L115",
       "weight": 1.0
     },
     {
@@ -4972,7 +5007,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/three/Grass.jsx",
-      "source_location": "L73",
+      "source_location": "L117",
+      "weight": 1.0
+    },
+    {
+      "source": "src_three_grass_createcenters",
+      "target": "src_three_grass_blocked",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/three/Grass.jsx",
+      "source_location": "L255",
       "weight": 1.0
     },
     {
@@ -4984,7 +5031,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/three/Grass.jsx",
-      "source_location": "L45",
+      "source_location": "L89",
       "weight": 1.0
     },
     {
@@ -4996,7 +5043,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/three/Grass.jsx",
-      "source_location": "L250",
+      "source_location": "L361",
       "weight": 1.0
     },
     {
@@ -5008,7 +5055,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/three/Grass.jsx",
-      "source_location": "L193",
+      "source_location": "L289",
       "weight": 1.0
     },
     {
@@ -5020,7 +5067,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/three/Grass.jsx",
-      "source_location": "L194",
+      "source_location": "L290",
       "weight": 1.0
     },
     {
@@ -5032,7 +5079,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/three/Grass.jsx",
-      "source_location": "L196",
+      "source_location": "L292",
+      "weight": 1.0
+    },
+    {
+      "source": "src_three_grass_makelawn",
+      "target": "src_three_grass_createcenters",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/three/Grass.jsx",
+      "source_location": "L296",
       "weight": 1.0
     },
     {
@@ -5044,7 +5103,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/three/Grass.jsx",
-      "source_location": "L207",
+      "source_location": "L314",
+      "weight": 1.0
+    },
+    {
+      "source": "src_three_grass_makelawn",
+      "target": "src_three_grass_hotspotweight",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "src/three/Grass.jsx",
+      "source_location": "L318",
       "weight": 1.0
     },
     {
@@ -10946,24 +11017,24 @@
     },
     {
       "source": "src_three_grass",
+      "target": "src_three_grass_blocked",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/three/Grass.jsx",
+      "source_location": "L103",
+      "weight": 1.0
+    },
+    {
+      "source": "src_three_grass",
       "target": "src_three_grass_makematerial",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/three/Grass.jsx",
-      "source_location": "L169",
-      "weight": 1.0
-    },
-    {
-      "source": "src_three_grass",
-      "target": "src_three_grass_makelawn",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/three/Grass.jsx",
-      "source_location": "L192",
+      "source_location": "L215",
       "weight": 1.0
     },
     {
@@ -10990,13 +11061,57 @@
     },
     {
       "source": "src_three_grass",
+      "target": "src_three_grass_createcenters",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/three/Grass.jsx",
+      "source_location": "L238",
+      "weight": 1.0
+    },
+    {
+      "source": "src_three_grass",
+      "target": "src_three_grass_hotspot_layers",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/three/Grass.jsx",
+      "source_location": "L24",
+      "weight": 1.0
+    },
+    {
+      "source": "src_three_grass",
+      "target": "src_three_grass_hotspotweight",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/three/Grass.jsx",
+      "source_location": "L276",
+      "weight": 1.0
+    },
+    {
+      "source": "src_three_grass",
+      "target": "src_three_grass_makelawn",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/three/Grass.jsx",
+      "source_location": "L288",
+      "weight": 1.0
+    },
+    {
+      "source": "src_three_grass",
       "target": "src_three_grass_grass",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/three/Grass.jsx",
-      "source_location": "L236",
+      "source_location": "L349",
       "weight": 1.0
     },
     {
@@ -11007,7 +11122,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/three/Grass.jsx",
-      "source_location": "L29",
+      "source_location": "L73",
       "weight": 1.0
     },
     {
@@ -11018,18 +11133,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/three/Grass.jsx",
-      "source_location": "L40",
-      "weight": 1.0
-    },
-    {
-      "source": "src_three_grass",
-      "target": "src_three_grass_blocked",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/three/Grass.jsx",
-      "source_location": "L59",
+      "source_location": "L84",
       "weight": 1.0
     },
     {
@@ -14232,5 +14336,5 @@
       "source_file": "legacy/filtration-simulation.html"
     }
   ],
-  "built_at_commit": "8315d575f2c512f7e509e57b98eac1ab0db509bd"
+  "built_at_commit": "99c667db4332faf48f024e6ca53cf21385d7c77b"
 }
