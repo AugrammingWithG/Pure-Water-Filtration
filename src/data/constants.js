@@ -6,59 +6,109 @@
 
 export const STAGE_ORDER = ['sediment', 'carbon', 'ro', 'tap']
 
+/**
+ * Each stage carries `action`, `tone` and `removes` alongside its copy: the
+ * verb, which colour the chips take, and what this stage does something about.
+ *
+ * The verb is per stage rather than a fixed "Removes" because two stages
+ * visibly do not remove anything — the whole-house third stage balances
+ * minerals and leaves them in the water, and the rainwater one kills bacteria
+ * where they are rather than taking them out. A card claiming removal would
+ * contradict what the scene is showing at that moment.
+ *
+ * Tones resolve through data/tones.js to the particle colours in the scene, so
+ * a chip matches the thing being taken out of the water beside it.
+ */
+
 export const STAGE_DATA_BY_SYSTEM = {
   whole: {
     sediment: {
       title: 'Sediment Pre-Filter',
       desc: 'Reduces sediment before it reaches the rest of the system, so every stage downstream lasts longer.',
+      action: 'Removes',
+      tone: 'grit',
+      removes: ['Sand', 'Silt', 'Rust'],
     },
     carbon: {
       title: 'Carbon Block',
       desc: 'Reduces chlorine — the taste and smell most people notice first from Australian tap water.',
+      action: 'Reduces',
+      tone: 'chlorine',
+      removes: ['Chlorine', 'Taste', 'Odour'],
     },
     ro: {
       title: 'Mineral Balance',
       desc: 'Balances excess minerals so water stays gentle on skin, hair and appliances at every outlet.',
+      action: 'Balances',
+      tone: 'mineral',
+      removes: ['Calcium', 'Magnesium', 'Scale'],
     },
     tap: {
       title: 'Filtered Output',
       desc: 'Every tap, shower and appliance in the house now delivers filtered water.',
+      action: 'Delivers',
+      tone: 'clean',
+      removes: ['Every tap', 'Showers', 'Appliances'],
     },
   },
   undersink: {
     sediment: {
       title: 'Sediment Pre-Filter',
       desc: 'Pre-filters incoming water before it reaches the drinking-water cartridges.',
+      action: 'Removes',
+      tone: 'grit',
+      removes: ['Sand', 'Silt', 'Sediment'],
     },
     carbon: {
       title: 'Carbon Block',
       desc: 'Removes the chlorine taste and odour that puts most people off Australian tap water.',
+      action: 'Reduces',
+      tone: 'chlorine',
+      removes: ['Chlorine', 'Taste', 'Odour'],
     },
     ro: {
       title: 'Reverse Osmosis',
       desc: 'A final membrane clears what the earlier cartridges miss, for great-tasting water on demand.',
+      action: 'Removes',
+      tone: 'solids',
+      removes: ['Dissolved solids', 'Lead', 'Nitrates'],
     },
     tap: {
       title: 'Drinking Tap',
       desc: 'Clean, filtered drinking water straight from the kitchen tap — no bottled water required.',
+      action: 'Delivers',
+      tone: 'clean',
+      removes: ['Drinking', 'Cooking', 'Ice'],
     },
   },
   rain: {
     sediment: {
       title: 'Three-Stage Canisters',
       desc: 'Filter out leaf litter, dirt and sediment collected in the tank.',
+      action: 'Removes',
+      tone: 'grit',
+      removes: ['Leaf litter', 'Dirt', 'Grit'],
     },
     carbon: {
       title: 'Carbon Stage',
       desc: 'Clears any taste or odour the tank water has picked up.',
+      action: 'Reduces',
+      tone: 'chlorine',
+      removes: ['Taste', 'Odour', 'Colour'],
     },
     ro: {
       title: 'UV Sterilisation',
       desc: 'Eliminates the bacteria and pathogens untreated tank water can carry.',
+      action: 'Neutralises',
+      tone: 'microbe',
+      removes: ['Bacteria', 'Protozoa', 'Viruses'],
     },
     tap: {
       title: 'Safe Output',
       desc: 'Safe to drink, cook with and bathe in, every day, straight from the tank.',
+      action: 'Delivers',
+      tone: 'clean',
+      removes: ['Drinking', 'Cooking', 'Bathing'],
     },
   },
 }

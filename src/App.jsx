@@ -195,8 +195,13 @@ export default function App() {
       title: stage.title,
       desc: stage.desc,
       placement: system.placement,
+      action: stage.action,
+      tone: stage.tone,
+      removes: stage.removes,
+      // the finished-water tone has no colour of its own; it takes the accent
+      accent: SYSTEMS[currentSystem].accent,
     }),
-    [stageIndex, stage.title, stage.desc, system.placement],
+    [stageIndex, stage, system.placement, currentSystem],
   )
 
   return (
