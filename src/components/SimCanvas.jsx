@@ -16,6 +16,7 @@ export default function SimCanvas({
   currentStage,
   focused,
   paused,
+  subscribe,
   onPick,
   rigRef,
 }) {
@@ -46,6 +47,7 @@ export default function SimCanvas({
           currentStage={currentStage}
           focused={focused}
           paused={paused}
+          subscribe={subscribe}
           onPick={onPick}
           rigRef={rigRef}
         />

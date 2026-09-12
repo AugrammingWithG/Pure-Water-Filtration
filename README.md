@@ -64,9 +64,10 @@ looping. It is a timeline rather than a timer (`hooks/useWalkthrough.js`): one
 playhead in seconds, and the stage showing is whichever dwell it is inside.
 That is what makes the three buttons on it honest:
 
-- **Play** starts the tour at the stage on screen and flies the camera straight
-  in, instead of sitting at the wide view until the first stage change comes
-  round.
+- **Play** flies the camera straight in to the stage the playhead is on,
+  instead of sitting at the wide view until the first stage change comes
+  round. It never moves the playhead: wherever it was left is where the tour
+  picks up.
 - **Pause** is a freeze-frame. The playhead stops, and so does the water —
   bubbles held mid-cartridge, grit held on the face of the element — while
   the camera stays free, so a paused tour is something to orbit around and
@@ -75,17 +76,35 @@ That is what makes the three buttons on it honest:
 - **Resume** carries on from the same instant, both the tour and the water.
   The remainder of the current stage is honoured rather than restarted.
 
-The progress bar is the playhead, and it can be scrubbed: click or drag
-anywhere on it and the tour goes there, landing on the stage that point falls
-in. Its colours are the water's own — the same per-stage list the route is
-painted with, raw at the left and finished at the right — so the bar is the
-journey in miniature, with a hairline at each stage boundary.
+### The stage timeline
 
-Picking a stage from the dots, the keyboard or the scene *seeks*: the tour
-moves there and keeps whatever state it had, so a paused tour can be stepped
-through stage by stage with the water held at each. Switching system or
-resetting the view ends the tour. Space plays and pauses; the arrow keys step
-between stages; Home and End go to the first and last.
+The bar under the scene is the playhead's track with the four stages laid
+along it: a marker where each stage begins, and its name in the stretch that
+follows. Its colours are the water's own — the same per-stage list the route
+is painted with, raw at the left and finished at the right — so the bar is the
+journey in miniature.
+
+- **Tap a marker** (or its name) and the tour jumps to the start of that
+  stage: the playhead lands exactly on the marker, the camera flies in, and
+  the detail card, the marker and the numbered badge in the scene all change
+  together. A press a few pixels shy of a marker still means that marker, so
+  a fingertip cannot land the tour on the stage before.
+- **Drag anywhere along the track** to scrub. The stage the playhead is
+  inside is the live one, so the highlighted marker follows the knob across
+  the boundaries, and the camera follows the marker.
+- **The water is on the same clock.** Every second the playhead is dragged or
+  jumped, the water moves by too: scrub the bar back and the stream runs
+  backwards under the finger, scrub a paused tour and the held frame moves,
+  jump to a stage and the water lands where it would have been.
+
+Whatever picks a stage — a marker, the numbered badge in the scene, a click
+on a cartridge, the keyboard — goes through the same *seek*: the tour moves
+there and keeps whatever state it had, so a paused tour can be stepped through
+stage by stage with the water held at each, and the stage on screen is always
+the one the playhead says. Switching system or resetting the view ends the
+tour. Space plays and pauses; the arrow keys step between stages; Home and
+End go to the first and last; the markers themselves can be tabbed to and
+pressed.
 
 ## Running it
 
@@ -136,7 +155,8 @@ src/
   components/
     SimCanvas.jsx          <Canvas> wrapper and renderer configuration
     Header.jsx Sidebar.jsx CostCard.jsx TrendCard.jsx ImpactCard.jsx
-    DetailCard.jsx PlayBar.jsx icons.jsx
+    DetailCard.jsx icons.jsx
+    PlayBar.jsx            Play/pause and the stage timeline: markers to jump, track to scrub
   styles/
     index.css              Light theme; accent colour switched by data-system on .app
 ```
@@ -179,6 +199,14 @@ merely struggling to draw the scene still gets a tour that runs to time and
 water that flows at the speed it should. Both clocks read a `paused` flag
 rather than being torn down, so resuming is nothing more than letting the
 delta count again.
+
+They are two clocks rather than one because the water runs while the tour is
+idle, and the tour loops while the water does not. What ties them together is
+that every seek on the walkthrough — a scrub, a marker, a badge, an arrow key
+— is published with the signed seconds it moved the playhead, and the water
+adds the same amount to its own clock (banked between frames and taken in the
+next step, so bubbles and grit see one delta). Playing publishes no movement
+at all, so the loop wrapping round is not read as a jump back to the start.
 
 The water's clock is stepped in a `useFrame` at priority `-1` so it is ahead
 of the bubbles and grit that read it in the same frame. r3f runs frame

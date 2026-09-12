@@ -32,8 +32,15 @@ function waterGradient(colours) {
 }
 
 /**
- * Transport for the walkthrough: play/pause, a scrubbable playhead across the
- * four stages, and the stage dots.
+ * Transport for the walkthrough: play/pause and the stage timeline — a
+ * scrubbable playhead with the four stages marked along it.
+ *
+ * Each stage is a marker on the track where it begins, with its name in the
+ * stretch that follows. Tapping a marker or a name puts the playhead exactly
+ * on that stage's start, and the tour goes there; dragging anywhere along the
+ * track scrubs. The stage the playhead is inside is the live one, so the
+ * highlighted marker is always the stage on screen — whether the tour put it
+ * there, a scrub did, or a click in the scene.
  *
  * The playhead moves every frame, so it is driven through the DOM — the
  * position arrives via `subscribe` and lands in a CSS variable the fill and
@@ -52,6 +59,7 @@ export default function PlayBar({
   onScrubEnd,
   subscribe,
 }) {
+  const timeline = useRef(null)
   const slider = useRef(null)
   const dragging = useRef(false)
 
@@ -62,27 +70,36 @@ export default function PlayBar({
   useEffect(
     () =>
       subscribe((fraction) => {
-        const el = slider.current
+        const el = timeline.current
         if (!el) return
         const pct = fraction * 100
         el.style.setProperty('--p', `${pct}%`)
-        el.setAttribute('aria-valuenow', String(Math.round(pct)))
+        slider.current?.setAttribute('aria-valuenow', String(Math.round(pct)))
       }),
     [subscribe],
   )
 
   const seekAt = (e) => {
-    const rect = slider.current.getBoundingClientRect()
+    const rect = timeline.current.getBoundingClientRect()
     const fraction = (e.clientX - rect.left) / rect.width
     onScrub(Math.min(1, Math.max(0, fraction)))
   }
 
+  /**
+   * A press anywhere on the timeline starts a scrub. On a stage's marker or
+   * name it starts from that stage's exact beginning rather than from
+   * wherever under the marker the finger landed — a marker a few pixels wide
+   * would otherwise put the playhead just short of the stage it names, and
+   * so on the stage before. Dragging on from there scrubs like anywhere else.
+   */
   const onPointerDown = (e) => {
     if (e.button !== 0) return
     dragging.current = true
-    slider.current.setPointerCapture(e.pointerId)
+    timeline.current.setPointerCapture(e.pointerId)
     onScrubStart()
-    seekAt(e)
+    const stage = e.target.closest('[data-stage]')?.dataset.stage
+    if (stage) onSelectStage(stage)
+    else seekAt(e)
   }
   const onPointerMove = (e) => {
     if (dragging.current) seekAt(e)
@@ -91,6 +108,15 @@ export default function PlayBar({
     if (!dragging.current) return
     dragging.current = false
     onScrubEnd()
+  }
+
+  /**
+   * The markers are buttons so they can be reached and pressed from the
+   * keyboard. A pointer press has already been handled above; a keyboard
+   * activation arrives as a click with no pointer behind it (detail 0).
+   */
+  const onStageClick = (e, key) => {
+    if (e.detail === 0) onSelectStage(key)
   }
 
   return (
@@ -106,31 +132,49 @@ export default function PlayBar({
         </button>
 
         <div
-          ref={slider}
+          ref={timeline}
           className="progress"
-          role="slider"
-          tabIndex={0}
-          aria-label="Walkthrough position"
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuetext={`Stage ${index + 1} of ${count}`}
           style={{ '--water': waterGradient(waterColours) }}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
         >
-          <div className="progress-track">
-            <div className="progress-fill" />
-            {STAGE_ORDER.slice(1).map((key, i) => (
-              <span
+          <div
+            ref={slider}
+            className="progress-slider"
+            role="slider"
+            tabIndex={0}
+            aria-label="Walkthrough position"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuetext={`Stage ${index + 1} of ${count}`}
+          >
+            <div className="progress-track">
+              <div className="progress-fill" />
+            </div>
+            <div className="progress-knob" />
+          </div>
+
+          <div className="progress-stages">
+            {STAGE_ORDER.map((key, i) => (
+              <button
                 key={key}
-                className="progress-tick"
-                style={{ left: `${((i + 1) / count) * 100}%` }}
-              />
+                type="button"
+                className={`progress-stage${key === currentStage ? ' active' : ''}${
+                  i < index ? ' passed' : ''
+                }`}
+                style={{ left: `${(i / count) * 100}%`, width: `${100 / count}%` }}
+                data-stage={key}
+                aria-current={key === currentStage ? 'step' : undefined}
+                title={`Go to stage ${i + 1}`}
+                onClick={(e) => onStageClick(e, key)}
+              >
+                <span className="progress-marker" />
+                <span className="progress-label">{dotLabelFor(key, currentSystem)}</span>
+              </button>
             ))}
           </div>
-          <div className="progress-knob" />
         </div>
 
         <span className="stage-count">
@@ -139,22 +183,10 @@ export default function PlayBar({
               <b className="pb-state">Paused</b>{' '}
             </>
           )}
-          Stage {index + 1} of {count}
+          <span className="stage-count-text">
+            Stage {index + 1} of {count}
+          </span>
         </span>
-      </div>
-
-      <div className="stage-dots">
-        {STAGE_ORDER.map((key) => (
-          <button
-            key={key}
-            className={`stage-dot-btn${key === currentStage ? ' active' : ''}`}
-            onClick={() => onSelectStage(key)}
-            data-stage={key}
-          >
-            <span className="dotmark" />
-            <span>{dotLabelFor(key, currentSystem)}</span>
-          </button>
-        ))}
       </div>
     </div>
   )

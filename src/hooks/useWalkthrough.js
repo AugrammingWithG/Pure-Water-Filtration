@@ -20,6 +20,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
  *
  * Progress is published to subscribers rather than held in React state: it
  * changes every frame, and a re-render at that rate would reach the canvas.
+ * Each notification also carries how far the playhead was just *moved* — by a
+ * seek or a scrub, never by playing — so the water can be moved by the same
+ * amount and the timeline stays the water's own clock: scrubbing scrubs the
+ * stream, and jumping to a stage lands the water where it would have been.
  */
 
 /**
@@ -51,21 +55,38 @@ export function useWalkthrough({ stages, dwell, onStage }) {
     [stages, dwell],
   )
 
-  const publish = useCallback(() => {
-    const fraction = time.current / total
-    listeners.current.forEach((fn) => fn(fraction))
-  }, [total])
+  const publish = useCallback(
+    (jump) => {
+      const fraction = time.current / total
+      listeners.current.forEach((fn) => fn(fraction, jump))
+    },
+    [total],
+  )
+
+  /**
+   * Puts the playhead at `t`. A seek reports the signed distance it moved;
+   * playing reports none, so the loop wrapping round does not read as a jump
+   * back to the start.
+   */
+  const place = useCallback(
+    (t, seek) => {
+      const next = Math.min(total - 1e-6, Math.max(0, t))
+      const jump = seek ? next - time.current : 0
+      time.current = next
+      publish(jump)
+    },
+    [total, publish],
+  )
 
   /** Moves the playhead, and reports the stage if that changed it. */
   const moveTo = useCallback(
-    (t) => {
+    (t, seek) => {
       const before = stageAt(time.current)
-      time.current = Math.min(total - 1e-6, Math.max(0, t))
-      publish()
+      place(t, seek)
       const after = stageAt(time.current)
       if (after !== before) onStageRef.current(after)
     },
-    [stageAt, total, publish],
+    [stageAt, place],
   )
 
   useEffect(() => {
@@ -78,7 +99,7 @@ export function useWalkthrough({ stages, dwell, onStage }) {
       if (!scrubbing.current) {
         let t = time.current + dt
         if (t >= total) t -= total
-        moveTo(t)
+        moveTo(t, false)
       }
       id = requestAnimationFrame(tick)
     }
@@ -93,26 +114,27 @@ export function useWalkthrough({ stages, dwell, onStage }) {
       /** Ends the tour. The playhead stays put, so play picks up from here. */
       stop: () => setStatus('idle'),
       /** Puts the playhead at the start of a stage the caller has selected. */
-      seekStage(index) {
-        time.current = index * dwell
-        publish()
-      },
+      seekStage: (index) => place(index * dwell, true),
       /** Scrubbing: a fraction of the whole timeline. */
-      seekFraction: (fraction) => moveTo(fraction * total),
+      seekFraction: (fraction) => moveTo(fraction * total, true),
       beginScrub() {
         scrubbing.current = true
       },
       endScrub() {
         scrubbing.current = false
       },
-      /** Called with the current fraction at once, then on every change. */
+      /**
+       * Called with the current fraction at once, then on every change — each
+       * time also with the seconds the playhead was just seeked by (0 while
+       * simply playing).
+       */
       subscribe(fn) {
         listeners.current.add(fn)
-        fn(time.current / total)
+        fn(time.current / total, 0)
         return () => listeners.current.delete(fn)
       },
     }),
-    [dwell, total, moveTo, publish],
+    [dwell, total, moveTo, place],
   )
 
   return { status, ...controls }
