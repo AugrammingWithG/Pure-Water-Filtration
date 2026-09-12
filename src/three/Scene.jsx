@@ -88,7 +88,7 @@ export default function Scene({
 
   return (
     <>
-      <SceneEnvironment intensity={0.55} />
+      <SceneEnvironment intensity={0.2} />
       <Lighting accent={system.accentColor} />
 
       <Ground accent={system.accentColor} />

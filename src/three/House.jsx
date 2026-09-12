@@ -17,9 +17,9 @@ const FLUE = { color: 0x4E575F, roughness: 0.4, metalness: 0.3 } // the fucking 
 const STONE = { color: 0x4E575F, roughness: 0.9, metalness: 0 }
 const GLASS = {
   color: 0xcfe6f2,
-  roughness: 0.08,
+  roughness: 0.04,
   metalness: 0,
-  envMapIntensity: 0.4,
+  envMapIntensity: 1.15,
   transparent: true,
   opacity: 0.4,
 }

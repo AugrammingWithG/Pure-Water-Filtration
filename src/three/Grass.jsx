@@ -12,14 +12,15 @@ import {
   TREES,
   WIND,
 } from './layout'
+import { makeBladeGeometry, WIND_FIELD } from './parts/blade'
 import { mulberry32 } from './parts/random'
 import { TANK_OUTLET } from './systems'
 
 /** Blades stop just short of the rim so the plinth edge stays crisp. */
 const LAWN_RADIUS = GROUND.radius - 0.08
-const BLADE_WIDTH = 0.03
-const ROOT_COLOR = new THREE.Color(0x3b6836)
-const TIP_COLOR = new THREE.Color(0x93bd5e)
+const BLADE_WIDTH = 0.025
+const ROOT_COLOR = new THREE.Color(0x224a1d)
+const TIP_COLOR = new THREE.Color(0x45873d)
 
 // ---------------------------------------------------------------------------
 // Placement
@@ -79,37 +80,6 @@ function blocked(x, z) {
 // Geometry + material
 // ---------------------------------------------------------------------------
 
-/**
- * One blade: three tapered segments and a tip, 7 vertices. Unit-sized —
- * x spans -0.5..0.5, y 0..1 — the shader scales it per instance. It curls
- * forward a little along +z so blades don't all stand ramrod straight.
- * Normals point mostly up so the lawn shades as a surface rather than as
- * thousands of individually lit cards.
- */
-function makeBladeGeometry() {
-  const rows = [
-    [0, 1],
-    [0.35, 0.92],
-    [0.7, 0.62],
-  ]
-  const n = new THREE.Vector3(0, 0.75, 0.66).normalize()
-  const positions = []
-  const normals = []
-  for (const [y, w] of rows) {
-    const z = 0.25 * y * y
-    positions.push(-0.5 * w, y, z, 0.5 * w, y, z)
-    normals.push(n.x, n.y, n.z, n.x, n.y, n.z)
-  }
-  positions.push(0, 1, 0.25)
-  normals.push(n.x, n.y, n.z)
-
-  const geo = new THREE.BufferGeometry()
-  geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
-  geo.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3))
-  geo.setIndex([0, 1, 3, 0, 3, 2, 2, 3, 5, 2, 5, 4, 4, 5, 6])
-  return geo
-}
-
 const VERTEX_HEAD = /* glsl */ `
   attribute vec4 aBlade; // yaw, height, phase, tint
   uniform float uTime;
@@ -149,14 +119,8 @@ const VERTEX_BEGIN = /* glsl */ `
   );
 
   vec2 root = instanceMatrix[3].xz;
-  float along = dot(root, uWindDir);
-  float across = dot(root, vec2(-uWindDir.y, uWindDir.x));
   float wt = uTime;
-  // gust fronts rolling downwind, wavering sideways as they go
-  float gust = 0.5 + 0.5 * sin(along * 0.9 - wt * 1.8 + 1.4 * sin(across * 0.5 + wt * 0.4));
-  gust *= gust;
-  // a broader, slower swell underneath
-  float swell = 0.5 + 0.5 * sin(along * 0.35 - wt * 0.7 + across * 0.25);
+  ${WIND_FIELD}
   // each blade's own flutter
   float flutter = sin(wt * 4.5 + aBlade.z * 6.2832 + along * 2.0);
   float bend = uWind * (0.2 + 0.6 * gust + 0.3 * swell) + 0.04 * flutter;
