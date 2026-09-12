@@ -1,9 +1,11 @@
 import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
+import * as THREE from 'three'
 import { HOUSE, RAIN_TANK, RAIN_UNIT as R } from '../layout'
 import { TANK_OUTLET } from '../systems'
 import Canister from '../parts/Canister'
 import FadeGroup from '../parts/FadeGroup'
+import Outline from '../parts/Outline'
 import Pipe from '../parts/Pipe'
 import { COPPER, PVC } from '../parts/materials'
 import Valve from '../parts/Valve'
@@ -23,6 +25,13 @@ const STAGE_LOOK = [
 
 const { center, w, h, depth, pipeX, canisterOffsets, uvOffset, inletZ, outletZ } = R
 const XRAY_OPACITY = 0.2
+/**
+ * The route runs down the middle of the copper, which is opaque, so the pipe
+ * runs thin out with the cover and the water inside them shows through.
+ */
+const PIPE_XRAY = 0.3
+/** The route starts inside the tank; fading it keeps that first metre visible. */
+const TANK_XRAY = 0.5
 const topY = center.y + 0.3
 
 /** Pressure gauge sitting on a brass stem through the top plate. */
@@ -50,7 +59,7 @@ function Gauge({ x, needle }) {
 }
 
 /** The UV lamp: a stainless sleeve with a violet glow that brightens when selected. */
-function UvTube({ position, selected, onClick }) {
+function UvTube({ position, selected, revealed, onClick }) {
   const mat = useRef()
   useFrame((state) => {
     if (!mat.current) return
@@ -59,17 +68,19 @@ function UvTube({ position, selected, onClick }) {
   })
   return (
     <group position={position} onClick={onClick}>
-      <mesh position={[0, -0.33, 0]} castShadow>
-        <cylinderGeometry args={[0.042, 0.042, 0.66, 18]} />
-        <meshStandardMaterial
-          ref={mat}
-          color={0xb9a7ff}
-          emissive={0x8b6cff}
-          emissiveIntensity={0.55}
-          roughness={0.3}
-          metalness={0.2}
-        />
-      </mesh>
+      <FadeGroup opacity={revealed ? 0.42 : 1} speed={4}>
+        <mesh position={[0, -0.33, 0]} castShadow>
+          <cylinderGeometry args={[0.042, 0.042, 0.66, 18]} />
+          <meshStandardMaterial
+            ref={mat}
+            color={0xb9a7ff}
+            emissive={0x8b6cff}
+            emissiveIntensity={0.55}
+            roughness={0.3}
+            metalness={0.2}
+          />
+        </mesh>
+      </FadeGroup>
       <mesh position={[0, 0.03, 0]}>
         <cylinderGeometry args={[0.05, 0.05, 0.07, 18]} />
         <meshStandardMaterial {...GAUGE_RIM} />
@@ -93,6 +104,8 @@ function UvTube({ position, selected, onClick }) {
  */
 export default function RainwaterUnit({ active, revealed, selectedStage, accent, onPick }) {
   const label = useBrandLabel({ plate: false })
+  /** Shared by the cabinet and its outline, so the edges trace the real box. */
+  const cabinet = useMemo(() => new THREE.BoxGeometry(w, h, depth), [])
   const tank = RAIN_TANK.center
 
   const inlet = useMemo(
@@ -133,11 +146,15 @@ export default function RainwaterUnit({ active, revealed, selectedStage, accent,
 
   return (
     <group>
+      {/* selection outline, marking this as the unit the walkthrough is on */}
+      <group position={center} rotation={[0, Math.PI / 2, 0]}>
+        <Outline geometry={cabinet} color={accent} shown={active} />
+      </group>
+
       {/* stainless cabinet, width along z, front facing +x */}
       <FadeGroup opacity={revealed ? XRAY_OPACITY : 1} speed={4}>
         <group position={center} rotation={[0, Math.PI / 2, 0]}>
-          <mesh castShadow receiveShadow onClick={onCover}>
-            <boxGeometry args={[w, h, depth]} />
+          <mesh geometry={cabinet} castShadow receiveShadow onClick={onCover}>
             <meshStandardMaterial {...STAINLESS} />
           </mesh>
           <mesh position={[0, h / 2 + 0.01, 0]} castShadow>
@@ -168,6 +185,7 @@ export default function RainwaterUnit({ active, revealed, selectedStage, accent,
           capColor={s.cap}
           accent={accent}
           selected={active && selectedStage === (s.key === 'carbon2' ? 'carbon' : s.key)}
+          revealed={revealed}
           onClick={(e) => {
             e.stopPropagation()
             onPick(s.key === 'carbon2' ? 'carbon' : s.key)
@@ -177,21 +195,28 @@ export default function RainwaterUnit({ active, revealed, selectedStage, accent,
       <UvTube
         position={[pipeX, topY, center.z + uvOffset]}
         selected={active && selectedStage === 'ro'}
+        revealed={revealed}
         onClick={(e) => {
           e.stopPropagation()
           onPick('ro')
         }}
       />
 
-      {/* plumbing */}
-      <Pipe points={inlet} radius={0.036} material={COPPER} />
-      <Valve position={[pipeX, 0.95, inletZ]} pipeRadius={0.036} handleDir="+x" />
-      <Pipe points={outlet} radius={0.036} material={COPPER} />
-      <Valve position={[pipeX, 0.9, outletZ]} pipeRadius={0.036} handleDir="+x" />
+      {/* plumbing — the treated runs go see-through with the cover */}
+      <FadeGroup opacity={revealed ? PIPE_XRAY : 1} speed={4}>
+        <Pipe points={inlet} radius={0.036} material={COPPER} />
+        <Valve position={[pipeX, 0.95, inletZ]} pipeRadius={0.036} handleDir="+x" />
+        <Pipe points={outlet} radius={0.036} material={COPPER} />
+        <Valve position={[pipeX, 0.9, outletZ]} pipeRadius={0.036} handleDir="+x" />
+      </FadeGroup>
+      {/* the roof downpipe is stormwater, not on the route — always solid */}
       <Pipe points={downpipe} radius={0.045} material={PVC} />
 
       {/* rainwater tank */}
       <group position={[tank.x, 0, tank.z]}>
+        {/* The tank stays solid: fading it just showed the far inside wall, and
+            the route's first leg is marked buried so it reads as drawn from
+            within rather than missing. */}
         <mesh position={[0, RAIN_TANK.h / 2, 0]} castShadow receiveShadow>
           <cylinderGeometry args={[RAIN_TANK.r, RAIN_TANK.r, RAIN_TANK.h, 36]} />
           <meshStandardMaterial {...TANK} />

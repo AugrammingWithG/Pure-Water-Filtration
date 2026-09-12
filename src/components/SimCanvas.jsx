@@ -16,7 +16,15 @@ export default function SimCanvas({ currentSystem, currentStage, focused, onPick
     <div className="sim-canvas-wrap">
       <Canvas
         shadows={{ type: THREE.PCFShadowMap }}
-        dpr={[1, 2]}
+        /**
+         * The scene is fill-rate bound — grass, two shadow passes and a lot of
+         * soft gradient — so cost scales with pixels, not geometry. Capping at
+         * 1.5 rather than 2 roughly doubles the frame rate on a high-DPI screen
+         * with integrated graphics, which is the difference between water that
+         * flows and water that stutters. At this art style the extra half-step
+         * of resolution is not visible; the stutter very much is.
+         */
+        dpr={[1, 1.5]}
         gl={{
           antialias: true,
           alpha: true,

@@ -7,6 +7,7 @@ import House from './House'
 import Kitchen from './Kitchen'
 import Lighting from './Lighting'
 import SceneEnvironment from './SceneEnvironment'
+import StageMarkers from './StageMarkers'
 import WaterFlow from './WaterFlow'
 import RainwaterUnit from './products/RainwaterUnit'
 import UnderSinkUnit from './products/UnderSinkUnit'
@@ -87,7 +88,12 @@ export default function Scene({ currentSystem, currentStage, focused, onPick, ri
       <UnderSinkUnit {...unitProps('undersink')} />
       <RainwaterUnit {...unitProps('rain')} />
 
-      <WaterFlow key={currentSystem} system={system} />
+      <WaterFlow key={currentSystem} system={system} currentStage={currentStage} />
+      <StageMarkers
+        system={system}
+        currentStage={currentStage}
+        onPick={pickFor(currentSystem)}
+      />
     </>
   )
 }

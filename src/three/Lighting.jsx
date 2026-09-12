@@ -104,22 +104,17 @@ export default function Lighting({ accent }) {
         shadow-camera-far={26}
       />
 
+      {/*
+        No shadow on the rim. At intensity 0.2 the darkening it could cast is
+        below what the eye picks up against the key light and the hemisphere
+        fill, and it was costing a second full shadow pass every frame — the
+        most expensive thing in the scene for the least visible return.
+      */}
       <directionalLight
         ref={rim}
         color={RIM_BASE}
         intensity={0.2}
         position={LIGHTS.rim}
-        castShadow
-        shadow-mapSize={[1024, 1024]}
-        shadow-bias={0.05}
-        shadow-normalBias={0.03}
-        shadow-radius={5}
-        shadow-camera-left={-9}
-        shadow-camera-right={9}
-        shadow-camera-top={9}
-        shadow-camera-bottom={-9}
-        shadow-camera-near={2}
-        shadow-camera-far={24}
       />
 
       <directionalLight color={FILL_COLOR} intensity={0.35} position={[10, 3, 2]} />
