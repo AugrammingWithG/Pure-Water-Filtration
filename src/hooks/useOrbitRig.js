@@ -38,6 +38,12 @@ export function useOrbitRig({
   minRadius = 2,
   maxRadius = 14,
   autoRotateSpeed = 0.05,
+  /**
+   * Multiplies the working radius when the camera is placed, without touching
+   * the radius itself — so zoom limits and fly-to distances stay in scene
+   * units and the caller can pull back for a narrow viewport. See Scene.jsx.
+   */
+  distanceScale = 1,
 }) {
   const camera = useThree((s) => s.camera)
   const domElement = useThree((s) => s.gl.domElement)
@@ -77,21 +83,26 @@ export function useOrbitRig({
     }
   }
 
+  // Read through a ref: updateCamera runs per-frame and must not be rebuilt
+  // (and its listeners re-bound) every time the viewport changes shape.
+  const scaleRef = useRef(distanceScale)
+
   const updateCamera = useCallback(() => {
     const s = stateRef.current
-    camera.position.x =
-      s.target.x + s.radius * Math.sin(s.phi) * Math.sin(s.theta)
-    camera.position.y = s.target.y + s.radius * Math.cos(s.phi)
-    camera.position.z =
-      s.target.z + s.radius * Math.sin(s.phi) * Math.cos(s.theta)
+    const r = s.radius * scaleRef.current
+    camera.position.x = s.target.x + r * Math.sin(s.phi) * Math.sin(s.theta)
+    camera.position.y = s.target.y + r * Math.cos(s.phi)
+    camera.position.z = s.target.z + r * Math.sin(s.phi) * Math.cos(s.theta)
     camera.lookAt(s.target)
   }, [camera])
 
   // Place the camera before the first frame so there is no one-frame pop
-  // from r3f's default camera position.
+  // from r3f's default camera position; also re-places it when a resize
+  // changes the scale.
   useLayoutEffect(() => {
+    scaleRef.current = distanceScale
     updateCamera()
-  }, [updateCamera])
+  }, [distanceScale, updateCamera])
 
   // ---------------- pointer + wheel input ----------------
   useEffect(() => {
