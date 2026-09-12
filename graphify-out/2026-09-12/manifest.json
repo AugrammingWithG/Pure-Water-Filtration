@@ -114,10 +114,10 @@
     "semantic_hash": ""
   },
   "src/three/Lighting.jsx": {
-    "mtime": 1789198855.2214391,
-    "seen": 1789199767.9773703,
-    "ast_hash": "a512b443bfe5f10ecf7523a25e3c0ae0",
-    "semantic_hash": "a512b443bfe5f10ecf7523a25e3c0ae0"
+    "mtime": 1789218104.2631545,
+    "seen": 1789218515.2081885,
+    "ast_hash": "5cc805def9e18be783ba69aa18b3f7c4",
+    "semantic_hash": ""
   },
   "src/three/Scene.jsx": {
     "mtime": 1789214147.8152752,
@@ -126,9 +126,9 @@
     "semantic_hash": ""
   },
   "src/three/SceneEnvironment.jsx": {
-    "mtime": 1789215416.600353,
-    "seen": 1789216395.8495617,
-    "ast_hash": "a345ac40ee542949643ed4bf33fc0aff",
+    "mtime": 1789218072.8014884,
+    "seen": 1789218515.208192,
+    "ast_hash": "485d62f9dbf3e6e2aaa99a8cb55da9ac",
     "semantic_hash": ""
   },
   "src/three/StageMarkers.jsx": {
