@@ -9,7 +9,7 @@ import { COPPER } from '../parts/materials'
 import Valve from '../parts/Valve'
 import { useBrandLabel } from '../parts/brandLabel'
 
-const SHELL = { color: 0xf5f5f3, roughness: 0.35, metalness: 0.1 }
+const SHELL = { color: 0xf5f5f3, roughness: 0.28, metalness: 0.1 }
 const MANIFOLD = { color: 0x3a3f45, roughness: 0.6, metalness: 0.3 }
 const PIT = { color: 0x8e949a, roughness: 0.9, metalness: 0 }
 

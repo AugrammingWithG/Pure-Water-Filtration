@@ -90,9 +90,9 @@
     "semantic_hash": "a9e9243ab8ec67744bc269fc0215256a"
   },
   "src/three/Grass.jsx": {
-    "mtime": 1789212510.4957037,
-    "seen": 1789216395.849544,
-    "ast_hash": "450614890494f9bd77cf76f2ad70763d",
+    "mtime": 1789222563.603027,
+    "seen": 1789222801.5476232,
+    "ast_hash": "763053ed6a26bf546fcd63d9daa5ec4f",
     "semantic_hash": ""
   },
   "src/three/Ground.jsx": {
@@ -102,9 +102,9 @@
     "semantic_hash": ""
   },
   "src/three/House.jsx": {
-    "mtime": 1789211821.0731308,
-    "seen": 1789216395.84955,
-    "ast_hash": "a64a03f8bcb648d2d472fc93611e72d3",
+    "mtime": 1789222743.3842413,
+    "seen": 1789222801.5476265,
+    "ast_hash": "9817611f2b03bd641395f8eec77edcef",
     "semantic_hash": ""
   },
   "src/three/Kitchen.jsx": {

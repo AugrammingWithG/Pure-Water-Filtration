@@ -11,7 +11,7 @@ import { COPPER, PVC } from '../parts/materials'
 import Valve from '../parts/Valve'
 import { useBrandLabel } from '../parts/brandLabel'
 
-const STAINLESS = { color: 0xf0f2f4, roughness: 0.14, metalness: 0.9, envMapIntensity: 1.5 }
+const STAINLESS = { color: 0xf0f2f4, roughness: 0.1, metalness: 0.9, envMapIntensity: 1.5 }
 const GAUGE_RIM = { color: 0x4b5157, roughness: 0.4, metalness: 0.7 }
 const GAUGE_FACE = { color: 0xf7f7f5, roughness: 0.6, metalness: 0 }
 const BRASS = { color: 0xc9a227, metalness: 0.85, roughness: 0.35 }

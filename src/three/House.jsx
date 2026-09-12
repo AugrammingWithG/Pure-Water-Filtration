@@ -1,4 +1,5 @@
-import { useMemo } from 'react'
+import { useMemo, useRef, useState } from 'react'
+import { useFrame } from '@react-three/fiber'
 import { useTexture } from '@react-three/drei'
 import * as THREE from 'three'
 import woodCladdingMapUrl from '../assets/textures/wood/house-cladding.jpg'
@@ -6,9 +7,9 @@ import { CHIMNEY, DECK, FRONT_SOLID_X1, HOUSE, STEPPING_STONES } from './layout'
 import FadeGroup from './parts/FadeGroup'
 
 /** Base colours only — the timber surfaces are the ones slated for textures later. */
-const CLADDING = { color: 0x4E575F, roughness: 5, metalness: 0 }
-const ROOF = { color: 0x4E575F, roughness: 0.55, metalness: 0.25 }
-const SEAM = { color: 0x4E575F, roughness: 0.5, metalness: 0.3 }
+const CLADDING = { color: 0x4E575F, roughness: 3, metalness: 0.4 }
+const ROOF = { color: 0x4E575F, roughness: 0.55, metalness: 0.9 }
+const SEAM = { color: 0x4E575F, roughness: 0.5, metalness: 0.7 }
 const OAK = { color: 0xd6b48a, roughness: 0.6, metalness: 0.7 }
 const DECK_TIMBER = { color: 0x4E575F, roughness: 0.75, metalness: 0.4 }
 const FLOOR_TIMBER = { color: 0x4E575F, roughness: 0.75, metalness: 0.4 }
@@ -150,14 +151,105 @@ function useGableGeometry() {
   }, [])
 }
 
+function FramedGlassPanel({ width, height, depth, frameWidth, frameMap, handle = false }) {
+  return (
+    <>
+      <mesh position={[0, height / 2 - frameWidth / 2, 0]} castShadow>
+        <boxGeometry args={[width, frameWidth, depth]} />
+        <meshStandardMaterial {...OAK} color={0xffffff} map={frameMap} />
+      </mesh>
+      <mesh position={[0, -height / 2 + frameWidth / 2, 0]} castShadow>
+        <boxGeometry args={[width, frameWidth, depth]} />
+        <meshStandardMaterial {...OAK} color={0xffffff} map={frameMap} />
+      </mesh>
+      <mesh position={[-width / 2 + frameWidth / 2, 0, 0]} castShadow>
+        <boxGeometry args={[frameWidth, height, depth]} />
+        <meshStandardMaterial {...OAK} color={0xffffff} map={frameMap} />
+      </mesh>
+      <mesh position={[width / 2 - frameWidth / 2, 0, 0]} castShadow>
+        <boxGeometry args={[frameWidth, height, depth]} />
+        <meshStandardMaterial {...OAK} color={0xffffff} map={frameMap} />
+      </mesh>
+      <mesh>
+        <boxGeometry args={[width - frameWidth * 2, height - frameWidth * 2, 0.02]} />
+        <meshStandardMaterial {...GLASS} />
+      </mesh>
+      {handle && (
+        <mesh position={[-width / 2 + frameWidth * 1.1, 0, depth * 0.3]} castShadow>
+          <boxGeometry args={[0.018, 0.22, 0.018]} />
+          <meshStandardMaterial color={0x8d7f73} roughness={0.45} metalness={0.65} />
+        </mesh>
+      )}
+    </>
+  )
+}
+
+/** Right-hand sliding leaf that stacks over the neighbouring fixed panel. */
+function SlidingDoorLeaf({
+  width,
+  height,
+  depth,
+  frameWidth,
+  frameMap,
+  open,
+  travel,
+  onContextMenu,
+}) {
+  const leafRef = useRef(null)
+  const targetX = open ? -travel : 0
+
+  useFrame((_, delta) => {
+    if (!leafRef.current) return
+    const nextX = THREE.MathUtils.damp(
+      leafRef.current.position.x,
+      targetX,
+      7,
+      delta,
+    )
+    leafRef.current.position.x = Math.abs(nextX - targetX) < 1e-4 ? targetX : nextX
+  })
+
+  return (
+    <group ref={leafRef} onContextMenu={onContextMenu}>
+      <FramedGlassPanel
+        width={width}
+        height={height}
+        depth={depth}
+        frameWidth={frameWidth}
+        frameMap={frameMap}
+        handle
+      />
+    </group>
+  )
+}
+
 /** A glazed opening: oak frame, optional centre mullion, a pane of glass. */
-function Glazing({ x0, x1, y0, y1, mullion = false, frameMap }) {
+function Glazing({
+  x0,
+  x1,
+  y0,
+  y1,
+  mullion = false,
+  frameMap,
+  slidingDoor = false,
+  doorOpen = false,
+  onDoorContextMenu,
+}) {
   const fw = 0.06 // frame width
   const fd = 0.1 // frame depth
   const cx = (x0 + x1) / 2
   const cy = (y0 + y1) / 2
   const w = x1 - x0
   const h = y1 - y0
+  const innerW = w - fw * 2
+  const innerH = h - fw * 2
+  const panelOverlap = fw * 0.95
+  const panelW = (innerW + panelOverlap) / 2
+  const panelOffset = (innerW - panelOverlap) / 4
+  const overlapTravel = (innerW - panelOverlap) / 2
+  const rearTrackZ = -0.016
+  const frontTrackZ = 0.03
+  const trackDepth = 0.014
   return (
     <group position={[cx, cy, FRONT_Z]}>
       <mesh position={[0, h / 2 - fw / 2, 0]} castShadow>
@@ -176,16 +268,59 @@ function Glazing({ x0, x1, y0, y1, mullion = false, frameMap }) {
         <boxGeometry args={[fw, h, fd]} />
         <meshStandardMaterial {...OAK} color={0xffffff} map={frameMap} />
       </mesh>
-      {mullion && (
+      {slidingDoor ? (
+        <>
+          {/* Sliding doors need separate tracks so one panel can pass the other. */}
+          <mesh position={[0, h / 2 - fw * 0.55, rearTrackZ]} castShadow>
+            <boxGeometry args={[innerW, trackDepth, fd * 0.3]} />
+            <meshStandardMaterial {...OAK} color={0xffffff} map={frameMap} />
+          </mesh>
+          <mesh position={[0, h / 2 - fw * 0.2, frontTrackZ]} castShadow>
+            <boxGeometry args={[innerW, trackDepth, fd * 0.3]} />
+            <meshStandardMaterial {...OAK} color={0xffffff} map={frameMap} />
+          </mesh>
+          <mesh position={[0, -h / 2 + fw * 0.2, rearTrackZ]} castShadow>
+            <boxGeometry args={[innerW, trackDepth, fd * 0.3]} />
+            <meshStandardMaterial {...OAK} color={0xffffff} map={frameMap} />
+          </mesh>
+          <mesh position={[0, -h / 2 + fw * 0.55, frontTrackZ]} castShadow>
+            <boxGeometry args={[innerW, trackDepth, fd * 0.3]} />
+            <meshStandardMaterial {...OAK} color={0xffffff} map={frameMap} />
+          </mesh>
+          <group position={[-panelOffset, 0, rearTrackZ]}>
+            <FramedGlassPanel
+              width={panelW}
+              height={innerH}
+              depth={fd * 0.74}
+              frameWidth={fw}
+              frameMap={frameMap}
+            />
+          </group>
+          <group position={[panelOffset, 0, frontTrackZ]}>
+            <SlidingDoorLeaf
+              width={panelW}
+              height={innerH}
+              depth={fd * 0.82}
+              frameWidth={fw}
+              frameMap={frameMap}
+              open={doorOpen}
+              travel={overlapTravel}
+              onContextMenu={onDoorContextMenu}
+            />
+          </group>
+        </>
+      ) : mullion ? (
         <mesh position={[0, 0, 0.005]} castShadow>
           <boxGeometry args={[fw * 0.8, h - fw * 2, fd * 0.8]} />
           <meshStandardMaterial {...OAK} color={0xffffff} map={frameMap} />
         </mesh>
+      ) : null}
+      {!slidingDoor && (
+        <mesh>
+          <boxGeometry args={[innerW, innerH, 0.02]} />
+          <meshStandardMaterial {...GLASS} />
+        </mesh>
       )}
-      <mesh>
-        <boxGeometry args={[w - fw * 2, h - fw * 2, 0.02]} />
-        <meshStandardMaterial {...GLASS} />
-      </mesh>
     </group>
   )
 }
@@ -220,6 +355,7 @@ function RoofSlab({ front }) {
  * camera can get into the kitchen for the under-sink system.
  */
 export default function House({ cutaway = false }) {
+  const [slidingDoorOpen, setSlidingDoorOpen] = useState(false)
   const gable = useGableGeometry()
   const chimneyBaseY = ridgeH - Math.abs(CHIMNEY.z) * Math.tan(SLOPE)
   const woodBaseMap = useTexture(woodCladdingMapUrl)
@@ -316,8 +452,28 @@ export default function House({ cutaway = false }) {
         {/* boards grid from the glazing edge so a joint lands there, not a sliver */}
         <Boards panels={FRONT_PANELS} origin={FRONT_SOLID_X1} position={[0, 0, D / 2]} />
 
-        <Glazing x0={-1.7} x1={0.25} y0={floorY} y1={wallH - HEADER_H} mullion frameMap={frameMap} />
-        <Glazing x0={0.4} x1={2.35} y0={floorY} y1={wallH - HEADER_H} mullion frameMap={frameMap} />
+        <Glazing
+          x0={-1.7}
+          x1={0.25}
+          y0={floorY}
+          y1={wallH - HEADER_H}
+          frameMap={frameMap}
+          mullion
+        />
+        <Glazing
+          x0={0.4}
+          x1={2.35}
+          y0={floorY}
+          y1={wallH - HEADER_H}
+          frameMap={frameMap}
+          slidingDoor
+          doorOpen={slidingDoorOpen}
+          onDoorContextMenu={(e) => {
+            e.stopPropagation()
+            e.nativeEvent.preventDefault()
+            setSlidingDoorOpen((open) => !open)
+          }}
+        />
         <Glazing x0={2.5} x1={3.08} y0={0.95} y1={wallH - HEADER_H} frameMap={frameMap} />
       </FadeGroup>
 
