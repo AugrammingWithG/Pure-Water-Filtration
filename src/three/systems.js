@@ -210,6 +210,7 @@ function build({
   pulseRadius,
   routeRadius,
   laminar,
+  cardSide = 1,
 }) {
   const path = buildPath({ legs, colours })
   return {
@@ -250,6 +251,12 @@ function build({
      * adding a single entity to the scene.
      */
     laminar,
+    /**
+     * Which side of its stage the card hangs on, as seen from the camera:
+     * 1 for screen right, -1 for screen left. Per system because each unit
+     * has open air on a different side of it.
+     */
+    cardSide,
   }
 }
 

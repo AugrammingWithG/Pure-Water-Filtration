@@ -1,6 +1,7 @@
 import { useLayoutEffect, useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
+import { declutterAt, faceCamera, settle } from './parts/billboard'
 import { markerPoint } from './systems'
 
 /**
@@ -13,28 +14,12 @@ import { markerPoint } from './systems'
  * per number serves every system.
  */
 
-/** World size of a badge at ARMS_LENGTH from the camera. */
+/** World size of a badge at the nominal distance from the camera. */
 const BADGE_SIZE = 0.17
-/** Badges hold a readable size across the zoom range by scaling with distance. */
-const ARMS_LENGTH = 4
-const MIN_SCALE = 0.8
-const MAX_SCALE = 1.7
 /** Extra size for the stage the walkthrough is on. */
 const SELECTED_SCALE = 1.3
 /** How far above its anchor a badge floats, before the system's own scaling. */
 const LIFT = 0.3
-/** Rate the tint and fade settle at, in the same units the cartridges use. */
-const SETTLE_SPEED = 6
-
-/**
- * Distances between which the unselected badges fade away. Four numbered discs
- * on one 0.8m cabinet is a pile rather than a label once the camera is far
- * enough back to see the whole house, so past DECLUTTER_FAR only the live
- * stage is marked — which is also what lets the badges grow past the cartridge
- * spacing without ever colliding.
- */
-const DECLUTTER_NEAR = 5
-const DECLUTTER_FAR = 8.5
 
 const MUTED = new THREE.Color(0xaeb8c4)
 const IDLE_OPACITY = 0.72
@@ -97,11 +82,8 @@ function Badge({ index, stageKey, position, selected, accent, scale, onPick }) {
     const m = mesh.current
     if (!m) return
 
-    m.quaternion.copy(camera.quaternion)
-
     // Hold a steady size on screen, and give the live stage a little more of it.
-    const distance = camera.position.distanceTo(m.position)
-    const fit = THREE.MathUtils.clamp(distance / ARMS_LENGTH, MIN_SCALE, MAX_SCALE)
+    const { distance, fit } = faceCamera(m, camera)
     m.scale.setScalar(BADGE_SIZE * scale * fit * (selected ? SELECTED_SCALE : 1))
 
     const mat = material.current
@@ -110,15 +92,11 @@ function Badge({ index, stageKey, position, selected, accent, scale, onPick }) {
     // The live stage is always marked; the others step back as the camera
     // pulls away, so the diorama keeps a "you are here" pin without wearing
     // four overlapping discs.
-    const declutter = selected
-      ? 1
-      : 1 - THREE.MathUtils.smoothstep(distance, DECLUTTER_NEAR, DECLUTTER_FAR)
+    const declutter = selected ? 1 : declutterAt(distance)
 
-    // Rate per second, not per frame, so the transition takes as long on a
-    // 144Hz monitor as on a machine that is struggling.
-    const settle = Math.min(1, delta * SETTLE_SPEED)
-    mat.color.lerp(selected ? accent : MUTED, settle)
-    mat.opacity += ((selected ? 1 : IDLE_OPACITY) * declutter - mat.opacity) * settle
+    const step = settle(delta)
+    mat.color.lerp(selected ? accent : MUTED, step)
+    mat.opacity += ((selected ? 1 : IDLE_OPACITY) * declutter - mat.opacity) * step
 
     // Hidden badges stop drawing and stop swallowing clicks.
     m.visible = mat.opacity > 0.02
