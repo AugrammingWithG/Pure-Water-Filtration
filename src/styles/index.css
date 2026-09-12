@@ -46,6 +46,12 @@ body{
 }
 h1,h2,h3,.display{font-family:'Space Grotesk',sans-serif;}
 button{font-family:inherit; cursor:pointer; border:none; background:none; color:inherit;}
+/* Read out but never drawn — for text that stands in for something the eye
+   gets another way (a figure mid-count, an icon). */
+.sr-only{
+  position:absolute; width:1px; height:1px; overflow:hidden;
+  clip-path:inset(50%); white-space:nowrap;
+}
 
 .app{
   height:100vh;
@@ -152,7 +158,20 @@ main{flex:1; display:flex; position:relative; min-height:0; min-width:0;}
 }
 .float-card .fc-label{font-size:10px; text-transform:uppercase; letter-spacing:0.07em; color:var(--ink-dim); font-weight:700; margin-bottom:10px;}
 
-.card-cost{top:15%; left:6%; width:190px;}
+/* The card arrives rather than simply being there: it is carrying figures
+   that count up, and landing them needs something to land into. .is-shown is
+   set by the card as its count starts, so the two run together. */
+.card-cost{
+  top:15%; left:6%; width:190px;
+  opacity:0; transform:translateY(8px);
+  transition:opacity 0.45s ease, transform 0.45s ease;
+}
+.card-cost.is-shown{opacity:1; transform:none;}
+/* Asked for less motion: the card is simply there, with its figures already
+   counted. Kept next to the rules it overrides, which nothing below touches. */
+@media (prefers-reduced-motion:reduce){
+  .card-cost{transition:none;}
+}
 .cost-row{display:flex; gap:18px; align-items:flex-end; margin-bottom:12px;}
 .cost-col span{display:block; font-size:9.5px; color:var(--ink-dim);}
 .cost-col b{font-family:'Space Grotesk',sans-serif; font-size:19px; font-weight:600;}
@@ -163,10 +182,21 @@ main{flex:1; display:flex; position:relative; min-height:0; min-width:0;}
   color:var(--mint); font-size:12px; font-weight:700; padding:6px 12px; border-radius:8px;
 }
 
-.card-trend{bottom:9%; left:6%; width:190px;}
-.trend-legend{display:flex; gap:14px; margin-top:8px; font-size:10px; color:var(--ink-dim);}
-.trend-legend span{display:inline-flex; align-items:center; gap:5px;}
-.dot{width:6px; height:6px; border-radius:50%; display:inline-block;}
+/* The plot is drawn in its own units and scales with the card; the strokes
+   stay their true width so a smaller card gets a smaller plot, not a fainter
+   one. Beneath it each line's figure sits in a row of its own, keyed by a dot
+   in the line's colour, and the saving between them rules off the bottom. */
+.card-savings{bottom:9%; left:6%; width:190px;}
+.card-savings svg{display:block; width:100%; height:auto;}
+.card-savings line{vector-effect:non-scaling-stroke;}
+.savings-rows{margin-top:8px; font-size:10.5px;}
+.savings-rows > div{display:flex; justify-content:space-between; align-items:center; gap:8px; padding:1px 0;}
+.savings-rows dt{display:inline-flex; align-items:center; gap:5px; color:var(--ink-dim);}
+.savings-rows dd{font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums;}
+.savings-rows .savings-saved{margin-top:3px; padding-top:5px; border-top:1px solid var(--line);}
+.savings-saved dt{color:var(--ink); font-weight:600;}
+.savings-saved dd{font-family:'Space Grotesk',sans-serif; font-size:13px; color:var(--mint);}
+.dot{width:6px; height:6px; border-radius:50%; display:inline-block; flex-shrink:0;}
 
 .card-impact{bottom:9%; right:6%; width:190px;}
 .impact-row{display:flex; justify-content:space-between; margin-bottom:10px;}
@@ -317,7 +347,7 @@ main{flex:1; display:flex; position:relative; min-height:0; min-width:0;}
 
 /* --- cards: one size down --- */
 @media (max-width:1180px){
-  .card-cost, .card-trend, .card-impact{width:168px; padding:13px 15px;}
+  .card-cost, .card-savings, .card-impact{width:168px; padding:13px 15px;}
   .card-detail{width:212px; padding:14px 16px;}
   .cost-col b{font-size:17px;}
   .card-detail h3{font-size:15px;}
@@ -328,13 +358,13 @@ main{flex:1; display:flex; position:relative; min-height:0; min-width:0;}
        towards its own edge first... --- */
 @media (max-height:900px){
   .card-cost, .card-detail{top:10%;}
-  .card-trend, .card-impact{bottom:4%;}
+  .card-savings, .card-impact{bottom:4%;}
 }
 
 /* --- ...and only once even that will not fit, drop the lower two. They
        are the secondary pair; cost and detail carry the product. --- */
 @media (max-width:900px), (max-height:780px){
-  .card-trend, .card-impact{display:none;}
+  .card-savings, .card-impact{display:none;}
 }
 
 /* --- rail: left-hand dock -> row of pills under the header --- */
@@ -482,4 +512,26 @@ main{flex:1; display:flex; position:relative; min-height:0; min-width:0;}
   .playbar-wrap{padding-bottom:calc(9px + env(safe-area-inset-bottom));}
   .playbar{padding:5px 10px 5px 5px; gap:8px;}
   .play-btn{width:30px; height:30px;}
+}
+
+/* ---------- REMOVED-ITEM CHIPS ---------- */
+/* The DOM half of the stage card. The scene card draws the same thing to a
+   canvas; both take their colour from data/tones.js so a chip matches the
+   particle being taken out of the water beside it. */
+.fc-removed{margin-bottom:12px;}
+.fc-removed-label{
+  font-size:9px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase;
+  color:var(--ink-dim); margin-bottom:6px;
+}
+.fc-chips{display:flex; flex-wrap:wrap; gap:5px;}
+.fc-chip{
+  display:inline-flex; align-items:center; gap:5px;
+  font-size:10.5px; font-weight:600; color:var(--ink);
+  background:color-mix(in srgb, var(--chip) 18%, transparent);
+  padding:3px 9px; border-radius:6px; white-space:nowrap;
+}
+.fc-chip i{
+  width:5px; height:5px; border-radius:50%; flex-shrink:0;
+  /* darkened so the paler tones still read on a white panel */
+  background:color-mix(in srgb, var(--chip) 75%, #0F1C33);
 }

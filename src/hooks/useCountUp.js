@@ -1,58 +1,81 @@
-import { useEffect, useRef } from 'react'
-import { formatFigure } from '../data/figures'
-import { useMediaQuery } from './useMediaQuery'
+import { useEffect, useState } from 'react'
 
 /**
- * Counts a figure up to its value and writes it straight to the DOM.
+ * The ramp behind figures that count up on screen: 0 -> 1, eased, run once
+ * each time the card it belongs to appears or is given something new to show.
  *
- * Returns a ref to attach to the element that shows the number. It sets
- * textContent inside a rAF loop rather than going through React state, which
- * is the DOM version of the rule the 3D layer already follows: never re-render
- * per frame. It matters here rather than being a nicety — the scene is
- * fill-rate bound (see the README), and re-rendering the app tree sixty times
- * a second to tick a counter would be competing with it for the same budget.
+ * It returns a fraction rather than a number so that a card counting several
+ * figures at once drives all of them from this one ramp. They then stay in
+ * step — and stay consistent with each other — for every frame of the count,
+ * not only at the end of it.
  *
- * A change of system counts from wherever the figure currently is, not from
- * zero: only the first appearance rises from nothing, because resetting on
- * every sidebar click reads as a glitch rather than as the number changing.
+ * The fraction is held with the run it belongs to rather than on its own, so
+ * a count that has not started yet reads as 0 from the very first render:
+ * without that, the frame between being asked for a new count and the first
+ * animation frame of it would still be showing the last one's final figure.
  */
 
-const DURATION = 950
+/** Long enough to read as counting, short enough not to hold up the card. */
+const COUNT_MS = 1100
 
-export function useCountUp(figure) {
-  const { value, prefix, unit } = figure
-  const ref = useRef(null)
-  /** Where the next count starts from — the last value actually shown. */
-  const shown = useRef(0)
-  const reduced = useMediaQuery('(prefers-reduced-motion: reduce)')
+/**
+ * Longest step the count takes in one frame. A stall — a tab in the
+ * background, a shader compile — gives no frames, and without this the count
+ * would come back from one already over. Same rule as the walkthrough's
+ * clock: a stall is time that did not happen.
+ */
+const MAX_STEP_MS = 100
+
+/** Quick off the mark, settling gently onto the final figure. */
+const ease = (t) => 1 - (1 - t) ** 3
+
+/**
+ * Someone who has asked for less motion still wants the figures — they just
+ * want them still, so for them every run is over before it starts.
+ */
+function prefersReducedMotion() {
+  return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
+}
+
+/**
+ * @param run     Whether the figures are on screen and should be counting.
+ * @param restart Changes to this start the count again from the beginning.
+ * @returns the eased 0..1 fraction of the way through the count.
+ */
+export function useCountUp(run, restart, duration = COUNT_MS) {
+  /**
+   * Settled once, when the hook first runs: the preference does not change
+   * mid-visit, and reading it here keeps it out of the animation effect.
+   */
+  const [animate] = useState(() => !prefersReducedMotion())
+  /** The last frame drawn: which run it belonged to, and how far along. */
+  const [count, setCount] = useState({ run: null, fraction: 0 })
+
+  /** Identifies this run of the count; null while there is nothing to count. */
+  const runKey = run ? `${restart}` : null
+  /** Where a figure sits before its count — or instead of it. */
+  const rest = animate ? 0 : 1
 
   useEffect(() => {
-    const node = ref.current
-    if (!node) return
+    if (runKey === null || !animate) return
 
-    const start = shown.current
-    const write = (n) => {
-      shown.current = n
-      node.textContent = formatFigure(n, { prefix, unit })
+    let id
+    let last
+    let elapsed = 0
+    const tick = (now) => {
+      // Stepped by the frame's delta rather than read off a start time, so
+      // that the step can be capped. The first frame is the origin: `now` is
+      // its timestamp, so the count begins when it is drawn, not when the
+      // effect ran.
+      if (last !== undefined) elapsed += Math.min(MAX_STEP_MS, now - last)
+      last = now
+      const t = Math.min(1, elapsed / duration)
+      setCount({ run: runKey, fraction: ease(t) })
+      if (t < 1) id = requestAnimationFrame(tick)
     }
+    id = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(id)
+  }, [runKey, animate, duration])
 
-    // Nothing to animate, or the viewer asked not to be animated at.
-    if (reduced || start === value) {
-      write(value)
-      return undefined
-    }
-
-    let frame = 0
-    const t0 = performance.now()
-    const step = (now) => {
-      const t = Math.min(1, (now - t0) / DURATION)
-      const eased = 1 - Math.pow(1 - t, 3)
-      write(start + (value - start) * eased)
-      if (t < 1) frame = requestAnimationFrame(step)
-    }
-    frame = requestAnimationFrame(step)
-    return () => cancelAnimationFrame(frame)
-  }, [value, prefix, unit, reduced])
-
-  return ref
+  return count.run === runKey && runKey !== null ? count.fraction : rest
 }

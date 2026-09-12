@@ -1,11 +1,14 @@
 import { useMemo, useRef } from 'react'
+import { useTexture } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
+import grassFloorMapUrl from '../assets/textures/wood/grass-floor.jpg'
 import { GROUND, PATH } from './layout'
 
 const RADIUS = GROUND.radius
-/** Soil-green underlay beneath the grass, a touch darker than the blade roots. */
-const LAWN = new THREE.Color(0x4a7540)
+/** Light olive tint so the grass texture reads clearly instead of getting crushed. */
+const LAWN = new THREE.Color(0xb4c493)
+const LAWN_ACCENT_MIX = 0.70
 const GRAVEL = { color: 0xdad6cd, roughness: 0.95, metalness: 0 }
 
 /**
@@ -57,10 +60,20 @@ export default function Ground({ accent }) {
   const mat = useRef()
   const target = useRef(new THREE.Color())
   const path = usePathGeometry()
+  const grassBaseMap = useTexture(grassFloorMapUrl)
+  const grassMap = useMemo(() => {
+    const map = grassBaseMap.clone()
+    map.wrapS = THREE.RepeatWrapping
+    map.wrapT = THREE.RepeatWrapping
+    map.repeat.set(1, 1)
+    map.colorSpace = THREE.SRGBColorSpace
+    map.needsUpdate = true
+    return map
+  }, [grassBaseMap])
 
   useFrame((_, delta) => {
     if (!mat.current) return
-    target.current.copy(LAWN).lerp(accent, 0.06)
+    target.current.copy(LAWN).lerp(accent, LAWN_ACCENT_MIX)
     mat.current.color.lerp(target.current, Math.min(1, delta * 3))
   })
 
@@ -68,7 +81,13 @@ export default function Ground({ accent }) {
     <group>
       <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <circleGeometry args={[RADIUS, 96]} />
-        <meshStandardMaterial ref={mat} color={LAWN} roughness={0.95} metalness={0} />
+        <meshStandardMaterial
+          ref={mat}
+          color={LAWN}
+          map={grassMap}
+          roughness={1}
+          metalness={0}
+        />
       </mesh>
       <mesh geometry={path} position={[0, 0.004, 0]} receiveShadow>
         <meshStandardMaterial {...GRAVEL} />

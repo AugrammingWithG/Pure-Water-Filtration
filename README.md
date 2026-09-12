@@ -125,10 +125,12 @@ src/
   main.jsx                 React root
   App.jsx                  Owns system/stage/focused state and the walkthrough, holds the rig ref
   data/
-    constants.js           All stage + system copy (titles, descriptions, placement)
+    constants.js           All stage + system copy (titles, descriptions, placement, cost figures)
   hooks/
     useOrbitRig.js         Custom drag-orbit / zoom / fly-to camera rig
     useWalkthrough.js      The tour as a timeline: play / pause / resume, seek, scrub
+    useCountUp.js          One eased 0..1 ramp for figures that count up on screen
+    useInView.js           Whether an element is actually on screen (the responsive CSS drops cards)
   three/
     layout.js              Every dimension and mount point in the world
     path.js                Builds a route from its legs: stage spans, colour, pace
@@ -136,6 +138,8 @@ src/
     Scene.jsx              Canvas contents: lights, environment, house, products, flow
     SceneEnvironment.jsx   Image-based lighting from three's RoomEnvironment (no fetch)
     Ground.jsx             The diorama plinth
+    Grass.jsx              The lawn: instanced blades, wind in the vertex shader
+    Trees.jsx              Pines behind the house: cone cores under a shell of instanced needles, same wind
     House.jsx              Cabin shell, roof, glazing, deck; roof + front wall are a cutaway
     Kitchen.jsx            Bench, open sink cabinet, sink, mixer + filtered taps
     WaterFlow.jsx          Route line, instanced bubbles and grit along the active route; own clock, so it can be paused
@@ -152,9 +156,13 @@ src/
       Outline.jsx          Accent edge outline marking the active unit
       brandLabel.js        Canvas-drawn "Pure Water Filtration" plate texture
       materials.js         Copper / PVC / tubing presets
+      blade.js             The one blade the lawn and the pine needles share, and the GLSL wind field
+      random.js            Seeded PRNG so scattered things land in the same place every load
   components/
     SimCanvas.jsx          <Canvas> wrapper and renderer configuration
-    Header.jsx Sidebar.jsx CostCard.jsx TrendCard.jsx ImpactCard.jsx
+    CostCard.jsx           Now vs filtered yearly spend; counts up as it arrives, saving derived on screen
+    SavingsCard.jsx        The same two figures accumulated over five years: two lines from one origin, the gap the saving
+    Header.jsx Sidebar.jsx ImpactCard.jsx
     DetailCard.jsx icons.jsx
     PlayBar.jsx            Play/pause and the stage timeline: markers to jump, track to scrub
   styles/
@@ -207,6 +215,17 @@ that every seek on the walkthrough — a scrub, a marker, a badge, an arrow key
 adds the same amount to its own clock (banked between frames and taken in the
 next step, so bubbles and grit see one delta). Playing publishes no movement
 at all, so the loop wrapping round is not read as a jump back to the start.
+
+The cost card's figures count up when it arrives, and the count is the third
+clock that caps its step, for the same reason. It does not start on mount: the
+first frame the scene draws compiles every shader, which holds the page for a
+second or two on first load, and a count started before that is over — or
+frozen at zero — by the time anyone can see it. So `Scene` reports its first
+drawn frame (`onFirstFrame`, the second `useFrame` call, since `useFrame`
+runs ahead of the render) and the card waits for it, arriving as the scene
+does. The three figures run off one ramp, and the saving is the difference of
+the two figures on screen rather than a count of its own, so the card's
+arithmetic holds on every frame.
 
 The water's clock is stepped in a `useFrame` at priority `-1` so it is ahead
 of the bubbles and grit that read it in the same frame. r3f runs frame

@@ -90,46 +90,46 @@
     "semantic_hash": "a9e9243ab8ec67744bc269fc0215256a"
   },
   "src/three/Grass.jsx": {
-    "mtime": 1789198855.1497886,
-    "seen": 1789199767.9773655,
-    "ast_hash": "5e14f36c40995b97bf57c3175fad984f",
-    "semantic_hash": "5e14f36c40995b97bf57c3175fad984f"
+    "mtime": 1789222563.603027,
+    "seen": 1789222801.5476232,
+    "ast_hash": "763053ed6a26bf546fcd63d9daa5ec4f",
+    "semantic_hash": ""
   },
   "src/three/Ground.jsx": {
-    "mtime": 1789198855.159789,
-    "seen": 1789199767.977367,
-    "ast_hash": "bbc01770b0ed6a1bacd657d4c8815075",
-    "semantic_hash": "bbc01770b0ed6a1bacd657d4c8815075"
+    "mtime": 1789212143.751504,
+    "seen": 1789216395.849547,
+    "ast_hash": "ad70f28fcf803f2b01ba058429ac6ccf",
+    "semantic_hash": ""
   },
   "src/three/House.jsx": {
-    "mtime": 1789198855.197796,
-    "seen": 1789199767.9773684,
-    "ast_hash": "63eea8c1f31dac0efb9665b111c39943",
-    "semantic_hash": "63eea8c1f31dac0efb9665b111c39943"
+    "mtime": 1789223456.226774,
+    "seen": 1789224223.1035926,
+    "ast_hash": "ef47caf74d9fdb5eb8dd809d5f8b5a7a",
+    "semantic_hash": ""
   },
   "src/three/Kitchen.jsx": {
-    "mtime": 1789198855.214796,
-    "seen": 1789199767.9773693,
-    "ast_hash": "d39349c36f0658ab9efad53cea456386",
-    "semantic_hash": "d39349c36f0658ab9efad53cea456386"
+    "mtime": 1789211822.3357942,
+    "seen": 1789216395.8495526,
+    "ast_hash": "16496882ea731851def2dafa52da0f15",
+    "semantic_hash": ""
   },
   "src/three/Lighting.jsx": {
-    "mtime": 1789198855.2214391,
-    "seen": 1789199767.9773703,
-    "ast_hash": "a512b443bfe5f10ecf7523a25e3c0ae0",
-    "semantic_hash": "a512b443bfe5f10ecf7523a25e3c0ae0"
+    "mtime": 1789218104.2631545,
+    "seen": 1789218515.2081885,
+    "ast_hash": "5cc805def9e18be783ba69aa18b3f7c4",
+    "semantic_hash": ""
   },
   "src/three/Scene.jsx": {
-    "mtime": 1789205810.394082,
-    "seen": 1789206008.7533114,
-    "ast_hash": "2be8f33b87a41eec2a322870ac3764bb",
+    "mtime": 1789214147.8152752,
+    "seen": 1789216395.8495593,
+    "ast_hash": "d8fcd1441d0b4aa128e095a5508b183e",
     "semantic_hash": ""
   },
   "src/three/SceneEnvironment.jsx": {
-    "mtime": 1789198855.2434626,
-    "seen": 1789199767.9773724,
-    "ast_hash": "ae97087871fbb86f3e70ce27e08bd5a9",
-    "semantic_hash": "ae97087871fbb86f3e70ce27e08bd5a9"
+    "mtime": 1789218072.8014884,
+    "seen": 1789218515.208192,
+    "ast_hash": "485d62f9dbf3e6e2aaa99a8cb55da9ac",
+    "semantic_hash": ""
   },
   "src/three/StageMarkers.jsx": {
     "mtime": 1789198855.249041,
@@ -144,9 +144,9 @@
     "semantic_hash": ""
   },
   "src/three/layout.js": {
-    "mtime": 1789205810.468599,
-    "seen": 1789206008.7533412,
-    "ast_hash": "3e2b0bd7d1b87806d600e8f383712536",
+    "mtime": 1789209023.2170596,
+    "seen": 1789216395.8496041,
+    "ast_hash": "30c1e0f27da45566febb7ad037d69217",
     "semantic_hash": ""
   },
   "src/three/parts/Canister.jsx": {
@@ -186,10 +186,10 @@
     "semantic_hash": "3b9fc2d18e09a7f1564268110318ac11"
   },
   "src/three/parts/materials.js": {
-    "mtime": 1789198855.3071024,
-    "seen": 1789199767.977382,
-    "ast_hash": "cb02836e5317979388e0a630ba972088",
-    "semantic_hash": "cb02836e5317979388e0a630ba972088"
+    "mtime": 1789223060.6572626,
+    "seen": 1789224223.1036313,
+    "ast_hash": "9d41b437e698cf99b506abafe4b1a33c",
+    "semantic_hash": ""
   },
   "src/three/path.js": {
     "mtime": 1789198855.3121004,
@@ -198,10 +198,10 @@
     "semantic_hash": "6171c87a45561900e0d11ad3bb98798f"
   },
   "src/three/products/RainwaterUnit.jsx": {
-    "mtime": 1789198855.318101,
-    "seen": 1789199767.9773836,
-    "ast_hash": "099cf7d2dd4ded0accf0e6ef822f5502",
-    "semantic_hash": "099cf7d2dd4ded0accf0e6ef822f5502"
+    "mtime": 1789223489.3728278,
+    "seen": 1789224223.1036417,
+    "ast_hash": "ea8b7366e621a0f7bb0457665b6ecfbf",
+    "semantic_hash": ""
   },
   "src/three/products/UnderSinkUnit.jsx": {
     "mtime": 1789198855.324101,
@@ -210,9 +210,9 @@
     "semantic_hash": "5be67ce3244aafbcb1c8fe0822bb8b36"
   },
   "src/three/products/WholeHouseUnit.jsx": {
-    "mtime": 1789205810.4836004,
-    "seen": 1789206008.7533567,
-    "ast_hash": "83c3c0b10ad9dce55e9f914bb5386c10",
+    "mtime": 1789223516.9602342,
+    "seen": 1789224223.1036465,
+    "ast_hash": "f85d1635e30a88877ad1e3dd8426091d",
     "semantic_hash": ""
   },
   "src/three/systems.js": {
@@ -228,9 +228,9 @@
     "semantic_hash": "199e1221ae03d6974fdc8b5e23787b98"
   },
   "README.md": {
-    "mtime": 1789205810.3390818,
-    "seen": 1789206008.7533622,
-    "ast_hash": "67748a44c13d17468361d09df9d7b04e",
+    "mtime": 1789208184.0893722,
+    "seen": 1789208218.6423407,
+    "ast_hash": "1583d19e799a6cc2ce8f08ff66fcb7c5",
     "semantic_hash": ""
   },
   "index.html": {
@@ -327,6 +327,30 @@
     "mtime": 1789205810.4606004,
     "seen": 1789206008.7533395,
     "ast_hash": "c4f3df40d70b724fe28d8e1bb569fe59",
+    "semantic_hash": ""
+  },
+  "src/three/Trees.jsx": {
+    "mtime": 1789209720.4853191,
+    "seen": 1789216395.8495674,
+    "ast_hash": "e485728afd839b90fe412d0b1e4f236e",
+    "semantic_hash": ""
+  },
+  "src/three/parts/blade.js": {
+    "mtime": 1789207537.9407966,
+    "seen": 1789208218.6423268,
+    "ast_hash": "6aa73139dfb17aeb33d91de892a889a9",
+    "semantic_hash": ""
+  },
+  "src/three/parts/random.js": {
+    "mtime": 1789206834.0988863,
+    "seen": 1789208218.6423304,
+    "ast_hash": "dbea73a6815932079d3cceecbcc8c118",
+    "semantic_hash": ""
+  },
+  "src/assets/textures/wood/grass-floor.jpg": {
+    "mtime": 1789211022.657466,
+    "seen": 1789216395.849661,
+    "ast_hash": "836f33c01fbe9fdcf5ad627434730293",
     "semantic_hash": ""
   }
 }

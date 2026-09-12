@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
-import { useThree } from '@react-three/fiber'
+import { useEffect, useRef } from 'react'
+import { useFrame, useThree } from '@react-three/fiber'
 import { useOrbitRig } from '../hooks/useOrbitRig'
 import Grass from './Grass'
 import Ground from './Ground'
@@ -9,6 +9,7 @@ import Lighting from './Lighting'
 import SceneEnvironment from './SceneEnvironment'
 import StageCard from './StageCard'
 import StageMarkers from './StageMarkers'
+import Trees from './Trees'
 import WaterFlow from './WaterFlow'
 import RainwaterEffects from './effects/RainwaterEffects'
 import UnderSinkEffects from './effects/UnderSinkEffects'
@@ -40,7 +41,8 @@ const MAX_PULLBACK = 2
 /**
  * Everything inside the <Canvas>. Owns the camera rig and publishes its
  * imperative API (flyTo/reset) to `rigRef` so the surrounding UI can drive
- * the camera without re-rendering the scene.
+ * the camera without re-rendering the scene, and calls `onFirstFrame` once
+ * the scene is actually on screen.
  */
 export default function Scene({
   currentSystem,
@@ -52,6 +54,7 @@ export default function Scene({
   showCard,
   onPick,
   rigRef,
+  onFirstFrame,
 }) {
   const { width, height } = useThree((s) => s.size)
   const distanceScale = Math.min(
@@ -68,6 +71,21 @@ export default function Scene({
       rigRef.current = null
     }
   }, [rig, rigRef])
+
+  /**
+   * useFrame runs ahead of each render, and it is the first render that
+   * compiles every shader — a second or two on first load, with the page held
+   * the whole time. So the first call here comes before that wait, and the
+   * second is the first to follow a frame that was actually drawn. UI that
+   * floats over the scene makes its entrance from that, rather than arriving
+   * over an empty canvas and freezing there.
+   */
+  const frames = useRef(0)
+  useFrame(() => {
+    if (frames.current > 1) return
+    frames.current += 1
+    if (frames.current === 2) onFirstFrame?.()
+  })
 
   /**
    * Products call this with a stage key (or null for "the unit as a whole").
@@ -90,11 +108,12 @@ export default function Scene({
 
   return (
     <>
-      <SceneEnvironment intensity={0.55} />
+      <SceneEnvironment intensity={0.2} />
       <Lighting accent={system.accentColor} />
 
       <Ground accent={system.accentColor} />
       <Grass accent={system.accentColor} />
+      <Trees />
       <House cutaway={focused && currentSystem === 'undersink'} />
       <Kitchen accent={SYSTEMS.undersink.accent} />
 

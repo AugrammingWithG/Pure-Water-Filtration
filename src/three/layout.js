@@ -130,6 +130,29 @@ export const RAIN_UNIT = {
 export const CHIMNEY = { x: 2.3, z: -0.55, r: 0.07, top: 4.15 }
 
 /**
+ * Pines behind the house, one either side of the ridge as seen from the home
+ * view, standing well over it (ridge 3.55, chimney 4.15). `h` is the height
+ * to the tip, `r` the radius of the lowest skirt; `seed` picks the tier and
+ * needle jitter so each tree is the same on every load. The needles reach
+ * ~0.25 past `r`, so the skirts stay clear of the roof overhang and the rim.
+ *
+ * Heights are as tall as the home view allows: the canvas starts under the
+ * page header, and at HOME_VIEW the frame's top edge crosses the left tree
+ * at ~4.8 and the right one at ~5.1 — any taller and the tips are cut off.
+ */
+export const TREES = [
+  { x: -3.6, z: -3.5, h: 4.5, r: 1.2, seed: 11 },
+  { x: 1, z: -5, h: 7, r: 1.2, seed: 98897 },
+  { x: 4, z: -3, h: 4, r: 1, seed: 8 },
+  { x: 2.2, z: -2.8, h: 4, r: 1, seed: 8 },
+  { x: -3.5, z: 5, h: 4, r: 1, seed: 234 },
+
+]
+
+/** Wind over the plinth, in the xz plane: from front-left toward back-right. */
+export const WIND = new THREE.Vector2(0.8, -0.6).normalize()
+
+/**
  * Directions the two main lights come from, shared by the direct rig
  * (Lighting.jsx) and the studio bake it reflects (SceneEnvironment.jsx) so
  * highlights on metal and glass line up with the shadows. Set for the home

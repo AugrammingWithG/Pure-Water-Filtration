@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { toneColour } from '../../data/tones'
 
 /**
  * Draws the stage card to a canvas, for use as a texture on a plane in the
@@ -42,6 +43,20 @@ function rgba(hex, alpha) {
 
 function hex(colour) {
   return '#' + new THREE.Color(colour).getHexString()
+}
+
+/**
+ * Darken a colour until it reads against a white panel. Several of the scene
+ * tones are deliberately pale — dissolved solids and minerals are nearly white
+ * in the water — and a pale dot on a pale chip is invisible. Derived rather
+ * than hand-picked so the chip can never drift from the particle it stands for.
+ */
+function readable(colour) {
+  const c = new THREE.Color(colour)
+  const luminance = () => 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b
+  let guard = 12
+  while (luminance() > 0.45 && guard-- > 0) c.multiplyScalar(0.86)
+  return '#' + c.getHexString()
 }
 
 /** Greedy word wrap. Returns the lines that fit inside `max`. */
@@ -93,7 +108,7 @@ const BUTTONS = ['Overview', 'How it works', 'Specs']
  * over the same code so the canvas can be created at exactly the height the
  * content needs.
  */
-function layout(ctx, { eyebrow, title, desc, placement, accent }, draw) {
+function layout(ctx, { eyebrow, title, desc, placement, accent, action, tone, removes }, draw) {
   const inner = WIDTH - PAD_X * 2
   const accentHex = hex(accent)
   let y = PAD_Y
@@ -139,6 +154,44 @@ function layout(ctx, { eyebrow, title, desc, placement, accent }, draw) {
     y += 18.5
   }
   y += 6
+
+  // ---- what this stage does, and to what ----
+  if (removes && removes.length) {
+    const chipColour = toneColour(tone, accent)
+    const dotHex = readable(chipColour)
+
+    ctx.font = `700 9px ${FONT_UI}`
+    if (draw) {
+      ctx.fillStyle = INK_DIM
+      ctx.fillText(String(action ?? 'Removes').toUpperCase(), PAD_X, y + 7)
+    }
+    y += 14
+
+    ctx.font = `600 10.5px ${FONT_UI}`
+    const chipH = 19
+    const dot = 5
+    let cx = PAD_X
+    for (const item of removes) {
+      const w = ctx.measureText(item).width + dot + 19
+      if (cx + w > WIDTH - PAD_X && cx > PAD_X) {
+        cx = PAD_X
+        y += chipH + 5
+      }
+      if (draw) {
+        roundRect(ctx, cx, y, w, chipH, 6)
+        ctx.fillStyle = rgba(chipColour, 0.18)
+        ctx.fill()
+        ctx.beginPath()
+        ctx.arc(cx + 7 + dot / 2, y + chipH / 2, dot / 2, 0, Math.PI * 2)
+        ctx.fillStyle = dotHex
+        ctx.fill()
+        ctx.fillStyle = INK
+        ctx.fillText(item, cx + 7 + dot + 5, y + 13)
+      }
+      cx += w + 5
+    }
+    y += chipH + 10
+  }
 
   // ---- placement pill ----
   if (placement) {

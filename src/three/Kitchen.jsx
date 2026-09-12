@@ -3,7 +3,7 @@ import { HOUSE, KITCHEN } from './layout'
 const CABINET = { color: 0xf4f3ef, roughness: 0.6, metalness: 0 }
 const CABINET_INNER = { color: 0xe6e4de, roughness: 0.8, metalness: 0 }
 const COUNTER = { color: 0xe9e6df, roughness: 0.35, metalness: 0.05 }
-const STEEL = { color: 0xc9ccd0, roughness: 0.25, metalness: 0.9 }
+const STEEL = { color: 0xc9ccd0, roughness: 0.2, metalness: 0.9, envMapIntensity: 1.1 }
 const OAK = { color: 0xd6b48a, roughness: 0.7, metalness: 0 }
 
 const { floorY } = HOUSE

@@ -6,59 +6,109 @@
 
 export const STAGE_ORDER = ['sediment', 'carbon', 'ro', 'tap']
 
+/**
+ * Each stage carries `action`, `tone` and `removes` alongside its copy: the
+ * verb, which colour the chips take, and what this stage does something about.
+ *
+ * The verb is per stage rather than a fixed "Removes" because two stages
+ * visibly do not remove anything — the whole-house third stage balances
+ * minerals and leaves them in the water, and the rainwater one kills bacteria
+ * where they are rather than taking them out. A card claiming removal would
+ * contradict what the scene is showing at that moment.
+ *
+ * Tones resolve through data/tones.js to the particle colours in the scene, so
+ * a chip matches the thing being taken out of the water beside it.
+ */
+
 export const STAGE_DATA_BY_SYSTEM = {
   whole: {
     sediment: {
       title: 'Sediment Pre-Filter',
       desc: 'Reduces sediment before it reaches the rest of the system, so every stage downstream lasts longer.',
+      action: 'Removes',
+      tone: 'grit',
+      removes: ['Sand', 'Silt', 'Rust'],
     },
     carbon: {
       title: 'Carbon Block',
       desc: 'Reduces chlorine — the taste and smell most people notice first from Australian tap water.',
+      action: 'Reduces',
+      tone: 'chlorine',
+      removes: ['Chlorine', 'Taste', 'Odour'],
     },
     ro: {
       title: 'Mineral Balance',
       desc: 'Balances excess minerals so water stays gentle on skin, hair and appliances at every outlet.',
+      action: 'Balances',
+      tone: 'mineral',
+      removes: ['Calcium', 'Magnesium', 'Scale'],
     },
     tap: {
       title: 'Filtered Output',
       desc: 'Every tap, shower and appliance in the house now delivers filtered water.',
+      action: 'Delivers',
+      tone: 'clean',
+      removes: ['Every tap', 'Showers', 'Appliances'],
     },
   },
   undersink: {
     sediment: {
       title: 'Sediment Pre-Filter',
       desc: 'Pre-filters incoming water before it reaches the drinking-water cartridges.',
+      action: 'Removes',
+      tone: 'grit',
+      removes: ['Sand', 'Silt', 'Sediment'],
     },
     carbon: {
       title: 'Carbon Block',
       desc: 'Removes the chlorine taste and odour that puts most people off Australian tap water.',
+      action: 'Reduces',
+      tone: 'chlorine',
+      removes: ['Chlorine', 'Taste', 'Odour'],
     },
     ro: {
       title: 'Reverse Osmosis',
       desc: 'A final membrane clears what the earlier cartridges miss, for great-tasting water on demand.',
+      action: 'Removes',
+      tone: 'solids',
+      removes: ['Dissolved solids', 'Lead', 'Nitrates'],
     },
     tap: {
       title: 'Drinking Tap',
       desc: 'Clean, filtered drinking water straight from the kitchen tap — no bottled water required.',
+      action: 'Delivers',
+      tone: 'clean',
+      removes: ['Drinking', 'Cooking', 'Ice'],
     },
   },
   rain: {
     sediment: {
       title: 'Three-Stage Canisters',
       desc: 'Filter out leaf litter, dirt and sediment collected in the tank.',
+      action: 'Removes',
+      tone: 'grit',
+      removes: ['Leaf litter', 'Dirt', 'Grit'],
     },
     carbon: {
       title: 'Carbon Stage',
       desc: 'Clears any taste or odour the tank water has picked up.',
+      action: 'Reduces',
+      tone: 'chlorine',
+      removes: ['Taste', 'Odour', 'Colour'],
     },
     ro: {
       title: 'UV Sterilisation',
       desc: 'Eliminates the bacteria and pathogens untreated tank water can carry.',
+      action: 'Neutralises',
+      tone: 'microbe',
+      removes: ['Bacteria', 'Protozoa', 'Viruses'],
     },
     tap: {
       title: 'Safe Output',
       desc: 'Safe to drink, cook with and bathe in, every day, straight from the tank.',
+      action: 'Delivers',
+      tone: 'clean',
+      removes: ['Drinking', 'Cooking', 'Bathing'],
     },
   },
 }
@@ -70,37 +120,37 @@ export const SYSTEM_DATA = {
       'A multi-stage unit that treats water where the mains enters the home — reduces sediment, chlorine and excess minerals for every tap.',
     placement:
       'At the point of entry — outside wall, garage or utility cupboard where the main line comes in.',
-    before: { value: 1240, prefix: '$' },
-    after: { value: 610, prefix: '$' },
-    savings: { value: 630, prefix: '$' },
-    bottles: { value: 3650 },
-    waste: { value: 61, unit: 'kg' },
-    litres: { value: 185000, unit: 'L' },
+    // Annual water spend in whole dollars, counted up by the cost card. The
+    // saving is the difference between the two, so the card derives it rather
+    // than it being stored here and left to drift out of step with them.
+    before: 1240,
+    after: 610,
+    bottles: 3650,
+    waste: 61,
+    litres: 185000,
   },
   undersink: {
     title: 'Under-Sink Filter (Reverse Osmosis)',
     subtitle:
       'A drinking-water unit that tucks under the kitchen bench and feeds its own dedicated tap.',
     placement: 'Inside the under-sink cabinet in the kitchen.',
-    before: { value: 480, prefix: '$' },
-    after: { value: 260, prefix: '$' },
-    savings: { value: 220, prefix: '$' },
-    bottles: { value: 1900 },
-    waste: { value: 24, unit: 'kg' },
-    // drinking and cooking only, so a fraction of the whole-house figure
-    litres: { value: 2800, unit: 'L' },
+    before: 480,
+    after: 260,
+    bottles: 1900,
+    waste: 24,
+    // Drinking and cooking only, so a fraction of the whole-house figure.
+    litres: 2800,
   },
   rain: {
     title: 'Rainwater Filtration (UV)',
     subtitle:
       'Three filter canisters plus a UV unit that makes tank water safe to drink.',
     placement: 'Outside by the rainwater tank, or where the tank line enters the house.',
-    before: { value: 380, prefix: '$' },
-    after: { value: 340, prefix: '$' },
-    savings: { value: 40, prefix: '$' },
-    bottles: { value: 900 },
-    waste: { value: 11, unit: 'kg' },
-    litres: { value: 96000, unit: 'L' },
+    before: 380,
+    after: 340,
+    bottles: 900,
+    waste: 11,
+    litres: 96000,
   },
 }
 
@@ -131,6 +181,14 @@ export const DEFAULT_STAGE = 'sediment'
  * detail card, short enough that the tour keeps moving.
  */
 export const STAGE_DWELL_MS = 3200
+
+/** Grouped whole dollars, built once: the cost card formats on every frame. */
+const DOLLARS = new Intl.NumberFormat('en-AU', { maximumFractionDigits: 0 })
+
+/** A money figure as the cards show it — "$1,240". */
+export function formatMoney(amount) {
+  return `$${DOLLARS.format(Math.round(amount))}`
+}
 
 /**
  * Returns the bottom-bar dot label for a stage, swapping in the
