@@ -136,6 +136,7 @@ src/
     Scene.jsx              Canvas contents: lights, environment, house, products, flow
     SceneEnvironment.jsx   Image-based lighting from three's RoomEnvironment (no fetch)
     Ground.jsx             The diorama plinth
+    Trees.jsx              Stacked-cone pines behind the house
     House.jsx              Cabin shell, roof, glazing, deck; roof + front wall are a cutaway
     Kitchen.jsx            Bench, open sink cabinet, sink, mixer + filtered taps
     WaterFlow.jsx          Route line, instanced bubbles and grit along the active route; own clock, so it can be paused

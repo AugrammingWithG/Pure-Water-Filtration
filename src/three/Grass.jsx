@@ -1,7 +1,18 @@
 import { useEffect, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-import { DECK, GROUND, HOUSE, PATH, RAIN_TANK, RAIN_UNIT, STEPPING_STONES } from './layout'
+import {
+  DECK,
+  GROUND,
+  HOUSE,
+  PATH,
+  RAIN_TANK,
+  RAIN_UNIT,
+  STEPPING_STONES,
+  TREES,
+  WIND,
+} from './layout'
+import { mulberry32 } from './parts/random'
 import { TANK_OUTLET } from './systems'
 
 /** Blades stop just short of the rim so the plinth edge stays crisp. */
@@ -9,23 +20,10 @@ const LAWN_RADIUS = GROUND.radius - 0.08
 const BLADE_WIDTH = 0.03
 const ROOT_COLOR = new THREE.Color(0x3b6836)
 const TIP_COLOR = new THREE.Color(0x93bd5e)
-/** Blows from front-left toward the back-right, across the home view. */
-const WIND_DIR = new THREE.Vector2(0.8, -0.6).normalize()
 
 // ---------------------------------------------------------------------------
 // Placement
 // ---------------------------------------------------------------------------
-
-/** Deterministic PRNG so the lawn is the same on every load. */
-function mulberry32(seed) {
-  let a = seed >>> 0
-  return () => {
-    a = (a + 0x6d2b79f5) | 0
-    let t = Math.imul(a ^ (a >>> 15), 1 | a)
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
-  }
-}
 
 function distToSegment(px, pz, ax, az, bx, bz) {
   const dx = bx - ax
@@ -53,6 +51,8 @@ const HOUSE_Z = HOUSE.d / 2 + 0.05
 const DECK_X1 = DECK.x1 + 0.5 // includes the step
 const TANK_R2 = (RAIN_TANK.r + 0.05) ** 2
 const STONE_R2 = 0.3 ** 2
+/** Bare ring of needle litter round each trunk. */
+const TRUNK_R2 = 0.3 ** 2
 
 /** Anything that sits on the ground gets a clear patch around it. */
 function blocked(x, z) {
@@ -62,6 +62,9 @@ function blocked(x, z) {
   if ((x - t.x) ** 2 + (z - t.z) ** 2 < TANK_R2) return true
   for (const [sx, sz] of STEPPING_STONES) {
     if ((x - sx) ** 2 + (z - sz) ** 2 < STONE_R2) return true
+  }
+  for (const tree of TREES) {
+    if ((x - tree.x) ** 2 + (z - tree.z) ** 2 < TRUNK_R2) return true
   }
   // a few blades lean over the gravel edge, which softens it
   if (distToPolyline(x, z, PATH.points) < PATH.halfWidth - 0.03) return true
@@ -270,7 +273,7 @@ export default function Grass({ accent, count = 60000, wind = 0.55 }) {
   const uniforms = useMemo(
     () => ({
       uTime: { value: 0 },
-      uWindDir: { value: WIND_DIR },
+      uWindDir: { value: WIND },
       uWind: { value: wind },
       uRoot: { value: ROOT_COLOR },
       uTip: { value: TIP_COLOR },
