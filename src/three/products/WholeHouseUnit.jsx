@@ -115,6 +115,27 @@ export default function WholeHouseUnit({ active, revealed, selectedStage, accent
         </group>
       </FadeGroup>
 
+      {/*
+        Picking the unit as a whole, including once it is revealed. The cover
+        stops taking clicks then so they can reach the cartridges behind it,
+        which left no way to re-select the unit itself from the scene.
+
+        Back faces only: the cartridges sit inside this box, so its near face
+        would otherwise swallow their clicks. Rendering only the far side puts
+        it behind everything it encloses, and a raycast reaches it just when it
+        has missed all of them.
+      */}
+      <mesh
+        position={center}
+        onClick={(e) => {
+          e.stopPropagation()
+          onPick(null)
+        }}
+      >
+        <boxGeometry args={[w + 0.08, h + 0.08, depth + 0.08]} />
+        <meshBasicMaterial visible={false} side={THREE.BackSide} />
+      </mesh>
+
       {/* internals: manifold across the top, three cartridges below it */}
       <mesh position={[center.x, topY + 0.05, center.z]}>
         <boxGeometry args={[w - 0.14, 0.06, 0.12]} />

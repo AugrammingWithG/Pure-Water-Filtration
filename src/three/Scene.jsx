@@ -8,6 +8,7 @@ import Kitchen from './Kitchen'
 import Lighting from './Lighting'
 import SceneEnvironment from './SceneEnvironment'
 import StageCard from './StageCard'
+import StatCards from './StatCards'
 import StageMarkers from './StageMarkers'
 import Trees from './Trees'
 import WaterFlow from './WaterFlow'
@@ -52,6 +53,8 @@ export default function Scene({
   subscribe,
   cardContent,
   showCard,
+  figures,
+  showStats,
   onPick,
   rigRef,
   onFirstFrame,
@@ -136,6 +139,7 @@ export default function Scene({
       {showCard && cardContent && (
         <StageCard system={system} currentStage={currentStage} content={cardContent} />
       )}
+      <StatCards system={system} figures={figures} visible={showStats} />
       {currentSystem === 'whole' && <WholeHouseEffects system={system} />}
       {currentSystem === 'undersink' && <UnderSinkEffects system={system} />}
       {currentSystem === 'rain' && <RainwaterEffects system={system} />}
