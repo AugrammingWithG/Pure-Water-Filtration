@@ -4,9 +4,9 @@ import DetailCard from './components/DetailCard'
 import Header from './components/Header'
 import ImpactCard from './components/ImpactCard'
 import PlayBar from './components/PlayBar'
+import SavingsCard from './components/SavingsCard'
 import Sidebar from './components/Sidebar'
 import SimCanvas from './components/SimCanvas'
-import TrendCard from './components/TrendCard'
 import {
   DEFAULT_STAGE,
   DEFAULT_SYSTEM,
@@ -227,7 +227,7 @@ export default function App() {
           </div>
 
           <CostCard before={system.before} after={system.after} show={sceneDrawn} />
-          <TrendCard />
+          <SavingsCard before={system.before} after={system.after} />
           <ImpactCard bottles={system.bottles} waste={system.waste} />
           {/* On a large viewport the card lives in the scene instead; only
               one of the two may exist at a time. */}
