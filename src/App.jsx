@@ -8,13 +8,14 @@ import Sidebar from './components/Sidebar'
 import SimCanvas from './components/SimCanvas'
 import TrendCard from './components/TrendCard'
 import {
-  AUTOPLAY_INTERVAL_MS,
   DEFAULT_STAGE,
   DEFAULT_SYSTEM,
   STAGE_DATA_BY_SYSTEM,
+  STAGE_DWELL_MS,
   STAGE_ORDER,
   SYSTEM_DATA,
 } from './data/constants'
+import { useWalkthrough } from './hooks/useWalkthrough'
 import { stageView, SYSTEMS } from './three/systems'
 
 /** Camera fly-to duration for a stage; a little longer when changing system. */
@@ -24,7 +25,6 @@ const SYSTEM_FLY_MS = 1100
 export default function App() {
   const [currentSystem, setCurrentSystem] = useState(DEFAULT_SYSTEM)
   const [currentStage, setCurrentStage] = useState(DEFAULT_STAGE)
-  const [isPlaying, setIsPlaying] = useState(false)
   /**
    * False at the wide opening view, true once the camera has flown to a
    * product or stage. Drives the x-ray covers and the house cutaway, so the
@@ -35,37 +35,64 @@ export default function App() {
   /** Imperative handle on the camera rig, published by <Scene>. */
   const rigRef = useRef(null)
 
-  /** Mirrors the autoplay interval can read without resubscribing. */
+  /** Mirror the walkthrough can read without being rebuilt on every change. */
   const systemRef = useRef(currentSystem)
-  const stageRef = useRef(currentStage)
   useEffect(() => {
     systemRef.current = currentSystem
-    stageRef.current = currentStage
-  }, [currentSystem, currentStage])
+  }, [currentSystem])
 
+  /** Show a stage: select it and fly the camera to it. */
   const selectStage = useCallback((systemKey, stageKey) => {
     setCurrentStage(stageKey)
     setFocused(true)
     rigRef.current?.flyTo(stageView(systemKey, stageKey), STAGE_FLY_MS)
   }, [])
 
-  useEffect(() => {
-    if (!isPlaying) return
-    const id = setInterval(() => {
-      const next =
-        STAGE_ORDER[(STAGE_ORDER.indexOf(stageRef.current) + 1) % STAGE_ORDER.length]
-      selectStage(systemRef.current, next)
-    }, AUTOPLAY_INTERVAL_MS)
-    return () => clearInterval(id)
-  }, [isPlaying, selectStage])
+  /**
+   * The guided tour. Its playhead decides which stage is showing while it
+   * runs; the water in the scene freezes with it when it is paused.
+   */
+  const walkthrough = useWalkthrough({
+    stages: STAGE_ORDER.length,
+    dwell: STAGE_DWELL_MS / 1000,
+    onStage: (index) => selectStage(systemRef.current, STAGE_ORDER[index]),
+  })
+  const { status, play, pause, stop, seekStage } = walkthrough
 
-  /** Picking a stage from the bottom bar stops the walkthrough. */
-  const handleStageDot = useCallback(
-    (key) => {
-      setIsPlaying(false)
-      selectStage(systemRef.current, key)
+  /**
+   * A stage the user asked for — from the bar, the keyboard or the scene. The
+   * tour seeks to it and carries on as it was: still playing, or still paused
+   * but now looking here. Only leaving the system ends the tour.
+   */
+  const pickStage = useCallback(
+    (systemKey, stageKey) => {
+      seekStage(STAGE_ORDER.indexOf(stageKey))
+      selectStage(systemKey, stageKey)
     },
-    [selectStage],
+    [seekStage, selectStage],
+  )
+
+  /**
+   * Play from rest flies straight in to the stage the playhead is on, rather
+   * than sitting at the wide view until the first stage change. It never moves
+   * the playhead: the knob is the position, and where the user last scrubbed
+   * it to is where the tour picks up — a marker is the way to ask for the
+   * start of a stage. Resuming from a pause does not touch the camera: the
+   * user may have orbited to look at something while the water was held, and
+   * it should stay there until the tour moves on.
+   */
+  const handleTogglePlay = useCallback(() => {
+    if (status === 'playing') {
+      pause()
+      return
+    }
+    if (status === 'idle') selectStage(systemRef.current, currentStage)
+    play()
+  }, [status, currentStage, selectStage, play, pause])
+
+  const handleStageMarker = useCallback(
+    (key) => pickStage(systemRef.current, key),
+    [pickStage],
   )
 
   /**
@@ -73,12 +100,15 @@ export default function App() {
    * system that is already active still flies there, so it doubles as a
    * "take me to it" button after the user has orbited away.
    */
-  const handleSelectSystem = useCallback((key) => {
-    setCurrentSystem(key)
-    setIsPlaying(false)
-    setFocused(true)
-    rigRef.current?.flyTo(SYSTEMS[key].view, SYSTEM_FLY_MS)
-  }, [])
+  const handleSelectSystem = useCallback(
+    (key) => {
+      setCurrentSystem(key)
+      stop()
+      setFocused(true)
+      rigRef.current?.flyTo(SYSTEMS[key].view, SYSTEM_FLY_MS)
+    },
+    [stop],
+  )
 
   /**
    * Clicking a product in the scene. A stage key focuses that part (and
@@ -92,16 +122,49 @@ export default function App() {
         return
       }
       setCurrentSystem(systemKey)
-      selectStage(systemKey, stageKey)
+      pickStage(systemKey, stageKey)
     },
-    [handleSelectSystem, selectStage],
+    [handleSelectSystem, pickStage],
   )
 
   const handleResetView = useCallback(() => {
-    setIsPlaying(false)
+    stop()
     setFocused(false)
     rigRef.current?.reset()
-  }, [])
+  }, [stop])
+
+  /**
+   * Transport keys: space plays and pauses; the arrows step between stages,
+   * Home and End jump to the first and last. Left alone while the user is
+   * typing, and space is left to a focused button — it already clicks that,
+   * and the play button is one of them.
+   */
+  useEffect(() => {
+    const last = STAGE_ORDER.length - 1
+    const onKeyDown = (e) => {
+      if (e.repeat || e.altKey || e.ctrlKey || e.metaKey) return
+      const tag = e.target.tagName
+      if (/^(INPUT|TEXTAREA|SELECT)$/.test(tag) || e.target.isContentEditable) return
+
+      const index = STAGE_ORDER.indexOf(currentStage)
+      let next
+      if (e.code === 'Space') {
+        if (tag === 'BUTTON') return
+        e.preventDefault()
+        handleTogglePlay()
+        return
+      } else if (e.key === 'ArrowRight') next = index === last ? 0 : index + 1
+      else if (e.key === 'ArrowLeft') next = index === 0 ? last : index - 1
+      else if (e.key === 'Home') next = 0
+      else if (e.key === 'End') next = last
+      else return
+
+      e.preventDefault()
+      pickStage(systemRef.current, STAGE_ORDER[next])
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [currentStage, handleTogglePlay, pickStage])
 
   const system = SYSTEM_DATA[currentSystem]
   const stage = STAGE_DATA_BY_SYSTEM[currentSystem][currentStage]
@@ -119,6 +182,8 @@ export default function App() {
             currentSystem={currentSystem}
             currentStage={currentStage}
             focused={focused}
+            paused={status === 'paused'}
+            subscribe={walkthrough.subscribe}
             onPick={handleScenePick}
             rigRef={rigRef}
           />
@@ -144,9 +209,14 @@ export default function App() {
       <PlayBar
         currentStage={currentStage}
         currentSystem={currentSystem}
-        isPlaying={isPlaying}
-        onTogglePlay={() => setIsPlaying((p) => !p)}
-        onSelectStage={handleStageDot}
+        status={status}
+        waterColours={SYSTEMS[currentSystem].colours}
+        onTogglePlay={handleTogglePlay}
+        onSelectStage={handleStageMarker}
+        onScrub={walkthrough.seekFraction}
+        onScrubStart={walkthrough.beginScrub}
+        onScrubEnd={walkthrough.endScrub}
+        subscribe={walkthrough.subscribe}
       />
     </div>
   )

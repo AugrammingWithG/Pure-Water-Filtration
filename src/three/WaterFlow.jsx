@@ -11,9 +11,30 @@ import { FLOW_SPEED } from './systems'
  *
  * Remount (key by system) when the system changes so particle state starts
  * fresh on the new path.
+ *
+ * The water keeps its own clock rather than reading the renderer's, so that
+ * `paused` can hold it: a paused walkthrough is a freeze-frame the camera can
+ * still orbit around, bubbles held mid-cartridge and grit held on the face of
+ * the element, and resuming picks the stream up from exactly that frame. Only
+ * the water stops — the route highlight and every other transition in the
+ * scene are UI motion and carry on settling.
+ *
+ * The clock also follows the walkthrough's seeks (`subscribe`): every second
+ * the playhead is dragged or jumped, the water moves by too. So the timeline
+ * is the water's time as well as the tour's — scrubbing it back runs the
+ * stream backwards under the finger, a held frame moves when the bar is
+ * scrubbed, and jumping to a stage lands the water where it would have been.
  */
 
 const MAX_DELTA = 0.05
+/**
+ * Longest step the water's clock takes in one frame. A background tab or a
+ * shader compile hands the next frame whole seconds; those are dropped. It is
+ * much looser than MAX_DELTA, which paces transitions, because the water has
+ * to keep to real time on a machine that is only managing a dozen frames a
+ * second — slow water reads as a fault where a slow fade reads as a fade.
+ */
+const MAX_STALL = 0.25
 const WHITE = new THREE.Color(0xffffff)
 
 const clamp01 = (x) => (x < 0 ? 0 : x > 1 ? 1 : x)
@@ -311,7 +332,7 @@ const rideScratch = () => ({
  * of travel in proportion to how fast it is going, so a slow bubble balls up
  * and a fast one streaks.
  */
-function Bubbles({ path, ride, stream, count, activeSpan, calmSpan }) {
+function Bubbles({ path, ride, stream, count, activeSpan, clock, calmSpan }) {
   const mesh = useRef()
 
   const geometry = useMemo(
@@ -360,13 +381,15 @@ function Bubbles({ path, ride, stream, count, activeSpan, calmSpan }) {
     m.instanceColor.setUsage(THREE.DynamicDrawUsage)
   }, [count])
 
-  useFrame((state) => {
+  useFrame(() => {
     const m = mesh.current
     if (!m) return
     const { at, matrix, colour } = scratch
     const { point, along, across, third } = at
-    const time = state.clock.elapsedTime
-    const base = (time * FLOW_SPEED) % 1
+    const time = clock.time
+    // Scrubbing back past the start takes the clock negative; `%` keeps the sign.
+    let base = (time * FLOW_SPEED) % 1
+    if (base < 0) base += 1
     const spread = stream * BUBBLE_SPREAD
 
     for (let i = 0; i < count; i++) {
@@ -433,7 +456,7 @@ function Bubbles({ path, ride, stream, count, activeSpan, calmSpan }) {
  * edge, the way sediment actually builds up — then it sits there for a moment
  * before fading, so the first cartridge is visibly doing something.
  */
-function Grit({ path, ride, radius }) {
+function Grit({ path, ride, radius, clock }) {
   const mesh = useRef()
 
   const geometry = useMemo(() => new THREE.SphereGeometry(radius, 6, 5), [radius])
@@ -468,10 +491,10 @@ function Grit({ path, ride, radius }) {
 
   const scratch = useMemo(() => ({ dummy: new THREE.Object3D(), at: rideScratch() }), [])
 
-  useFrame((_, delta) => {
+  useFrame(() => {
     const m = mesh.current
     if (!m) return
-    const dt = Math.min(delta, MAX_DELTA)
+    const dt = clock.dt
     const { dummy, at } = scratch
     const { list, reset } = specks
 
@@ -511,8 +534,8 @@ function Grit({ path, ride, radius }) {
   )
 }
 
-export default function WaterFlow({ system, currentStage }) {
-  const { path, pulseRadius, routeRadius, laminar } = system
+export default function WaterFlow({ system, currentStage, paused = false, subscribe }) {
+  const { path, pulseRadius, routeRadius, laminar} = system
   const activeSpan = path.spans[currentStage] ?? null
   /** The element that calms the water — the third stage, where set. */
   const calmSpan = laminar ? (path.mediaSpans[path.stageOrder[2]] ?? null) : null
@@ -521,6 +544,31 @@ export default function WaterFlow({ system, currentStage }) {
     Math.min(BUBBLE_MAX, Math.round(path.length / (pulseRadius * BUBBLE_GAP))),
   )
   const ride = useMemo(() => buildRide(path.curve), [path])
+
+  /**
+   * The water's clock: seconds it has been running, and how far it moved this
+   * frame. Advanced at a negative priority so it is stepped before the bubbles
+   * and grit read it — r3f runs frame callbacks in priority order, and only a
+   * priority above zero takes over rendering.
+   *
+   * Seeks arrive between frames and are banked in `jump`, then taken in one
+   * step with the next frame's time so the bubbles and grit see a single
+   * consistent delta. A jump is not capped the way a stall is: it is the
+   * user's own doing, and can be as large or as negative as the drag was.
+   */
+  const clock = useMemo(() => ({ time: 0, dt: 0, jump: 0 }), [])
+  useEffect(() => {
+    if (!subscribe) return undefined
+    return subscribe((_, jump) => {
+      clock.jump += jump
+    })
+  }, [subscribe, clock])
+  useFrame((_, delta) => {
+    const dt = (paused ? 0 : Math.min(delta, MAX_STALL)) + clock.jump
+    clock.jump = 0
+    clock.time += dt
+    clock.dt = dt
+  }, -1)
 
   return (
     <group>

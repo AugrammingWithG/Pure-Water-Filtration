@@ -219,17 +219,87 @@ main{flex:1; display:flex; position:relative; min-height:0; min-width:0;}
   display:flex; align-items:center; justify-content:center; flex-shrink:0;
   box-shadow:0 6px 14px rgba(var(--accent-rgb),0.35);
 }
-.progress-track{width:220px; height:4px; border-radius:3px; background:rgba(15,28,51,0.10); position:relative; overflow:hidden;}
-.progress-fill{position:absolute; inset:0 auto 0 0; width:50%; background:var(--accent); border-radius:3px; transition:width 0.5s ease, background 0.4s ease;}
-.stage-count{font-size:11.5px; color:var(--ink-dim); white-space:nowrap; padding-right:6px;}
+/* The stage timeline: the playhead's track on top, the four stages beneath.
+   The track carries the system's water colours — raw at the left, filtered
+   at the right — so the bar is the route in miniature, and the fill brings
+   them up to full strength as the tour reaches them. Position arrives as --p,
+   set on .progress every frame by the play bar itself rather than through
+   React; the fill is clipped rather than resized so the gradient stays put
+   underneath it. The slider's padding is the scrub hit area: the track is
+   4px. Below it, each stage is a button spanning its quarter of the bar, its
+   marker lifted up onto the track where the stage begins. */
+.progress{
+  --p:0%;
+  position:relative; width:260px; flex-shrink:0;
+  cursor:pointer; touch-action:none; user-select:none; -webkit-user-select:none;
+}
+.progress-slider{position:relative; padding:8px 0; border-radius:8px; outline:none;}
+.progress-slider:focus-visible{box-shadow:0 0 0 2px rgba(var(--accent-rgb),0.55);}
+.progress-track{
+  position:relative; height:4px; border-radius:3px; overflow:hidden;
+  background:linear-gradient(rgba(255,255,255,0.72), rgba(255,255,255,0.72)), var(--water);
+}
+.progress-fill{
+  position:absolute; inset:0; border-radius:3px;
+  background:var(--water);
+  clip-path:inset(0 calc(100% - var(--p)) 0 0);
+}
+.progress-knob{
+  position:absolute; top:50%; left:var(--p); z-index:2;
+  width:12px; height:12px; border-radius:50%;
+  background:#fff; border:2px solid var(--accent);
+  box-shadow:0 1px 4px rgba(15,28,51,0.25);
+  transform:translate(-50%,-50%);
+  transition:border-color 0.4s ease, transform 0.15s ease;
+  pointer-events:none;
+}
+.progress:hover .progress-knob, .progress:active .progress-knob{transform:translate(-50%,-50%) scale(1.2);}
+/* a held frame: the playhead breathes where it stopped */
+.playbar.paused .progress-knob{animation:playhead-held 1.8s ease-out infinite;}
+@keyframes playhead-held{
+  from{box-shadow:0 1px 4px rgba(15,28,51,0.25), 0 0 0 0 rgba(var(--accent-rgb),0.45);}
+  to{box-shadow:0 1px 4px rgba(15,28,51,0.25), 0 0 0 9px rgba(var(--accent-rgb),0);}
+}
 
-.stage-dots{display:flex; gap:22px; max-width:100%;}
-.stage-dot-btn{display:flex; flex-direction:column; align-items:center; gap:6px;}
-.stage-dot-btn .dotmark{width:8px; height:8px; border-radius:50%; background:rgba(15,28,51,0.18); transition:all 0.25s ease;}
-.stage-dot-btn span{font-size:10px; color:var(--ink-dim); font-weight:600;}
-.stage-dot-btn.active .dotmark{background:var(--accent); box-shadow:0 0 0 4px rgba(var(--accent-rgb),0.22);}
-.stage-dot-btn.active span{color:var(--accent);}
-.stage-dot-btn:hover span{color:var(--ink);}
+/* The four stages. Each button is the stretch of bar its stage occupies;
+   the marker sits at the button's left edge, lifted onto the track line
+   (8px slider padding + half the 4px track), and the name is centred in the
+   stretch. The live stage is the one the playhead is inside. */
+.progress-stages{position:relative; height:13px; z-index:1;}
+.progress-stage{
+  position:absolute; top:0; height:100%;
+  display:flex; align-items:flex-end; justify-content:center;
+  padding:0 3px; border-radius:6px; outline:none;
+}
+.progress-stage:focus-visible{box-shadow:0 0 0 2px rgba(var(--accent-rgb),0.55);}
+.progress-marker{
+  position:absolute; left:0; top:-10px;
+  width:8px; height:8px; border-radius:50%;
+  background:#fff; border:1.5px solid rgba(15,28,51,0.32);
+  box-shadow:0 0 0 0 rgba(var(--accent-rgb),0);
+  transform:translate(-50%,-50%);
+  transition:background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+.progress-stage.passed .progress-marker{border-color:rgba(var(--accent-rgb),0.7);}
+.progress-stage.active .progress-marker{
+  background:var(--accent); border-color:var(--accent);
+  box-shadow:0 0 0 4px rgba(var(--accent-rgb),0.22);
+}
+.progress-label{
+  display:block; max-width:100%;
+  font-size:10px; font-weight:600; line-height:1; color:var(--ink-dim);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  transition:color 0.25s ease;
+}
+.progress-stage:hover .progress-label{color:var(--ink);}
+.progress-stage.active .progress-label{color:var(--accent);}
+
+.stage-count{font-size:11.5px; color:var(--ink-dim); white-space:nowrap; padding-right:6px;}
+.pb-state{
+  display:inline-block; margin-right:3px; padding:2px 7px; border-radius:6px;
+  font-size:9.5px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase;
+  color:var(--accent); background:rgba(var(--accent-rgb),0.12);
+}
 
 /* ============================================================
    RESPONSIVE
@@ -238,8 +308,8 @@ main{flex:1; display:flex; position:relative; min-height:0; min-width:0;}
         left to go drop out;
      2. the rail turns from a left-hand dock into a row of pills
         under the header;
-     3. the fixed 220px progress track goes fluid and the stage
-        dots spread across the full width.
+     3. the fixed 260px stage timeline goes fluid and takes whatever
+        width the play button and the stage count leave it.
    Breakpoints are on height as well as width — a phone held
    sideways is short, not narrow, and there it is the vertical
    budget that runs out first.
@@ -292,21 +362,14 @@ main{flex:1; display:flex; position:relative; min-height:0; min-width:0;}
   .side-btn.active .ico{box-shadow:0 4px 10px rgba(var(--accent-rgb),0.30);}
 }
 
-/* --- play bar: fixed track -> fluid, dots spread the full width --- */
+/* --- play bar: fixed timeline -> fluid --- */
 @media (max-width:760px){
-  .playbar-wrap{
-    gap:8px;
-    padding:0 12px calc(14px + env(safe-area-inset-bottom));
-  }
+  .playbar-wrap{padding:0 12px calc(14px + env(safe-area-inset-bottom));}
   .playbar{width:100%; max-width:460px; gap:10px; padding:7px 12px 7px 7px;}
-  .progress-track{flex:1 1 auto; width:auto; min-width:36px;}
+  .progress{flex:1 1 auto; width:auto; min-width:120px;}
+  .progress-stage{padding:0 2px;}
+  .progress-label{font-size:9.5px;}
   .stage-count{font-size:10.5px; padding-right:2px;}
-  .stage-dots{width:100%; max-width:460px; justify-content:space-between; gap:4px;}
-  .stage-dot-btn{flex:1 1 0; min-width:0; padding:0 2px;}
-  .stage-dot-btn span:not(.dotmark){
-    font-size:9.5px; max-width:100%;
-    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-  }
 }
 
 /* --- phone: the detail card stops floating and becomes a bottom sheet.
@@ -377,8 +440,13 @@ main{flex:1; display:flex; position:relative; min-height:0; min-width:0;}
   .side-btn .ico{width:26px; height:26px;}
   .side-btn span:not(.ico){font-size:9.5px;}
   .card-cost{width:134px;}
-  .stage-count{font-size:10px;}
-  .stage-dot-btn span:not(.dotmark){font-size:9px;}
+  .progress-label{font-size:9px;}
+  /* the timeline names the live stage itself, and needs the width more than
+     a second copy of "Stage 2 of 4" does; the Paused chip keeps its place */
+  .stage-count{font-size:10px; padding-right:0;}
+  .stage-count-text{display:none;}
+  .stage-count:not(:has(.pb-state)){display:none;}
+  .pb-state{margin-right:0;}
 }
 
 /* --- below this the three labels no longer fit beside their icons, and
@@ -411,8 +479,7 @@ main{flex:1; display:flex; position:relative; min-height:0; min-width:0;}
   /* the detail card now runs the full height of the right-hand side, so the
      chip moves into the corner the cost card just vacated */
   .view-controls{top:12px; left:max(12px, env(safe-area-inset-left)); right:auto;}
-  .playbar-wrap{gap:5px; padding-bottom:calc(9px + env(safe-area-inset-bottom));}
-  .playbar{padding:5px 12px 5px 5px; gap:9px;}
+  .playbar-wrap{padding-bottom:calc(9px + env(safe-area-inset-bottom));}
+  .playbar{padding:5px 10px 5px 5px; gap:8px;}
   .play-btn{width:30px; height:30px;}
-  .stage-dot-btn{gap:4px;}
 }
