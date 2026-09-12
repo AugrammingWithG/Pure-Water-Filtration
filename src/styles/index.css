@@ -2,6 +2,12 @@
    Light "product render" theme. One accent colour per system,
    switched by the data-system attribute on .app — the 3D scene
    picks up the same colours from three/systems.js.
+
+   Layout is a fixed-height shell: header / main / play bar, with
+   main splitting into the system rail and the canvas region. The
+   canvas and the floating cards are absolutely positioned inside
+   that region, so every breakpoint only has to keep the region
+   itself the right shape. See the RESPONSIVE section at the end.
    ============================================================ */
 
 :root{
@@ -19,6 +25,9 @@
   --accent-rgb:46,143,224;
   --accent-ink:#ffffff;
   --shadow:0 18px 40px rgba(15,28,51,0.12), 0 2px 6px rgba(15,28,51,0.06);
+  /* Page gutter, widened past any notch when the viewport is inset. */
+  --gutter-l:max(30px, env(safe-area-inset-left));
+  --gutter-r:max(30px, env(safe-area-inset-right));
 }
 .app[data-system="whole"]{--accent:#2E8FE0; --accent-rgb:46,143,224;}
 .app[data-system="undersink"]{--accent:#17B3C6; --accent-rgb:23,179,198;}
@@ -31,42 +40,63 @@ body{
   background:var(--bg);
   color:var(--ink);
   overflow:hidden;
+  /* the whole app is one fixed screen: no rubber-banding behind it */
+  overscroll-behavior:none;
   -webkit-font-smoothing:antialiased;
 }
 h1,h2,h3,.display{font-family:'Space Grotesk',sans-serif;}
 button{font-family:inherit; cursor:pointer; border:none; background:none; color:inherit;}
 
 .app{
-  height:100vh; display:flex; flex-direction:column;
+  height:100vh;
+  display:flex; flex-direction:column; overflow:hidden;
   background:
     radial-gradient(ellipse 1100px 700px at 62% 42%, #ffffff 0%, rgba(255,255,255,0) 65%),
     radial-gradient(ellipse 900px 600px at 88% 8%, rgba(var(--accent-rgb),0.16), transparent 62%),
     radial-gradient(ellipse 700px 500px at 6% 96%, rgba(var(--accent-rgb),0.10), transparent 60%),
     linear-gradient(180deg, var(--bg-2), var(--bg));
 }
+/**
+ * 100vh on a phone is the height the page would have with the browser toolbar
+ * retracted, and it keeps that value while the toolbar is on screen — which
+ * here is always, because the app never scrolls. That pushes the play bar
+ * below the fold by the height of the toolbar. dvh is the height actually
+ * visible right now.
+ *
+ * This has to be an @supports block rather than a second `height` on .app:
+ * the CSS minifier collapses a duplicated property to the winning one, so the
+ * 100vh fallback does not survive `vite build`.
+ */
+@supports (height:100dvh){
+  .app{height:100dvh;}
+}
 
 /* ---------- HEADER ---------- */
 header{
-  display:flex; align-items:flex-start; justify-content:space-between;
-  padding:18px 30px 12px;
+  display:flex; align-items:flex-start; justify-content:space-between; gap:14px;
+  padding:18px var(--gutter-r) 12px var(--gutter-l);
+  flex-shrink:0;
 }
+/* lets the title column shrink instead of shoving the button off the edge */
+header > div{min-width:0;}
 .brand{
   display:inline-flex; align-items:center; gap:7px; color:var(--navy);
   font-size:10.5px; font-weight:800; letter-spacing:0.12em; text-transform:uppercase;
   margin-bottom:8px;
 }
 .brand em{font-style:normal; font-weight:500; letter-spacing:0.22em; opacity:0.8;}
-header h1{font-size:19px; font-weight:600; letter-spacing:-0.01em;}
+header h1{font-size:19px; font-weight:600; letter-spacing:-0.01em; overflow-wrap:break-word;}
 header p{font-size:12.5px; color:var(--ink-dim); margin-top:4px; max-width:520px; line-height:1.5;}
 .browse-btn{
   font-size:12.5px; font-weight:600; color:var(--ink);
   border:1px solid var(--line); padding:9px 16px; border-radius:20px;
   background:rgba(255,255,255,0.7);
+  flex-shrink:0; white-space:nowrap;
 }
 .browse-btn:hover{border-color:var(--accent); color:var(--accent);}
 
 /* ---------- MAIN LAYOUT ---------- */
-main{flex:1; display:flex; position:relative; min-height:0;}
+main{flex:1; display:flex; position:relative; min-height:0; min-width:0;}
 
 /* sidebar */
 .sidebar{
@@ -92,14 +122,17 @@ main{flex:1; display:flex; position:relative; min-height:0;}
 .side-btn.active span{color:var(--accent);}
 
 /* canvas region */
-.stage-region{flex:1; position:relative; min-width:0;}
-.sim-canvas-wrap{position:absolute; inset:0; cursor:grab;}
-.sim-canvas-wrap canvas{display:block; width:100%; height:100%;}
+.stage-region{flex:1; position:relative; min-width:0; min-height:0;}
+/* touch-action:none hands every touch drag to the orbit rig instead of
+   letting the browser read it as a page scroll or a pinch-zoom */
+.sim-canvas-wrap{position:absolute; inset:0; cursor:grab; touch-action:none;}
+.sim-canvas-wrap canvas{display:block; width:100%; height:100%; touch-action:none;}
 /* the orbit rig toggles .dragging on the canvas element it listens to */
 .sim-canvas-wrap canvas.dragging{cursor:grabbing;}
 
 .view-controls{
-  position:absolute; top:16px; right:16px; z-index:6; display:flex; gap:8px;
+  position:absolute; z-index:6; display:flex; gap:8px;
+  top:16px; right:max(16px, env(safe-area-inset-right));
 }
 .chip-btn{
   font-size:11px; font-weight:600; color:var(--ink-dim);
@@ -143,6 +176,9 @@ main{flex:1; display:flex; position:relative; min-height:0;}
 
 .card-detail{
   top:15%; right:6%; width:236px; pointer-events:auto;
+  /* the copy is variable-length: cap the card against the region and scroll
+     the overflow rather than let it run off the bottom of the screen */
+  max-height:76%; overflow-y:auto; overscroll-behavior:contain;
   transition:opacity 0.35s ease, transform 0.35s ease;
 }
 .card-detail .fc-eyebrow{font-size:10px; color:var(--accent); font-weight:700; margin-bottom:4px; letter-spacing:0.06em;}
@@ -163,21 +199,15 @@ main{flex:1; display:flex; position:relative; min-height:0;}
 }
 .detail-actions button.primary{color:var(--accent-ink); background:var(--accent); border-color:transparent;}
 
-@media(max-width:980px){
-  .card-cost, .card-trend, .card-impact, .card-detail{width:150px; padding:12px 14px;}
-  .cost-col b{font-size:15px;}
-}
-@media(max-width:760px){
-  .card-trend, .card-impact{display:none;}
-}
-
 /* ---------- BOTTOM PLAYBACK BAR ---------- */
 .playbar-wrap{
   display:flex; flex-direction:column; align-items:center; gap:10px;
-  padding:0 0 20px;
+  padding:0 16px calc(20px + env(safe-area-inset-bottom));
+  flex-shrink:0;
 }
 .playbar{
   display:flex; align-items:center; gap:14px;
+  max-width:100%;
   background:var(--panel); backdrop-filter:blur(14px);
   border:1px solid var(--panel-border);
   border-radius:999px; padding:8px 12px 8px 8px;
@@ -193,10 +223,196 @@ main{flex:1; display:flex; position:relative; min-height:0;}
 .progress-fill{position:absolute; inset:0 auto 0 0; width:50%; background:var(--accent); border-radius:3px; transition:width 0.5s ease, background 0.4s ease;}
 .stage-count{font-size:11.5px; color:var(--ink-dim); white-space:nowrap; padding-right:6px;}
 
-.stage-dots{display:flex; gap:22px;}
+.stage-dots{display:flex; gap:22px; max-width:100%;}
 .stage-dot-btn{display:flex; flex-direction:column; align-items:center; gap:6px;}
 .stage-dot-btn .dotmark{width:8px; height:8px; border-radius:50%; background:rgba(15,28,51,0.18); transition:all 0.25s ease;}
 .stage-dot-btn span{font-size:10px; color:var(--ink-dim); font-weight:600;}
 .stage-dot-btn.active .dotmark{background:var(--accent); box-shadow:0 0 0 4px rgba(var(--accent-rgb),0.22);}
 .stage-dot-btn.active span{color:var(--accent);}
 .stage-dot-btn:hover span{color:var(--ink);}
+
+/* ============================================================
+   RESPONSIVE
+   Three things reflow, in this order as the frame gets smaller:
+     1. the floating cards shrink, then the two that have nowhere
+        left to go drop out;
+     2. the rail turns from a left-hand dock into a row of pills
+        under the header;
+     3. the fixed 220px progress track goes fluid and the stage
+        dots spread across the full width.
+   Breakpoints are on height as well as width — a phone held
+   sideways is short, not narrow, and there it is the vertical
+   budget that runs out first.
+   ============================================================ */
+
+/* --- cards: one size down --- */
+@media (max-width:1180px){
+  .card-cost, .card-trend, .card-impact{width:168px; padding:13px 15px;}
+  .card-detail{width:212px; padding:14px 16px;}
+  .cost-col b{font-size:17px;}
+  .card-detail h3{font-size:15px;}
+}
+
+/* --- cards: two stacked columns need ~830px of viewport at the wide
+       anchors, which a 900px-tall laptop does not have. Pull each column
+       towards its own edge first... --- */
+@media (max-height:900px){
+  .card-cost, .card-detail{top:10%;}
+  .card-trend, .card-impact{bottom:4%;}
+}
+
+/* --- ...and only once even that will not fit, drop the lower two. They
+       are the secondary pair; cost and detail carry the product. --- */
+@media (max-width:900px), (max-height:780px){
+  .card-trend, .card-impact{display:none;}
+}
+
+/* --- rail: left-hand dock -> row of pills under the header --- */
+@media (max-width:900px), (max-height:620px){
+  main{flex-direction:column;}
+  .sidebar{
+    width:100%; flex-direction:row; justify-content:center; align-items:stretch;
+    gap:8px; padding:2px 12px 8px;
+    padding-left:max(12px, env(safe-area-inset-left));
+    padding-right:max(12px, env(safe-area-inset-right));
+  }
+  .side-btn{
+    flex:1 1 0; min-width:0; width:auto; max-width:190px;
+    flex-direction:row; justify-content:flex-start; align-items:center; gap:8px;
+    padding:7px 11px; border-radius:11px;
+    border:1px solid var(--line); background:rgba(255,255,255,0.55);
+  }
+  .side-btn .ico{width:28px; height:28px; border-radius:9px; flex-shrink:0;}
+  .side-btn .ico svg{width:15px; height:15px;}
+  .side-btn span:not(.ico){
+    font-size:10.5px; text-align:left; min-width:0;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .side-btn.active{border-color:rgba(var(--accent-rgb),0.45); background:rgba(var(--accent-rgb),0.10);}
+  .side-btn.active .ico{box-shadow:0 4px 10px rgba(var(--accent-rgb),0.30);}
+}
+
+/* --- play bar: fixed track -> fluid, dots spread the full width --- */
+@media (max-width:760px){
+  .playbar-wrap{
+    gap:8px;
+    padding:0 12px calc(14px + env(safe-area-inset-bottom));
+  }
+  .playbar{width:100%; max-width:460px; gap:10px; padding:7px 12px 7px 7px;}
+  .progress-track{flex:1 1 auto; width:auto; min-width:36px;}
+  .stage-count{font-size:10.5px; padding-right:2px;}
+  .stage-dots{width:100%; max-width:460px; justify-content:space-between; gap:4px;}
+  .stage-dot-btn{flex:1 1 0; min-width:0; padding:0 2px;}
+  .stage-dot-btn span:not(.dotmark){
+    font-size:9.5px; max-width:100%;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+}
+
+/* --- phone: the detail card stops floating and becomes a bottom sheet.
+       Two 150px cards either side of a ~360px canvas leaves them almost
+       touching, and the taller one has nowhere to grow. --- */
+@media (max-width:620px){
+  header{padding:13px var(--gutter-r) 9px var(--gutter-l); gap:10px;}
+  header h1{font-size:16px;}
+  header p{
+    font-size:11.5px; margin-top:3px;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+  }
+  .brand{margin-bottom:6px;}
+  .browse-btn{font-size:11.5px; padding:8px 13px;}
+
+  .view-controls{top:12px; right:max(12px, env(safe-area-inset-right));}
+
+  .card-cost{
+    top:12px; left:max(12px, env(safe-area-inset-left));
+    width:146px; padding:11px 13px;
+  }
+  .card-cost .fc-label{margin-bottom:7px;}
+  .cost-row{gap:12px; margin-bottom:9px;}
+  .cost-col b{font-size:15px;}
+  .savings-pill{font-size:11px; padding:5px 10px;}
+
+  .card-detail{
+    top:auto; bottom:12px; width:auto;
+    left:max(12px, env(safe-area-inset-left));
+    right:max(12px, env(safe-area-inset-right));
+    max-height:46%; padding:13px 15px;
+  }
+  .card-detail p{margin-bottom:10px;}
+  .fc-placement{margin-bottom:10px;}
+}
+
+/* --- wherever the detail card has to scroll, its buttons stay put.
+       Without this the primary action is the first thing clipped, which
+       is the one part of the card that has to stay reachable. --- */
+@media (max-width:620px), (max-height:560px){
+  .card-detail{padding-bottom:0;}
+  .detail-actions{
+    position:sticky; bottom:0; z-index:1;
+    padding:10px 0 13px;
+    /* opaque, not a fade: a fade leaves a line of the copy legible between
+       the buttons, which reads as a rendering fault rather than as depth.
+       The shadow above is what says the text carries on underneath. */
+    background:rgba(255,255,255,0.98);
+    box-shadow:0 -6px 10px -6px rgba(15,28,51,0.16);
+  }
+}
+
+/* --- narrowest phones --- */
+@media (max-width:400px){
+  :root{
+    --gutter-l:max(14px, env(safe-area-inset-left));
+    --gutter-r:max(14px, env(safe-area-inset-right));
+  }
+  header h1{font-size:15px;}
+  .brand{font-size:9.5px;}
+  .browse-btn{font-size:11px; padding:7px 11px;}
+  .sidebar{
+    gap:6px;
+    padding-left:max(10px, env(safe-area-inset-left));
+    padding-right:max(10px, env(safe-area-inset-right));
+  }
+  .side-btn{padding:7px 9px; gap:7px;}
+  .side-btn .ico{width:26px; height:26px;}
+  .side-btn span:not(.ico){font-size:9.5px;}
+  .card-cost{width:134px;}
+  .stage-count{font-size:10px;}
+  .stage-dot-btn span:not(.dotmark){font-size:9px;}
+}
+
+/* --- below this the three labels no longer fit beside their icons, and
+       an ellipsised "Under ..." tells the user nothing: stack them --- */
+@media (max-width:360px){
+  .side-btn{
+    flex-direction:column; justify-content:center; gap:4px; padding:6px 4px;
+  }
+  .side-btn span:not(.ico){font-size:9px; text-align:center;}
+  .card-detail{max-height:52%;}
+}
+
+/* --- short viewports (a phone held sideways): height is what is scarce,
+       so the chrome gives it back to the canvas. Last block in the file
+       so it wins wherever it overlaps the ones above. --- */
+@media (max-height:560px){
+  header{padding:9px var(--gutter-r) 5px var(--gutter-l);}
+  header h1{font-size:15.5px;}
+  header p{display:none;}
+  .brand{font-size:9.5px; margin-bottom:4px;}
+  .sidebar{padding-top:0; padding-bottom:6px;}
+  .side-btn{padding:5px 10px;}
+  .side-btn .ico{width:24px; height:24px;}
+  /* this one would sit on a canvas only ~180px tall */
+  .card-cost{display:none;}
+  /* short but wide: the card goes back to the right-hand side, and takes a
+     little more width so its three buttons stay on one row */
+  .card-detail{top:12px; bottom:auto; left:auto; width:240px; max-height:calc(100% - 24px);}
+  .detail-actions button{font-size:10px; padding:5px 8px;}
+  /* the detail card now runs the full height of the right-hand side, so the
+     chip moves into the corner the cost card just vacated */
+  .view-controls{top:12px; left:max(12px, env(safe-area-inset-left)); right:auto;}
+  .playbar-wrap{gap:5px; padding-bottom:calc(9px + env(safe-area-inset-bottom));}
+  .playbar{padding:5px 12px 5px 5px; gap:9px;}
+  .play-btn{width:30px; height:30px;}
+  .stage-dot-btn{gap:4px;}
+}

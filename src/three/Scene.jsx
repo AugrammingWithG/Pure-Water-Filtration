@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useThree } from '@react-three/fiber'
 import { useOrbitRig } from '../hooks/useOrbitRig'
 import Grass from './Grass'
 import Ground from './Ground'
@@ -20,12 +21,30 @@ const ORBIT_OPTIONS = {
 }
 
 /**
+ * The camera's fov is vertical, so how much of the scene fits across the frame
+ * depends on the viewport's aspect: a phone in portrait sees a far narrower
+ * slice than a desktop does from the same distance, and the plinth ends up
+ * cropped. Every view in systems.js is framed for a landscape viewport, so
+ * below this aspect the rig pulls back to hold the same width in frame.
+ * 1.5 is the aspect at which the home view just contains the plinth.
+ */
+const FRAME_ASPECT = 1.5
+/** Far enough for a tall phone; past that, let the edges crop. */
+const MAX_PULLBACK = 2
+
+/**
  * Everything inside the <Canvas>. Owns the camera rig and publishes its
  * imperative API (flyTo/reset) to `rigRef` so the surrounding UI can drive
  * the camera without re-rendering the scene.
  */
 export default function Scene({ currentSystem, currentStage, focused, onPick, rigRef }) {
-  const rig = useOrbitRig(ORBIT_OPTIONS)
+  const { width, height } = useThree((s) => s.size)
+  const distanceScale = Math.min(
+    MAX_PULLBACK,
+    Math.max(1, FRAME_ASPECT / (width / height)),
+  )
+
+  const rig = useOrbitRig({ ...ORBIT_OPTIONS, distanceScale })
   const system = SYSTEMS[currentSystem]
 
   useEffect(() => {
