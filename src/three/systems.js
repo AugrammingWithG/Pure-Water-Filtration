@@ -219,6 +219,12 @@ function build({
     stages,
     path,
     /**
+     * The water's colour after each stage, raw first. The path bakes these
+     * into its gradient; they are kept here as well so the play bar can paint
+     * the same journey.
+     */
+    colours,
+    /**
      * Pushes the stage markers clear of the unit they label — out of the
      * cabinet and toward whichever face the camera comes in on.
      */

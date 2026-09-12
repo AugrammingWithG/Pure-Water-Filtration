@@ -11,7 +11,14 @@ import Scene from '../three/Scene'
  * PCFSoftShadowMap, which three r186 removed (it warns and falls back). r186's
  * PCF is a jittered 5-tap disc that honours each light's `shadow.radius`.
  */
-export default function SimCanvas({ currentSystem, currentStage, focused, onPick, rigRef }) {
+export default function SimCanvas({
+  currentSystem,
+  currentStage,
+  focused,
+  paused,
+  onPick,
+  rigRef,
+}) {
   return (
     <div className="sim-canvas-wrap">
       <Canvas
@@ -38,6 +45,7 @@ export default function SimCanvas({ currentSystem, currentStage, focused, onPick
           currentSystem={currentSystem}
           currentStage={currentStage}
           focused={focused}
+          paused={paused}
           onPick={onPick}
           rigRef={rigRef}
         />

@@ -38,7 +38,7 @@ const MAX_PULLBACK = 2
  * imperative API (flyTo/reset) to `rigRef` so the surrounding UI can drive
  * the camera without re-rendering the scene.
  */
-export default function Scene({ currentSystem, currentStage, focused, onPick, rigRef }) {
+export default function Scene({ currentSystem, currentStage, focused, paused, onPick, rigRef }) {
   const { width, height } = useThree((s) => s.size)
   const distanceScale = Math.min(
     MAX_PULLBACK,
@@ -88,7 +88,12 @@ export default function Scene({ currentSystem, currentStage, focused, onPick, ri
       <UnderSinkUnit {...unitProps('undersink')} />
       <RainwaterUnit {...unitProps('rain')} />
 
-      <WaterFlow key={currentSystem} system={system} currentStage={currentStage} />
+      <WaterFlow
+        key={currentSystem}
+        system={system}
+        currentStage={currentStage}
+        paused={paused}
+      />
       <StageMarkers
         system={system}
         currentStage={currentStage}
