@@ -3,6 +3,7 @@ import * as THREE from 'three'
 import { STREET_METER, WHOLE_UNIT } from '../layout'
 import Canister from '../parts/Canister'
 import FadeGroup from '../parts/FadeGroup'
+import Outline from '../parts/Outline'
 import Pipe from '../parts/Pipe'
 import { COPPER } from '../parts/materials'
 import Valve from '../parts/Valve'
@@ -23,6 +24,13 @@ const { center, w, h, depth, riserX, canisterOffsets } = WHOLE_UNIT
 const CHAMFER = 0.1
 /** Opacity the cover drops to when this system is active — enough to see inside. */
 const XRAY_OPACITY = 0.18
+/**
+ * Copper is opaque, and the route runs down the middle of it, so the water
+ * would be invisible for most of its journey. The pipework thins out with the
+ * cover instead, leaving the runs readable as pipe while the flow shows
+ * through.
+ */
+const PIPE_XRAY = 0.3
 
 /**
  * The white cabinet's shell: a rectangle with its top-front edge chamfered,
@@ -83,6 +91,16 @@ export default function WholeHouseUnit({ active, revealed, selectedStage, accent
 
   return (
     <group>
+      {/*
+        Selection outline, marking this as the unit the walkthrough is on. Sits
+        outside the FadeGroup so the x-ray does not drive its opacity — it stays
+        drawn while the cover is see-through, which is when it is doing the most
+        work: it is the only thing still holding the cabinet's shape.
+      */}
+      <group position={center}>
+        <Outline geometry={shell} color={accent} shown={active} />
+      </group>
+
       {/* cabinet */}
       <FadeGroup opacity={revealed ? XRAY_OPACITY : 1} speed={4}>
         <group position={center}>
@@ -112,6 +130,7 @@ export default function WholeHouseUnit({ active, revealed, selectedStage, accent
           capColor={s.cap}
           accent={accent}
           selected={active && selectedStage === s.key}
+          revealed={revealed}
           onClick={(e) => {
             e.stopPropagation()
             onPick(s.key)
@@ -119,12 +138,14 @@ export default function WholeHouseUnit({ active, revealed, selectedStage, accent
         />
       ))}
 
-      {/* plumbing */}
-      <Pipe points={riser} radius={0.038} material={COPPER} />
-      <Valve position={[riserX, 0.9, center.z]} pipeRadius={0.038} handleDir="+x" />
-      {outlets.map((pts, i) => (
-        <Pipe key={i} points={pts} radius={0.034} material={COPPER} />
-      ))}
+      {/* plumbing — goes see-through with the cover so the water inside shows */}
+      <FadeGroup opacity={revealed ? PIPE_XRAY : 1} speed={4}>
+        <Pipe points={riser} radius={0.038} material={COPPER} />
+        <Valve position={[riserX, 0.9, center.z]} pipeRadius={0.038} handleDir="+x" />
+        {outlets.map((pts, i) => (
+          <Pipe key={i} points={pts} radius={0.034} material={COPPER} />
+        ))}
+      </FadeGroup>
 
       {/* street meter pit, where the mains comes in from */}
       <group position={STREET_METER}>
