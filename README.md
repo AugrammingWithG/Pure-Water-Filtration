@@ -125,10 +125,12 @@ src/
   main.jsx                 React root
   App.jsx                  Owns system/stage/focused state and the walkthrough, holds the rig ref
   data/
-    constants.js           All stage + system copy (titles, descriptions, placement)
+    constants.js           All stage + system copy (titles, descriptions, placement, cost figures)
   hooks/
     useOrbitRig.js         Custom drag-orbit / zoom / fly-to camera rig
     useWalkthrough.js      The tour as a timeline: play / pause / resume, seek, scrub
+    useCountUp.js          One eased 0..1 ramp for figures that count up on screen
+    useInView.js           Whether an element is actually on screen (the responsive CSS drops cards)
   three/
     layout.js              Every dimension and mount point in the world
     path.js                Builds a route from its legs: stage spans, colour, pace
@@ -158,7 +160,8 @@ src/
       random.js            Seeded PRNG so scattered things land in the same place every load
   components/
     SimCanvas.jsx          <Canvas> wrapper and renderer configuration
-    Header.jsx Sidebar.jsx CostCard.jsx TrendCard.jsx ImpactCard.jsx
+    CostCard.jsx           Now vs filtered yearly spend; counts up as it arrives, saving derived on screen
+    Header.jsx Sidebar.jsx TrendCard.jsx ImpactCard.jsx
     DetailCard.jsx icons.jsx
     PlayBar.jsx            Play/pause and the stage timeline: markers to jump, track to scrub
   styles/
@@ -211,6 +214,17 @@ that every seek on the walkthrough — a scrub, a marker, a badge, an arrow key
 adds the same amount to its own clock (banked between frames and taken in the
 next step, so bubbles and grit see one delta). Playing publishes no movement
 at all, so the loop wrapping round is not read as a jump back to the start.
+
+The cost card's figures count up when it arrives, and the count is the third
+clock that caps its step, for the same reason. It does not start on mount: the
+first frame the scene draws compiles every shader, which holds the page for a
+second or two on first load, and a count started before that is over — or
+frozen at zero — by the time anyone can see it. So `Scene` reports its first
+drawn frame (`onFirstFrame`, the second `useFrame` call, since `useFrame`
+runs ahead of the render) and the card waits for it, arriving as the scene
+does. The three figures run off one ramp, and the saving is the difference of
+the two figures on screen rather than a count of its own, so the card's
+arithmetic holds on every frame.
 
 The water's clock is stepped in a `useFrame` at priority `-1` so it is ahead
 of the bubbles and grit that read it in the same frame. r3f runs frame

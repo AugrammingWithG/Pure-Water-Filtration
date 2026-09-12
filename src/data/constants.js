@@ -70,9 +70,11 @@ export const SYSTEM_DATA = {
       'A multi-stage unit that treats water where the mains enters the home — reduces sediment, chlorine and excess minerals for every tap.',
     placement:
       'At the point of entry — outside wall, garage or utility cupboard where the main line comes in.',
-    before: '$1,240',
-    after: '$610',
-    savings: '$630',
+    // Annual water spend in whole dollars, counted up by the cost card. The
+    // saving is the difference between the two, so the card derives it rather
+    // than it being stored here and left to drift out of step with them.
+    before: 1240,
+    after: 610,
     bottles: '3,650',
     waste: '61 kg',
   },
@@ -81,9 +83,8 @@ export const SYSTEM_DATA = {
     subtitle:
       'A drinking-water unit that tucks under the kitchen bench and feeds its own dedicated tap.',
     placement: 'Inside the under-sink cabinet in the kitchen.',
-    before: '$480',
-    after: '$260',
-    savings: '$220',
+    before: 480,
+    after: 260,
     bottles: '1,900',
     waste: '24 kg',
   },
@@ -92,9 +93,8 @@ export const SYSTEM_DATA = {
     subtitle:
       'Three filter canisters plus a UV unit that makes tank water safe to drink.',
     placement: 'Outside by the rainwater tank, or where the tank line enters the house.',
-    before: '$380',
-    after: '$340',
-    savings: '$40',
+    before: 380,
+    after: 340,
     bottles: '900',
     waste: '11 kg',
   },
@@ -127,6 +127,14 @@ export const DEFAULT_STAGE = 'sediment'
  * detail card, short enough that the tour keeps moving.
  */
 export const STAGE_DWELL_MS = 3200
+
+/** Grouped whole dollars, built once: the cost card formats on every frame. */
+const DOLLARS = new Intl.NumberFormat('en-AU', { maximumFractionDigits: 0 })
+
+/** A money figure as the cards show it — "$1,240". */
+export function formatMoney(amount) {
+  return `$${DOLLARS.format(Math.round(amount))}`
+}
 
 /**
  * Returns the bottom-bar dot label for a stage, swapping in the
