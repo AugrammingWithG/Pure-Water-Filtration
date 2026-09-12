@@ -13,24 +13,51 @@
 
 export const STAGE_ORDER = ['sediment', 'carbon', 'ro', 'tap']
 
+/**
+ * Each stage carries `action`, `tone` and `removes` alongside its copy: the
+ * verb, which colour the chips take, and what this stage does something about.
+ * The chips come from the same pages as the copy — what the client says the
+ * stage catches, reduces, removes or destroys, in their words.
+ *
+ * The verb is per stage rather than a fixed "Removes" because not every stage
+ * removes anything — the rainwater UV stage kills bacteria where they are
+ * rather than taking them out, and the output stage delivers. A card claiming
+ * removal would contradict what the scene is showing at that moment.
+ *
+ * Tones resolve through data/tones.js to the particle colours in the scene, so
+ * a chip matches the thing being taken out of the water beside it.
+ */
+
 export const STAGE_DATA_BY_SYSTEM = {
   // blog: "The three core stages"
   whole: {
     sediment: {
       title: 'Sediment Filtration',
       desc: 'Catches the visible stuff — rust flakes, sand and grit — down to about 5 microns, so the carbon filter behind it doesn’t clog prematurely.',
+      action: 'Catches',
+      tone: 'grit',
+      removes: ['Rust flakes', 'Sand', 'Grit'],
     },
     carbon: {
       title: 'Carbon Block Filtration',
       desc: 'The filter doing most of the taste, smell and chemistry work: activated carbon grabs hold of chlorine, chloramines and dissolved organics.',
+      action: 'Reduces',
+      tone: 'chlorine',
+      removes: ['Chlorine', 'Chloramines', 'Dissolved organics'],
     },
     ro: {
       title: 'Carbon Polish',
       desc: 'A second carbon polish gives the water extra contact time with activated carbon, catching any remaining traces of chlorine and odour.',
+      action: 'Catches',
+      tone: 'chlorine',
+      removes: ['Chlorine traces', 'Odour', 'Dissolved organics'],
     },
     tap: {
       title: 'Every Tap and Shower',
       desc: 'The water you drink, cook with, shower in and wash your clothes in all passes through the same filtration stack first.',
+      action: 'Delivers',
+      tone: 'clean',
+      removes: ['Every tap', 'Showers', 'Appliances'],
     },
   },
   // blog: "In a typical under-sink RO unit the water passes through…"
@@ -38,18 +65,30 @@ export const STAGE_DATA_BY_SYSTEM = {
     sediment: {
       title: 'Sediment Pre-Filter',
       desc: 'A sediment pre-filter catches particulates before the water reaches the carbon filters and the membrane.',
+      action: 'Catches',
+      tone: 'grit',
+      removes: ['Particulates', 'Sediment'],
     },
     carbon: {
       title: 'Carbon Pre-Filter',
       desc: 'Removes chlorine before the water reaches the membrane — chlorine damages the membrane, which is why every RO system needs carbon pre-filters in front of it.',
+      action: 'Removes',
+      tone: 'chlorine',
+      removes: ['Chlorine', 'Chloramines', 'Chemical tastes'],
     },
     ro: {
       title: 'RO Membrane',
       desc: 'Where the heavy lifting happens: water is pushed under pressure through a membrane with pores so small that water molecules pass through but almost nothing else can.',
+      action: 'Removes',
+      tone: 'solids',
+      removes: ['Dissolved solids', 'Lead', 'Nitrates'],
     },
     tap: {
       title: 'Storage Tank and Tap',
       desc: 'A storage tank holds the filtered water ready to use, and a polishing carbon post-filter finishes it on the way to the tap.',
+      action: 'Delivers',
+      tone: 'clean',
+      removes: ['Drinking', 'Cooking', 'Coffee and tea'],
     },
   },
   // rainwater page: "UV Filtration That Eliminates What You Can't See" + FAQ
@@ -57,18 +96,30 @@ export const STAGE_DATA_BY_SYSTEM = {
     sediment: {
       title: 'Sediment Filtration',
       desc: 'Leaves, dust, bird droppings and bacteria can all find their way into your tank without you knowing. The sediment filters remove that debris first.',
+      action: 'Removes',
+      tone: 'grit',
+      removes: ['Leaves', 'Dust', 'Debris'],
     },
     carbon: {
       title: 'Multi-Stage Filtration',
       desc: 'Further filter stages treat your tank water thoroughly from top to bottom — every system is tailored to your tank setup, water usage and your family’s needs.',
+      action: 'Reduces',
+      tone: 'chlorine',
+      removes: ['Taste', 'Odour', 'Impurities'],
     },
     ro: {
       title: 'UV Filtration',
       desc: 'UV technology destroys bacteria, pathogens and harmful microorganisms before they reach your taps.',
+      action: 'Destroys',
+      tone: 'microbe',
+      removes: ['Bacteria', 'Pathogens', 'Microorganisms'],
     },
     tap: {
       title: 'Tank-to-Tap Protection',
       desc: 'Every drop from your tank is safe to drink, cook with and bathe in — clean, reliable water you can trust.',
+      action: 'Delivers',
+      tone: 'clean',
+      removes: ['Drinking', 'Cooking', 'Bathing'],
     },
   },
 }

@@ -209,6 +209,8 @@ function build({
   markerScale,
   pulseRadius,
   routeRadius,
+  laminar,
+  cardSide = 1,
 }) {
   const path = buildPath({ legs, colours })
   return {
@@ -243,6 +245,18 @@ function build({
      * and only shows in the gaps: buried runs, and inside the cartridges.
      */
     routeRadius,
+    /**
+     * Collapse the stream to a tight core across the third stage: turbulent
+     * water going in, laminar coming out. Reinforces "balancing" without
+     * adding a single entity to the scene.
+     */
+    laminar,
+    /**
+     * Which side of its stage the card hangs on, as seen from the camera:
+     * 1 for screen right, -1 for screen left. Per system because each unit
+     * has open air on a different side of it.
+     */
+    cardSide,
   }
 }
 
@@ -274,6 +288,7 @@ export const SYSTEMS = {
     markerScale: 1,
     pulseRadius: 0.024,
     routeRadius: 0.011,
+    laminar: true,
   }),
 
   undersink: build({
@@ -296,6 +311,7 @@ export const SYSTEMS = {
     markerScale: 0.6,
     pulseRadius: 0.013,
     routeRadius: 0.0055,
+    laminar: true,
   }),
 
   rain: build({

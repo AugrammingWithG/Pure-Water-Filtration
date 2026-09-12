@@ -136,6 +136,8 @@ src/
     Scene.jsx              Canvas contents: lights, environment, house, products, flow
     SceneEnvironment.jsx   Image-based lighting from three's RoomEnvironment (no fetch)
     Ground.jsx             The diorama plinth
+    Grass.jsx              The lawn: instanced blades, wind in the vertex shader
+    Trees.jsx              Pines behind the house: cone cores under a shell of instanced needles, same wind
     House.jsx              Cabin shell, roof, glazing, deck; roof + front wall are a cutaway
     Kitchen.jsx            Bench, open sink cabinet, sink, mixer + filtered taps
     WaterFlow.jsx          Route line, instanced bubbles and grit along the active route; own clock, so it can be paused
@@ -152,6 +154,8 @@ src/
       Outline.jsx          Accent edge outline marking the active unit
       brandLabel.js        Canvas-drawn "Pure Water Filtration" plate texture
       materials.js         Copper / PVC / tubing presets
+      blade.js             The one blade the lawn and the pine needles share, and the GLSL wind field
+      random.js            Seeded PRNG so scattered things land in the same place every load
   components/
     SimCanvas.jsx          <Canvas> wrapper and renderer configuration
     FactsCard.jsx          The product in the three figures the client's site puts on it

@@ -7,8 +7,13 @@ import House from './House'
 import Kitchen from './Kitchen'
 import Lighting from './Lighting'
 import SceneEnvironment from './SceneEnvironment'
+import StageCard from './StageCard'
 import StageMarkers from './StageMarkers'
+import Trees from './Trees'
 import WaterFlow from './WaterFlow'
+import RainwaterEffects from './effects/RainwaterEffects'
+import UnderSinkEffects from './effects/UnderSinkEffects'
+import WholeHouseEffects from './effects/WholeHouseEffects'
 import RainwaterUnit from './products/RainwaterUnit'
 import UnderSinkUnit from './products/UnderSinkUnit'
 import WholeHouseUnit from './products/WholeHouseUnit'
@@ -44,6 +49,8 @@ export default function Scene({
   focused,
   paused,
   subscribe,
+  cardContent,
+  showCard,
   onPick,
   rigRef,
 }) {
@@ -84,11 +91,12 @@ export default function Scene({
 
   return (
     <>
-      <SceneEnvironment intensity={0.55} />
+      <SceneEnvironment intensity={0.2} />
       <Lighting accent={system.accentColor} />
 
       <Ground accent={system.accentColor} />
       <Grass accent={system.accentColor} />
+      <Trees />
       <House cutaway={focused && currentSystem === 'undersink'} />
       <Kitchen accent={SYSTEMS.undersink.accent} />
 
@@ -108,6 +116,12 @@ export default function Scene({
         currentStage={currentStage}
         onPick={pickFor(currentSystem)}
       />
+      {showCard && cardContent && (
+        <StageCard system={system} currentStage={currentStage} content={cardContent} />
+      )}
+      {currentSystem === 'whole' && <WholeHouseEffects system={system} />}
+      {currentSystem === 'undersink' && <UnderSinkEffects system={system} />}
+      {currentSystem === 'rain' && <RainwaterEffects system={system} />}
     </>
   )
 }
