@@ -24,13 +24,25 @@ import { clamp01, getDotTexture, lerp, MAX_DELTA, smoothstep } from './common'
  * surface never tears open as it deforms.
  */
 
-const RADIUS = 0.042
-const JAGGEDNESS = 0.5
+/**
+ * A grain carried in the water, not a boulder filling the tube. At 0.02 the
+ * jagged form is about a third of the cartridge bore and three or four times
+ * a bubble, which is enough to watch it change shape without it reading as a
+ * foreign object wedged in the cartridge.
+ */
+const RADIUS = 0.02
+const JAGGEDNESS = 0.38
 const FLECK_COUNT = 5
 
-/** Path travelled per pass: a little lead-in, the element, a little run-out. */
-const LEAD = 0.045
-const TRAIL = 0.055
+/**
+ * Lead-in before the element, as a ceiling. The real lead is clamped to the
+ * gap between the carbon element and this one, because on the whole-house and
+ * rainwater units that gap is under 0.02 of the route — a fixed 0.045 spawned
+ * the grain *inside the carbon cartridge* and walked it through.
+ */
+const LEAD_MAX = 0.045
+/** Run-out past the element, over which the smoothed grain dissolves. */
+const TRAIL = 0.03
 /**
  * Seconds for one pass. Longer than the water takes over the same stretch, so
  * the morph is legible — but the blob rides the path's pace profile rather
@@ -42,10 +54,16 @@ const GAP_SECONDS = 0.4
 
 const ROUGH_COLOR = new THREE.Color(0xd6cbb2)
 const SMOOTH_COLOR = new THREE.Color(0xc6e6f6)
+/**
+ * Kept near zero. Metalness on a small pale object reads as chrome, which is
+ * what made this look like a silver blob rather than mineral scale; the
+ * rough-to-glassy change is carried by roughness alone.
+ */
+const METALNESS_SMOOTH = 0.06
 
 const rand = (a, b) => a + Math.random() * (b - a)
 
-function Crystal({ path, enter, exit, offset }) {
+function Crystal({ path, enter, exit, lead, offset }) {
   const group = useRef()
   const blob = useRef()
   const blobMat = useRef()
@@ -82,8 +100,8 @@ function Crystal({ path, enter, exit, offset }) {
   const flecks = useMemo(
     () =>
       Array.from({ length: FLECK_COUNT }, () => ({
-        offset: [rand(-0.06, 0.06), rand(-0.06, 0.06), rand(-0.06, 0.06)],
-        size: rand(0.022, 0.038),
+        offset: [rand(-0.028, 0.028), rand(-0.028, 0.028), rand(-0.028, 0.028)],
+        size: rand(0.009, 0.016),
       })),
     [],
   )
@@ -92,7 +110,7 @@ function Crystal({ path, enter, exit, offset }) {
   const scratch = useMemo(() => new THREE.Vector3(), [])
 
   // Worked in phase, not distance, so the pace profile applies.
-  const phaseStart = path.phaseAt(Math.max(0, enter - LEAD))
+  const phaseStart = path.phaseAt(Math.max(0, enter - lead))
   const phaseEnd = path.phaseAt(Math.min(1, exit + TRAIL))
 
   useFrame((_, delta) => {
@@ -115,7 +133,14 @@ function Crystal({ path, enter, exit, offset }) {
 
     // jagged on the way in, smooth once the stage has done its work
     const jag = 1 - smoothstep(enter, exit, t)
-    const fade = Math.min(smoothstep(0, 0.12, u), 1 - smoothstep(0.85, 1, u))
+    /**
+     * The grain dissolves as it finishes smoothing: solid while it is still
+     * changing shape, gone shortly after it stops. Balancing is done at that
+     * point, and a smooth sphere sailing on down the pipe was reading as an
+     * object in the water rather than as the change itself.
+     */
+    const dissolve = 1 - smoothstep(exit - (exit - enter) * 0.2, exit + TRAIL * 0.8, t)
+    const fade = smoothstep(0, 0.1, u) * dissolve
 
     if (blob.current) blob.current.rotation.y += dt * 0.7
 
@@ -137,17 +162,20 @@ function Crystal({ path, enter, exit, offset }) {
       m.color.copy(SMOOTH_COLOR).lerp(ROUGH_COLOR, jag)
       // chalky and rough going in, calm and glassy coming out
       m.roughness = lerp(0.06, 0.95, jag)
-      m.metalness = lerp(0.25, 0, jag)
-      m.opacity = fade * lerp(0.72, 0.96, jag)
+      m.metalness = lerp(METALNESS_SMOOTH, 0, jag)
+      // suspended in the water rather than sitting on top of it
+      m.opacity = fade * lerp(0.5, 0.82, jag)
     }
 
     // a bloom at the moment the change actually happens
     const change = clamp01(1 - Math.abs(jag - 0.5) * 4)
     if (halo.current) {
-      const size = RADIUS * (1.6 + 1.4 * (1 - jag))
+      // hugs the blob rather than swallowing the cartridge it is inside: the
+      // blob is 2*RADIUS across and the cartridge bore is roughly twice that
+      const size = RADIUS * (1.2 + 0.9 * (1 - jag))
       halo.current.scale.set(size, size, size)
     }
-    if (haloMat.current) haloMat.current.opacity = fade * change * 0.55
+    if (haloMat.current) haloMat.current.opacity = fade * change * 0.32
 
     for (const fm of fleckMats.current) {
       if (fm) fm.opacity = fade * lerp(0.24, 0.62, jag)
@@ -168,7 +196,8 @@ function Crystal({ path, enter, exit, offset }) {
         />
       </mesh>
 
-      <sprite ref={halo}>
+      {/* explicit scale: a bare sprite is one world unit until useFrame runs */}
+      <sprite ref={halo} scale={[RADIUS, RADIUS, RADIUS]}>
         <spriteMaterial
           ref={haloMat}
           map={dot}
@@ -200,16 +229,23 @@ function Crystal({ path, enter, exit, offset }) {
 }
 
 export default function MineralBalance({ path }) {
-  const { enter, exit } = useMemo(() => {
+  const { enter, exit, lead } = useMemo(() => {
     const stage = path.stageOrder[2]
     const element = path.mediaSpans[stage] ?? path.spans[stage]
-    return { enter: element[0], exit: element[1] }
+    // never start inside the previous stage
+    const previous = path.mediaSpans[path.stageOrder[1]]
+    const gap = previous ? element[0] - previous[1] : LEAD_MAX
+    return {
+      enter: element[0],
+      exit: element[1],
+      lead: Math.min(LEAD_MAX, Math.max(0, gap * 0.75)),
+    }
   }, [path])
 
   return (
     <>
-      <Crystal path={path} enter={enter} exit={exit} offset={0} />
-      <Crystal path={path} enter={enter} exit={exit} offset={0.5} />
+      <Crystal path={path} enter={enter} exit={exit} lead={lead} offset={0} />
+      <Crystal path={path} enter={enter} exit={exit} lead={lead} offset={0.5} />
     </>
   )
 }
