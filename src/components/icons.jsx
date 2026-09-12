@@ -48,6 +48,14 @@ export function PinIcon() {
   )
 }
 
+export function PhoneIcon() {
+  return (
+    <svg {...strokeProps} width={12} height={12}>
+      <path d="M5 3h4l2 5-2.5 1.5a11 11 0 006 6L16 13l5 2v4a2 2 0 01-2 2A17 17 0 013 5a2 2 0 012-2z" />
+    </svg>
+  )
+}
+
 /** The droplet from the Pure Water Filtration mark. */
 export function DropletLogo({ size = 22 }) {
   return (
