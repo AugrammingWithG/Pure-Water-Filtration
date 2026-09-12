@@ -69,7 +69,11 @@ export default function UnderSinkEffects({ system }) {
         radius={radius}
         streamRadius={pulseRadius}
       />
-      <OutputSparkle path={path} from={path.mediaSpans[path.stageOrder[2]][1]} />
+      <OutputSparkle
+        path={path}
+        from={path.mediaSpans[path.stageOrder[2]][1]}
+        streamRadius={pulseRadius}
+      />
     </>
   )
 }

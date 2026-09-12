@@ -40,7 +40,11 @@ export default function RainwaterEffects({ system }) {
         bore={PIPE_BORE}
       />
       <UvSterilise path={path} radius={UV_RADIUS} streamRadius={pulseRadius} />
-      <OutputSparkle path={path} from={path.mediaSpans[path.stageOrder[2]][1]} />
+      <OutputSparkle
+        path={path}
+        from={path.mediaSpans[path.stageOrder[2]][1]}
+        streamRadius={pulseRadius}
+      />
     </>
   )
 }

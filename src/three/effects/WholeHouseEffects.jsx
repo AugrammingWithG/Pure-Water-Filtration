@@ -30,7 +30,11 @@ export default function WholeHouseEffects({ system }) {
       <SedimentCapture path={path} radius={radius} streamRadius={pulseRadius} />
       <CarbonAbsorption path={path} radius={radius} streamRadius={pulseRadius} />
       <MineralBalance path={path} />
-      <OutputSparkle path={path} from={path.mediaSpans[path.stageOrder[2]][1]} />
+      <OutputSparkle
+        path={path}
+        from={path.mediaSpans[path.stageOrder[2]][1]}
+        streamRadius={pulseRadius}
+      />
     </>
   )
 }
