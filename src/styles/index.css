@@ -483,3 +483,25 @@ main{flex:1; display:flex; position:relative; min-height:0; min-width:0;}
   .playbar{padding:5px 10px 5px 5px; gap:8px;}
   .play-btn{width:30px; height:30px;}
 }
+
+/* ---------- REMOVED-ITEM CHIPS ---------- */
+/* The DOM half of the stage card. The scene card draws the same thing to a
+   canvas; both take their colour from data/tones.js so a chip matches the
+   particle being taken out of the water beside it. */
+.fc-removed{margin-bottom:12px;}
+.fc-removed-label{
+  font-size:9px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase;
+  color:var(--ink-dim); margin-bottom:6px;
+}
+.fc-chips{display:flex; flex-wrap:wrap; gap:5px;}
+.fc-chip{
+  display:inline-flex; align-items:center; gap:5px;
+  font-size:10.5px; font-weight:600; color:var(--ink);
+  background:color-mix(in srgb, var(--chip) 18%, transparent);
+  padding:3px 9px; border-radius:6px; white-space:nowrap;
+}
+.fc-chip i{
+  width:5px; height:5px; border-radius:50%; flex-shrink:0;
+  /* darkened so the paler tones still read on a white panel */
+  background:color-mix(in srgb, var(--chip) 75%, #0F1C33);
+}
