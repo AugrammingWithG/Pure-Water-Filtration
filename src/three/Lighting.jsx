@@ -8,21 +8,24 @@ import { GROUND, LIGHTS } from './layout'
  * front-right, elevated). Everything is fixed in world space, so the light
  * moves across the model as the camera orbits, the way it would on a set.
  *
- *  - key: warm, late-afternoon sun from the front-left, low enough to rake
- *    long shadows across the lawn and throw the roof overhang onto the front
- *    wall. Comes in through the front glazing, so the kitchen gets sun patches
- *    in the cutaway view.
+ *  - key: late-afternoon sun from the front-left, low enough to rake long
+ *    shadows across the lawn and throw the roof overhang onto the front wall.
+ *    Comes in through the front glazing, so the kitchen gets sun patches in
+ *    the cutaway view. Its colour is the tint of the sun disc in the HDR, so
+ *    the highlight it puts on metal matches the one the reflection shows.
  *  - rim: cool backlight from behind-right, tinted with the active system's
  *    accent. Catches the ridge, the back roof slab, the tank and the stainless
  *    rain unit, so the silhouette separates from the white page.
  *  - fill: hemisphere sky/ground bounce plus a faint cool wash from the
  *    camera's right so the shaded faces keep their shape without going grey.
  *
- * <SceneEnvironment> places its light panels along the same LIGHTS directions
- * so the reflections on metal and glass agree with the direct light.
+ * <SceneEnvironment> turns the HDR so its sun sits on LIGHTS.key's azimuth and
+ * clamps the sun disc, so reflections on metal and glass agree with the direct
+ * light and the shadow map stays the only thing deciding what is in shade.
  */
 
-const KEY_COLOR = 0xffdfbe
+/** Sun disc of the HDR, measured: warm white, not the orange of a set light. */
+const KEY_COLOR = 0xfff5dd
 const SKY_COLOR = 0xdfe9f6
 const GROUND_BOUNCE = 0xb9a98c
 const FILL_COLOR = 0xd3e2f4
@@ -85,17 +88,26 @@ export default function Lighting({ accent }) {
     <>
       <hemisphereLight args={[SKY_COLOR, GROUND_BOUNCE, 0.5]} />
 
+      {/*
+        3.8 rather than the 3.1 it used to be: the unclamped HDR sun was adding
+        about a quarter of the sunlight on lit faces (shadowless, and from the
+        wrong side). Now that it is clamped, the key carries all of it.
+      */}
       <directionalLight
         color={KEY_COLOR}
-        intensity={3.1}
+        intensity={3.8}
         position={LIGHTS.key}
         castShadow
         shadow-mapSize={[2048, 2048]}
         shadow-bias={-0.0004}
         shadow-normalBias={0.02}
         shadow-radius={4}
-        /* let a little key through so the shadows read as shade, not holes */
-        shadow-intensity={1.5}
+        /*
+          0..1, 1 = full shadow. Held just under so a little key gets through
+          and the shadows read as shade, not holes. (Above 1 the mix
+          extrapolates and shaded pixels *subtract* key light.)
+        */
+        shadow-intensity={0.9}
         shadow-camera-left={-9}
         shadow-camera-right={9}
         shadow-camera-top={9}
