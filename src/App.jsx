@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import CostCard from './components/CostCard'
 import DetailCard from './components/DetailCard'
+import FactsCard from './components/FactsCard'
 import Header from './components/Header'
-import ImpactCard from './components/ImpactCard'
 import PlayBar from './components/PlayBar'
-import SavingsCard from './components/SavingsCard'
 import Sidebar from './components/Sidebar'
 import SimCanvas from './components/SimCanvas'
+import WhyCard from './components/WhyCard'
 import {
   DEFAULT_STAGE,
   DEFAULT_SYSTEM,
@@ -34,15 +33,6 @@ export default function App() {
 
   /** Imperative handle on the camera rig, published by <Scene>. */
   const rigRef = useRef(null)
-
-  /**
-   * True once the scene has drawn a frame. First load holds the page for a
-   * second or two compiling shaders; the cost card waits for this so that its
-   * figures make their entrance counting, not sitting at zero over an empty
-   * canvas until the wait is over.
-   */
-  const [sceneDrawn, setSceneDrawn] = useState(false)
-  const handleFirstFrame = useCallback(() => setSceneDrawn(true), [])
 
   /** Mirror the walkthrough can read without being rebuilt on every change. */
   const systemRef = useRef(currentSystem)
@@ -195,7 +185,6 @@ export default function App() {
             subscribe={walkthrough.subscribe}
             onPick={handleScenePick}
             rigRef={rigRef}
-            onFirstFrame={handleFirstFrame}
           />
 
           <div className="view-controls">
@@ -204,14 +193,14 @@ export default function App() {
             </button>
           </div>
 
-          <CostCard before={system.before} after={system.after} show={sceneDrawn} />
-          <SavingsCard before={system.before} after={system.after} />
-          <ImpactCard bottles={system.bottles} waste={system.waste} />
+          <FactsCard facts={system.facts} />
+          <WhyCard />
           <DetailCard
             eyebrow={`STAGE ${stageIndex + 1} OF ${STAGE_ORDER.length}`}
             title={stage.title}
             desc={stage.desc}
             placement={system.placement}
+            learnMore={system.learnMore}
           />
         </div>
       </main>

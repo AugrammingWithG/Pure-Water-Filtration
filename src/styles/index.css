@@ -19,8 +19,6 @@
   --ink:#0F1C33;
   --ink-dim:#5D6C85;
   --line:rgba(15,28,51,0.10);
-  --amber:#D9832E;
-  --mint:#1F9E6A;
   --accent:#2E8FE0;
   --accent-rgb:46,143,224;
   --accent-ink:#ffffff;
@@ -46,12 +44,6 @@ body{
 }
 h1,h2,h3,.display{font-family:'Space Grotesk',sans-serif;}
 button{font-family:inherit; cursor:pointer; border:none; background:none; color:inherit;}
-/* Read out but never drawn — for text that stands in for something the eye
-   gets another way (a figure mid-count, an icon). */
-.sr-only{
-  position:absolute; width:1px; height:1px; overflow:hidden;
-  clip-path:inset(50%); white-space:nowrap;
-}
 
 .app{
   height:100vh;
@@ -97,7 +89,7 @@ header p{font-size:12.5px; color:var(--ink-dim); margin-top:4px; max-width:520px
   font-size:12.5px; font-weight:600; color:var(--ink);
   border:1px solid var(--line); padding:9px 16px; border-radius:20px;
   background:rgba(255,255,255,0.7);
-  flex-shrink:0; white-space:nowrap;
+  flex-shrink:0; white-space:nowrap; text-decoration:none;
 }
 .browse-btn:hover{border-color:var(--accent); color:var(--accent);}
 
@@ -158,51 +150,22 @@ main{flex:1; display:flex; position:relative; min-height:0; min-width:0;}
 }
 .float-card .fc-label{font-size:10px; text-transform:uppercase; letter-spacing:0.07em; color:var(--ink-dim); font-weight:700; margin-bottom:10px;}
 
-/* The card arrives rather than simply being there: it is carrying figures
-   that count up, and landing them needs something to land into. .is-shown is
-   set by the card as its count starts, so the two run together. */
-.card-cost{
-  top:15%; left:6%; width:190px;
-  opacity:0; transform:translateY(8px);
-  transition:opacity 0.45s ease, transform 0.45s ease;
+/* The two cards down the left share one row: a bold value with its caption
+   beneath. The facts card's values are figures (a micron rating, an
+   interval); the why card's are short phrases, so its type steps down. */
+.card-facts{top:15%; left:6%; width:190px;}
+.card-why{bottom:9%; left:6%; width:190px; pointer-events:auto;}
+.fact-row{margin-bottom:10px;}
+.fact-row:last-of-type{margin-bottom:0;}
+.fact-row b{font-family:'Space Grotesk',sans-serif; font-size:17px; font-weight:600; color:var(--ink); display:block; line-height:1.2;}
+.fact-row span{font-size:10px; line-height:1.4; color:var(--ink-dim); display:block; margin-top:2px;}
+.card-why .fact-row b{font-size:13.5px;}
+.phone-link{
+  display:inline-flex; align-items:center; gap:6px; margin-top:12px;
+  font-size:11px; font-weight:700; color:var(--accent); text-decoration:none;
+  background:rgba(var(--accent-rgb),0.10); padding:6px 10px; border-radius:8px;
 }
-.card-cost.is-shown{opacity:1; transform:none;}
-/* Asked for less motion: the card is simply there, with its figures already
-   counted. Kept next to the rules it overrides, which nothing below touches. */
-@media (prefers-reduced-motion:reduce){
-  .card-cost{transition:none;}
-}
-.cost-row{display:flex; gap:18px; align-items:flex-end; margin-bottom:12px;}
-.cost-col span{display:block; font-size:9.5px; color:var(--ink-dim);}
-.cost-col b{font-family:'Space Grotesk',sans-serif; font-size:19px; font-weight:600;}
-.cost-before b{color:var(--amber);}
-.cost-after b{color:var(--mint);}
-.savings-pill{
-  display:inline-flex; align-items:center; gap:6px; background:rgba(31,158,106,0.12);
-  color:var(--mint); font-size:12px; font-weight:700; padding:6px 12px; border-radius:8px;
-}
-
-/* The plot is drawn in its own units and scales with the card; the strokes
-   stay their true width so a smaller card gets a smaller plot, not a fainter
-   one. Beneath it each line's figure sits in a row of its own, keyed by a dot
-   in the line's colour, and the saving between them rules off the bottom. */
-.card-savings{bottom:9%; left:6%; width:190px;}
-.card-savings svg{display:block; width:100%; height:auto;}
-.card-savings line{vector-effect:non-scaling-stroke;}
-.savings-rows{margin-top:8px; font-size:10.5px;}
-.savings-rows > div{display:flex; justify-content:space-between; align-items:center; gap:8px; padding:1px 0;}
-.savings-rows dt{display:inline-flex; align-items:center; gap:5px; color:var(--ink-dim);}
-.savings-rows dd{font-weight:600; color:var(--ink); font-variant-numeric:tabular-nums;}
-.savings-rows .savings-saved{margin-top:3px; padding-top:5px; border-top:1px solid var(--line);}
-.savings-saved dt{color:var(--ink); font-weight:600;}
-.savings-saved dd{font-family:'Space Grotesk',sans-serif; font-size:13px; color:var(--mint);}
-.dot{width:6px; height:6px; border-radius:50%; display:inline-block; flex-shrink:0;}
-
-.card-impact{bottom:9%; right:6%; width:190px;}
-.impact-row{display:flex; justify-content:space-between; margin-bottom:10px;}
-.impact-row:last-child{margin-bottom:0;}
-.impact-row b{font-family:'Space Grotesk',sans-serif; font-size:17px; font-weight:600; color:var(--ink);}
-.impact-row span{font-size:10px; color:var(--ink-dim); display:block; margin-top:2px;}
+.phone-link:hover{background:rgba(var(--accent-rgb),0.18);}
 
 .card-detail{
   top:15%; right:6%; width:236px; pointer-events:auto;
@@ -222,12 +185,14 @@ main{flex:1; display:flex; position:relative; min-height:0; min-width:0;}
 }
 .fc-placement svg{flex-shrink:0; color:var(--accent); margin-top:1px;}
 .detail-actions{display:flex; gap:6px; flex-wrap:wrap;}
-.detail-actions button{
-  font-size:10.5px; font-weight:600; color:var(--ink-dim);
+.detail-actions a{
+  font-size:10.5px; font-weight:600; color:var(--ink-dim); text-decoration:none;
   border:1px solid var(--line); padding:6px 10px; border-radius:7px;
   background:rgba(255,255,255,0.6);
 }
-.detail-actions button.primary{color:var(--accent-ink); background:var(--accent); border-color:transparent;}
+.detail-actions a:hover{color:var(--accent); border-color:rgba(var(--accent-rgb),0.5);}
+.detail-actions a.primary{color:var(--accent-ink); background:var(--accent); border-color:transparent;}
+.detail-actions a.primary:hover{color:var(--accent-ink); filter:brightness(1.08);}
 
 /* ---------- BOTTOM PLAYBACK BAR ---------- */
 .playbar-wrap{
@@ -347,24 +312,25 @@ main{flex:1; display:flex; position:relative; min-height:0; min-width:0;}
 
 /* --- cards: one size down --- */
 @media (max-width:1180px){
-  .card-cost, .card-savings, .card-impact{width:168px; padding:13px 15px;}
+  .card-facts, .card-why{width:168px; padding:13px 15px;}
   .card-detail{width:212px; padding:14px 16px;}
-  .cost-col b{font-size:17px;}
+  .fact-row b{font-size:15px;}
+  .card-why .fact-row b{font-size:12.5px;}
   .card-detail h3{font-size:15px;}
 }
 
-/* --- cards: two stacked columns need ~830px of viewport at the wide
-       anchors, which a 900px-tall laptop does not have. Pull each column
+/* --- cards: a stacked left column needs ~830px of viewport at the wide
+       anchors, which a 900px-tall laptop does not have. Pull each card
        towards its own edge first... --- */
 @media (max-height:900px){
-  .card-cost, .card-detail{top:10%;}
-  .card-savings, .card-impact{bottom:4%;}
+  .card-facts, .card-detail{top:10%;}
+  .card-why{bottom:4%;}
 }
 
-/* --- ...and only once even that will not fit, drop the lower two. They
-       are the secondary pair; cost and detail carry the product. --- */
+/* --- ...and only once even that will not fit, drop the lower one. It is
+       the secondary card; facts and detail carry the product. --- */
 @media (max-width:900px), (max-height:780px){
-  .card-savings, .card-impact{display:none;}
+  .card-why{display:none;}
 }
 
 /* --- rail: left-hand dock -> row of pills under the header --- */
@@ -417,14 +383,14 @@ main{flex:1; display:flex; position:relative; min-height:0; min-width:0;}
 
   .view-controls{top:12px; right:max(12px, env(safe-area-inset-right));}
 
-  .card-cost{
+  .card-facts{
     top:12px; left:max(12px, env(safe-area-inset-left));
     width:146px; padding:11px 13px;
   }
-  .card-cost .fc-label{margin-bottom:7px;}
-  .cost-row{gap:12px; margin-bottom:9px;}
-  .cost-col b{font-size:15px;}
-  .savings-pill{font-size:11px; padding:5px 10px;}
+  .card-facts .fc-label{margin-bottom:7px;}
+  .fact-row{margin-bottom:7px;}
+  .fact-row b{font-size:13px;}
+  .fact-row span{font-size:9.5px;}
 
   .card-detail{
     top:auto; bottom:12px; width:auto;
@@ -469,7 +435,7 @@ main{flex:1; display:flex; position:relative; min-height:0; min-width:0;}
   .side-btn{padding:7px 9px; gap:7px;}
   .side-btn .ico{width:26px; height:26px;}
   .side-btn span:not(.ico){font-size:9.5px;}
-  .card-cost{width:134px;}
+  .card-facts{width:134px;}
   .progress-label{font-size:9px;}
   /* the timeline names the live stage itself, and needs the width more than
      a second copy of "Stage 2 of 4" does; the Paused chip keeps its place */
@@ -501,13 +467,13 @@ main{flex:1; display:flex; position:relative; min-height:0; min-width:0;}
   .side-btn{padding:5px 10px;}
   .side-btn .ico{width:24px; height:24px;}
   /* this one would sit on a canvas only ~180px tall */
-  .card-cost{display:none;}
+  .card-facts{display:none;}
   /* short but wide: the card goes back to the right-hand side, and takes a
      little more width so its three buttons stay on one row */
   .card-detail{top:12px; bottom:auto; left:auto; width:240px; max-height:calc(100% - 24px);}
-  .detail-actions button{font-size:10px; padding:5px 8px;}
+  .detail-actions a{font-size:10px; padding:5px 8px;}
   /* the detail card now runs the full height of the right-hand side, so the
-     chip moves into the corner the cost card just vacated */
+     chip moves into the corner the facts card just vacated */
   .view-controls{top:12px; left:max(12px, env(safe-area-inset-left)); right:auto;}
   .playbar-wrap{padding-bottom:calc(9px + env(safe-area-inset-bottom));}
   .playbar{padding:5px 10px 5px 5px; gap:8px;}

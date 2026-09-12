@@ -2,112 +2,172 @@
 // Stage / system copy. Nothing here is derived from the 3D scene;
 // components read all of their strings from this file. The matching
 // geometry (camera views, focus points, water paths) is in three/systems.js.
+//
+// The wording is the client's own, taken from purewaterfiltration.com.au:
+// the product tiles on the home page, each product page, and the two
+// blog posts that walk through a unit stage by stage ("How Whole-House
+// Water Filtration Systems Work" and "Reverse Osmosis Water Filters
+// Explained"). Where a card needed a sentence trimmed to fit, the words
+// are still theirs.
 // ============================================================
 
 export const STAGE_ORDER = ['sediment', 'carbon', 'ro', 'tap']
 
 export const STAGE_DATA_BY_SYSTEM = {
+  // blog: "The three core stages"
   whole: {
     sediment: {
-      title: 'Sediment Pre-Filter',
-      desc: 'Reduces sediment before it reaches the rest of the system, so every stage downstream lasts longer.',
+      title: 'Sediment Filtration',
+      desc: 'Catches the visible stuff — rust flakes, sand and grit — down to about 5 microns, so the carbon filter behind it doesn’t clog prematurely.',
     },
     carbon: {
-      title: 'Carbon Block',
-      desc: 'Reduces chlorine — the taste and smell most people notice first from Australian tap water.',
+      title: 'Carbon Block Filtration',
+      desc: 'The filter doing most of the taste, smell and chemistry work: activated carbon grabs hold of chlorine, chloramines and dissolved organics.',
     },
     ro: {
-      title: 'Mineral Balance',
-      desc: 'Balances excess minerals so water stays gentle on skin, hair and appliances at every outlet.',
+      title: 'Carbon Polish',
+      desc: 'A second carbon polish gives the water extra contact time with activated carbon, catching any remaining traces of chlorine and odour.',
     },
     tap: {
-      title: 'Filtered Output',
-      desc: 'Every tap, shower and appliance in the house now delivers filtered water.',
+      title: 'Every Tap and Shower',
+      desc: 'The water you drink, cook with, shower in and wash your clothes in all passes through the same filtration stack first.',
     },
   },
+  // blog: "In a typical under-sink RO unit the water passes through…"
   undersink: {
     sediment: {
       title: 'Sediment Pre-Filter',
-      desc: 'Pre-filters incoming water before it reaches the drinking-water cartridges.',
+      desc: 'A sediment pre-filter catches particulates before the water reaches the carbon filters and the membrane.',
     },
     carbon: {
-      title: 'Carbon Block',
-      desc: 'Removes the chlorine taste and odour that puts most people off Australian tap water.',
+      title: 'Carbon Pre-Filter',
+      desc: 'Removes chlorine before the water reaches the membrane — chlorine damages the membrane, which is why every RO system needs carbon pre-filters in front of it.',
     },
     ro: {
-      title: 'Reverse Osmosis',
-      desc: 'A final membrane clears what the earlier cartridges miss, for great-tasting water on demand.',
+      title: 'RO Membrane',
+      desc: 'Where the heavy lifting happens: water is pushed under pressure through a membrane with pores so small that water molecules pass through but almost nothing else can.',
     },
     tap: {
-      title: 'Drinking Tap',
-      desc: 'Clean, filtered drinking water straight from the kitchen tap — no bottled water required.',
+      title: 'Storage Tank and Tap',
+      desc: 'A storage tank holds the filtered water ready to use, and a polishing carbon post-filter finishes it on the way to the tap.',
     },
   },
+  // rainwater page: "UV Filtration That Eliminates What You Can't See" + FAQ
   rain: {
     sediment: {
-      title: 'Three-Stage Canisters',
-      desc: 'Filter out leaf litter, dirt and sediment collected in the tank.',
+      title: 'Sediment Filtration',
+      desc: 'Leaves, dust, bird droppings and bacteria can all find their way into your tank without you knowing. The sediment filters remove that debris first.',
     },
     carbon: {
-      title: 'Carbon Stage',
-      desc: 'Clears any taste or odour the tank water has picked up.',
+      title: 'Multi-Stage Filtration',
+      desc: 'Further filter stages treat your tank water thoroughly from top to bottom — every system is tailored to your tank setup, water usage and your family’s needs.',
     },
     ro: {
-      title: 'UV Sterilisation',
-      desc: 'Eliminates the bacteria and pathogens untreated tank water can carry.',
+      title: 'UV Filtration',
+      desc: 'UV technology destroys bacteria, pathogens and harmful microorganisms before they reach your taps.',
     },
     tap: {
-      title: 'Safe Output',
-      desc: 'Safe to drink, cook with and bathe in, every day, straight from the tank.',
+      title: 'Tank-to-Tap Protection',
+      desc: 'Every drop from your tank is safe to drink, cook with and bathe in — clean, reliable water you can trust.',
     },
   },
+}
+
+export const SITE = 'https://purewaterfiltration.com.au'
+
+/**
+ * The site's two calls to action, paired the way it pairs them everywhere:
+ * ask for a quote, or ring. Its "Instant Quote" button opens a form rather
+ * than a page, so the contact page is the nearest thing to link to.
+ */
+export const CTA = {
+  quote: { label: 'Instant quote', href: `${SITE}/contact` },
+  phone: { label: '1300 720 031', href: 'tel:1300720031' },
+  learnMore: 'Learn more',
 }
 
 export const SYSTEM_DATA = {
   whole: {
-    title: 'Whole-House Water Filter',
+    title: 'Whole House Water Filter',
+    // home page product tile
     subtitle:
-      'A multi-stage unit that treats water where the mains enters the home — reduces sediment, chlorine and excess minerals for every tap.',
+      'Treat your water at the point of entry so every tap, shower and appliance in your home delivers filtered water.',
+    // blog: "Where the system sits in your plumbing"
     placement:
-      'At the point of entry — outside wall, garage or utility cupboard where the main line comes in.',
-    // Annual water spend in whole dollars, counted up by the cost card. The
-    // saving is the difference between the two, so the card derives it rather
-    // than it being stored here and left to drift out of step with them.
-    before: 1240,
-    after: 610,
-    bottles: '3,650',
-    waste: '61 kg',
+      'Plumbed into the mains line where the water enters your home — typically near the water meter or against an external wall.',
+    /**
+     * The figures the site itself puts on this product, for the facts card.
+     * Nothing here is a claim the site does not make: the client publishes
+     * no spend, savings or bottle counts, so the cards carry none.
+     */
+    facts: [
+      { value: '5 micron', text: 'Sediment filter catches rust, sand and grit' },
+      { value: '3 stages', text: 'Sediment, carbon block, carbon polish' },
+      { value: '6–12 months', text: 'Between filter changes' },
+    ],
+    learnMore: `${SITE}/blog/how-whole-house-water-filtration-works`,
   },
   undersink: {
-    title: 'Under-Sink Filter (Reverse Osmosis)',
+    title: 'Under Sink Water Filter',
+    // home page product tile
     subtitle:
-      'A drinking-water unit that tucks under the kitchen bench and feeds its own dedicated tap.',
-    placement: 'Inside the under-sink cabinet in the kitchen.',
-    before: 480,
-    after: 260,
-    bottles: '1,900',
-    waste: '24 kg',
+      'Clean, great tasting drinking water straight from your kitchen tap. No bottled water required.',
+    // under-sink page: "Compact Filtration That Fits Right Under Your Bench"
+    placement:
+      'Sits neatly out of sight under the bench, so you get clean drinking water without losing any bench space.',
+    // RO blog + under-sink FAQ
+    facts: [
+      { value: '95%+', text: 'Lower in dissolved solids than mains water' },
+      { value: 'Under 1 hour', text: 'Typical installation' },
+      { value: 'Yearly', text: 'Sediment and carbon filter changes' },
+    ],
+    learnMore: `${SITE}/blog/reverse-osmosis-water-filter-explained`,
   },
   rain: {
-    title: 'Rainwater Filtration (UV)',
+    title: 'Rainwater Filtration System',
+    // home page product tile
     subtitle:
-      'Three filter canisters plus a UV unit that makes tank water safe to drink.',
-    placement: 'Outside by the rainwater tank, or where the tank line enters the house.',
-    before: 380,
-    after: 340,
-    bottles: '900',
-    waste: '11 kg',
+      'UV filtration that makes your tank water safe to drink, cook with and bathe in every day.',
+    // rainwater page hero features + "Every system is tailored to your tank setup…"
+    placement:
+      'Tank-to-tap protection — every system is tailored to your tank setup, water usage and your family’s needs.',
+    // rainwater page + its FAQ
+    facts: [
+      { value: 'UV', text: 'Destroys bacteria, pathogens and microorganisms' },
+      { value: 'Same day', text: 'Clean, filtered rainwater flowing' },
+      { value: '6–12 months', text: 'Between filter changes' },
+    ],
+    learnMore: `${SITE}/services/rainwater`,
   },
 }
 
-/** The "RO" dot is relabelled per system; the other three dots are fixed. */
-export const RO_DOT_LABEL = { whole: 'Minerals', undersink: 'RO', rain: 'UV' }
+/**
+ * "Why Australian Families Choose Pure Water Filtration" — the site's own
+ * reasons, in the site's own words, for the card under the facts.
+ */
+export const WHY_US = [
+  { value: 'Lifetime warranty', text: 'When paired with the Filter Care Plan' },
+  { value: '$0 upfront', text: '6 to 36 months interest-free through Humm' },
+  { value: 'Tailored to your area', text: 'Your location, household size and water source' },
+]
 
 export const STAGE_DOT_LABELS = {
   sediment: 'Sediment',
   carbon: 'Carbon',
   ro: 'RO / UV',
   tap: 'Output',
+}
+
+/**
+ * Where a system's stage is not the default one, the word the bar shows for
+ * it instead: the whole-house unit's third cartridge is a carbon polish, the
+ * rainwater unit has no carbon stage at all, and the third stage is a
+ * membrane for one and a UV lamp for another.
+ */
+export const STAGE_DOT_OVERRIDES = {
+  whole: { ro: 'Polish' },
+  undersink: { ro: 'RO' },
+  rain: { carbon: 'Multi-stage', ro: 'UV' },
 }
 
 export const SYSTEM_ORDER = ['whole', 'undersink', 'rain']
@@ -128,18 +188,7 @@ export const DEFAULT_STAGE = 'sediment'
  */
 export const STAGE_DWELL_MS = 3200
 
-/** Grouped whole dollars, built once: the cost card formats on every frame. */
-const DOLLARS = new Intl.NumberFormat('en-AU', { maximumFractionDigits: 0 })
-
-/** A money figure as the cards show it — "$1,240". */
-export function formatMoney(amount) {
-  return `$${DOLLARS.format(Math.round(amount))}`
-}
-
-/**
- * Returns the bottom-bar dot label for a stage, swapping in the
- * system-specific wording for the third ("ro") stage.
- */
+/** The bottom-bar label for a stage, with the system's own word where it has one. */
 export function dotLabelFor(stageKey, systemKey) {
-  return stageKey === 'ro' ? RO_DOT_LABEL[systemKey] : STAGE_DOT_LABELS[stageKey]
+  return STAGE_DOT_OVERRIDES[systemKey]?.[stageKey] ?? STAGE_DOT_LABELS[stageKey]
 }
