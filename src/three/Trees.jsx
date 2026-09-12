@@ -4,6 +4,7 @@ import * as THREE from 'three'
 import { TREES, WIND } from './layout'
 import { makeBladeGeometry, WIND_FIELD } from './parts/blade'
 import { mulberry32 } from './parts/random'
+import { useQuality } from './quality'
 
 /** Base colours only, like the rest of the diorama. Needles lighten toward the tip. */
 const NEEDLE_ROOT = new THREE.Color(0x0f2e0b)
@@ -161,11 +162,10 @@ const FRAGMENT_COLOR = /* glsl */ `
   diffuseColor.rgb *= needle;
 `
 
+/** Lambert for the same reason the lawn is (see Grass.jsx): fill rate. */
 function makeNeedleMaterial(uniforms) {
-  const mat = new THREE.MeshStandardMaterial({
+  const mat = new THREE.MeshLambertMaterial({
     color: 0xffffff,
-    roughness: 0.9,
-    metalness: 0,
     side: THREE.DoubleSide,
     envMapIntensity: 0.35,
   })
@@ -196,6 +196,10 @@ function skirtArea({ radius, height, exposed }) {
  * tier out so the tree is solid foliage all the way in. Only the wind and
  * the per-needle size live in the shader; the frame (where it is, which way
  * it grows) is the instance matrix.
+ *
+ * Needles are laid down tier by tier but written to shuffled slots, so the
+ * quality tier can thin the tree by drawing only the first fraction of them
+ * and get a uniform sample rather than the bottom of the tree.
  */
 function makeNeedles({ tiers, h, seed }, material) {
   const rand = mulberry32(seed * 7919 + 1)
@@ -209,6 +213,15 @@ function makeNeedles({ tiers, h, seed }, material) {
   const mesh = new THREE.InstancedMesh(geo, material, total)
   const needle = new Float32Array(total * 4)
   const facing = new Float32Array(total * 4)
+
+  // its own generator, so the shuffle doesn't move the needles themselves
+  const shuffle = mulberry32(seed * 31 + 7)
+  const slot = new Uint32Array(total)
+  for (let i = 0; i < total; i++) slot[i] = i
+  for (let i = total - 1; i > 0; i--) {
+    const j = Math.floor(shuffle() * (i + 1))
+    ;[slot[i], slot[j]] = [slot[j], slot[i]]
+  }
 
   const m = new THREE.Matrix4()
   const up = new THREE.Vector3(0, 1, 0)
@@ -254,9 +267,9 @@ function makeNeedles({ tiers, h, seed }, material) {
       if (side.lengthSq() < 0.01) side.copy(tangent)
       side.normalize()
       across.crossVectors(dir, side)
-      mesh.setMatrixAt(k, m.makeBasis(across, dir, side).setPosition(root))
+      mesh.setMatrixAt(slot[k], m.makeBasis(across, dir, side).setPosition(root))
 
-      const i = k * 4
+      const i = slot[k] * 4
       needle[i] = NEEDLE_LEN[0] + (NEEDLE_LEN[1] - NEEDLE_LEN[0]) * rand()
       needle[i + 1] = rand()
       // own variation, then darker the deeper it sits
@@ -296,12 +309,18 @@ function makeNeedles({ tiers, h, seed }, material) {
 
 function PineTree({ x, z, h, r, seed, material }) {
   const group = useRef()
+  const { foliage } = useQuality()
   const { tiers, trunkH } = useMemo(() => makeTiers({ h, r, seed }), [h, r, seed])
   const needles = useMemo(
     () => makeNeedles({ tiers, h, seed }, material),
     [tiers, h, seed, material],
   )
   useEffect(() => () => needles.geometry.dispose(), [needles])
+
+  /* the attribute's count is the capacity: every needle the tree was built with */
+  useEffect(() => {
+    needles.count = Math.round(needles.instanceMatrix.count * foliage)
+  }, [needles, foliage])
 
   /**
    * A stiff tree, so the whole thing leans downwind by a few millimetres at

@@ -32,6 +32,11 @@ export default [
     },
   },
   {
+    // Build-time tooling, run with node rather than in the browser.
+    files: ['scripts/**/*.mjs'],
+    languageOptions: { globals: globals.node },
+  },
+  {
     // The scene layer and the camera rig are deliberately imperative: they
     // mutate three.js objects (camera, materials, meshes) inside useFrame and
     // seed particles with Math.random(). That is the documented
