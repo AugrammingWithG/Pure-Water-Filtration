@@ -116,6 +116,13 @@ const EDGE_FADE = 0.02
 /** How far bubbles lift toward white: a little always, more on the selected stage. */
 const SHEEN = 0.14
 const SHEEN_ACTIVE = 0.34
+/**
+ * How much of the bore the stream gives up once a calming stage has worked on
+ * it, and the extra lift toward white that comes with it. Upstream the bubbles
+ * fill the pipe and swirl; downstream they run as a tight, bright core.
+ */
+const CALM_TIGHTEN = 0.72
+const CALM_SHEEN = 0.1
 
 // --- grit ------------------------------------------------------------------
 
@@ -325,7 +332,7 @@ const rideScratch = () => ({
  * of travel in proportion to how fast it is going, so a slow bubble balls up
  * and a fast one streaks.
  */
-function Bubbles({ path, ride, stream, count, activeSpan, clock }) {
+function Bubbles({ path, ride, stream, count, activeSpan, clock, calmSpan }) {
   const mesh = useRef()
 
   const geometry = useMemo(
@@ -395,7 +402,13 @@ function Bubbles({ path, ride, stream, count, activeSpan, clock }) {
 
       // where across the bore this bubble has turned to by now
       const turn = bubbles.angle[i] + time * bubbles.swirl[i]
-      const reach = bubbles.reach[i] * spread
+      // 0 approaching the calming element, 1 once through it. Only the reach
+      // is damped, not the rate of turn: slowing the rate as a function of
+      // position would make the angle jump as the bubble moves.
+      const calm = calmSpan
+        ? smoothstep((u - calmSpan[0]) / (calmSpan[1] - calmSpan[0]))
+        : 0
+      const reach = bubbles.reach[i] * spread * (1 - CALM_TIGHTEN * calm)
       const offA = Math.cos(turn) * reach
       const offB = Math.sin(turn) * reach
 
@@ -422,8 +435,8 @@ function Bubbles({ path, ride, stream, count, activeSpan, clock }) {
       m.setMatrixAt(i, matrix)
 
       colorAt(path.stops, u, colour)
-      const lift = activeSpan && u >= activeSpan[0] && u <= activeSpan[1] ? SHEEN_ACTIVE : SHEEN
-      m.setColorAt(i, colour.lerp(WHITE, lift))
+      const sheen = activeSpan && u >= activeSpan[0] && u <= activeSpan[1] ? SHEEN_ACTIVE : SHEEN
+      m.setColorAt(i, colour.lerp(WHITE, Math.min(1, sheen + CALM_SHEEN * calm)))
     }
 
     m.instanceMatrix.needsUpdate = true
@@ -522,8 +535,10 @@ function Grit({ path, ride, radius, clock }) {
 }
 
 export default function WaterFlow({ system, currentStage, paused = false, subscribe }) {
-  const { path, pulseRadius, routeRadius } = system
+  const { path, pulseRadius, routeRadius, laminar} = system
   const activeSpan = path.spans[currentStage] ?? null
+  /** The element that calms the water — the third stage, where set. */
+  const calmSpan = laminar ? (path.mediaSpans[path.stageOrder[2]] ?? null) : null
   const count = Math.max(
     BUBBLE_MIN,
     Math.min(BUBBLE_MAX, Math.round(path.length / (pulseRadius * BUBBLE_GAP))),
@@ -564,9 +579,9 @@ export default function WaterFlow({ system, currentStage, paused = false, subscr
         stream={pulseRadius}
         count={count}
         activeSpan={activeSpan}
-        clock={clock}
+        calmSpan={calmSpan}
       />
-      <Grit path={path} ride={ride} radius={pulseRadius * GRIT_SCALE} clock={clock} />
+      <Grit path={path} ride={ride} radius={pulseRadius * GRIT_SCALE} />
     </group>
   )
 }

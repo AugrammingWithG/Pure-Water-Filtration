@@ -42,6 +42,8 @@ export const WHOLE_UNIT = {
   riserX: -1.95,
   /** Three canisters inside, laid out left to right. Flow enters at the right. */
   canisterOffsets: [0.25, 0, -0.25],
+  /** Cartridge radius — the stage effects size themselves off this too. */
+  canisterRadius: 0.09,
 }
 
 /** Street water meter the mains arrives from. */
