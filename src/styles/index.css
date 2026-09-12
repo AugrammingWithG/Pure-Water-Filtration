@@ -219,9 +219,51 @@ main{flex:1; display:flex; position:relative; min-height:0; min-width:0;}
   display:flex; align-items:center; justify-content:center; flex-shrink:0;
   box-shadow:0 6px 14px rgba(var(--accent-rgb),0.35);
 }
-.progress-track{width:220px; height:4px; border-radius:3px; background:rgba(15,28,51,0.10); position:relative; overflow:hidden;}
-.progress-fill{position:absolute; inset:0 auto 0 0; width:50%; background:var(--accent); border-radius:3px; transition:width 0.5s ease, background 0.4s ease;}
+/* The playhead. The track carries the system's water colours — raw at the
+   left, filtered at the right — so the bar is the route in miniature, and the
+   fill brings them up to full strength as the tour reaches them. Position
+   arrives as --p, set on .progress every frame by the play bar itself rather
+   than through React; the fill is clipped rather than resized so the gradient
+   stays put underneath it. The padding is the hit area: the track is 4px. */
+.progress{
+  --p:0%;
+  position:relative; width:220px; padding:10px 0; flex-shrink:0;
+  cursor:pointer; touch-action:none; border-radius:8px;
+}
+.progress:focus-visible{outline:2px solid rgba(var(--accent-rgb),0.55); outline-offset:-2px;}
+.progress-track{
+  position:relative; height:4px; border-radius:3px; overflow:hidden;
+  background:linear-gradient(rgba(255,255,255,0.72), rgba(255,255,255,0.72)), var(--water);
+}
+.progress-fill{
+  position:absolute; inset:0; border-radius:3px;
+  background:var(--water);
+  clip-path:inset(0 calc(100% - var(--p)) 0 0);
+}
+/* hairline breaks at the stage boundaries */
+.progress-tick{position:absolute; top:0; bottom:0; width:1px; background:rgba(255,255,255,0.9); transform:translateX(-50%);}
+.progress-knob{
+  position:absolute; top:50%; left:var(--p);
+  width:12px; height:12px; border-radius:50%;
+  background:#fff; border:2px solid var(--accent);
+  box-shadow:0 1px 4px rgba(15,28,51,0.25);
+  transform:translate(-50%,-50%);
+  transition:border-color 0.4s ease, transform 0.15s ease;
+  pointer-events:none;
+}
+.progress:hover .progress-knob, .progress:active .progress-knob{transform:translate(-50%,-50%) scale(1.2);}
+/* a held frame: the playhead breathes where it stopped */
+.playbar.paused .progress-knob{animation:playhead-held 1.8s ease-out infinite;}
+@keyframes playhead-held{
+  from{box-shadow:0 1px 4px rgba(15,28,51,0.25), 0 0 0 0 rgba(var(--accent-rgb),0.45);}
+  to{box-shadow:0 1px 4px rgba(15,28,51,0.25), 0 0 0 9px rgba(var(--accent-rgb),0);}
+}
 .stage-count{font-size:11.5px; color:var(--ink-dim); white-space:nowrap; padding-right:6px;}
+.pb-state{
+  display:inline-block; margin-right:3px; padding:2px 7px; border-radius:6px;
+  font-size:9.5px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase;
+  color:var(--accent); background:rgba(var(--accent-rgb),0.12);
+}
 
 .stage-dots{display:flex; gap:22px; max-width:100%;}
 .stage-dot-btn{display:flex; flex-direction:column; align-items:center; gap:6px;}
@@ -299,7 +341,7 @@ main{flex:1; display:flex; position:relative; min-height:0; min-width:0;}
     padding:0 12px calc(14px + env(safe-area-inset-bottom));
   }
   .playbar{width:100%; max-width:460px; gap:10px; padding:7px 12px 7px 7px;}
-  .progress-track{flex:1 1 auto; width:auto; min-width:36px;}
+  .progress{flex:1 1 auto; width:auto; min-width:36px;}
   .stage-count{font-size:10.5px; padding-right:2px;}
   .stage-dots{width:100%; max-width:460px; justify-content:space-between; gap:4px;}
   .stage-dot-btn{flex:1 1 0; min-width:0; padding:0 2px;}

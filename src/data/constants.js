@@ -121,8 +121,12 @@ export const SIDEBAR_LABELS = {
 export const DEFAULT_SYSTEM = 'whole'
 export const DEFAULT_STAGE = 'sediment'
 
-/** Autoplay advances one stage every 3.2s, matching the legacy setInterval. */
-export const AUTOPLAY_INTERVAL_MS = 3200
+/**
+ * How long the walkthrough dwells on each stage. 3.2s is what the legacy
+ * prototype's setInterval gave, and it reads well: long enough to take in the
+ * detail card, short enough that the tour keeps moving.
+ */
+export const STAGE_DWELL_MS = 3200
 
 /**
  * Returns the bottom-bar dot label for a stage, swapping in the

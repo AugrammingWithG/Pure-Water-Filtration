@@ -57,6 +57,36 @@ That structure is what the scene reads:
   It is thinner than the narrowest pipe it runs inside, so it shows only in the
   gaps: buried runs, and inside the cartridges.
 
+## The walkthrough
+
+The play button runs a guided tour of the four stages, 3.2 seconds on each,
+looping. It is a timeline rather than a timer (`hooks/useWalkthrough.js`): one
+playhead in seconds, and the stage showing is whichever dwell it is inside.
+That is what makes the three buttons on it honest:
+
+- **Play** starts the tour at the stage on screen and flies the camera straight
+  in, instead of sitting at the wide view until the first stage change comes
+  round.
+- **Pause** is a freeze-frame. The playhead stops, and so does the water —
+  bubbles held mid-cartridge, grit held on the face of the element — while
+  the camera stays free, so a paused tour is something to orbit around and
+  inspect. Everything that is UI motion rather than simulation (the fly-to in
+  flight, the route highlight sliding on, badges tinting) still settles.
+- **Resume** carries on from the same instant, both the tour and the water.
+  The remainder of the current stage is honoured rather than restarted.
+
+The progress bar is the playhead, and it can be scrubbed: click or drag
+anywhere on it and the tour goes there, landing on the stage that point falls
+in. Its colours are the water's own — the same per-stage list the route is
+painted with, raw at the left and finished at the right — so the bar is the
+journey in miniature, with a hairline at each stage boundary.
+
+Picking a stage from the dots, the keyboard or the scene *seeks*: the tour
+moves there and keeps whatever state it had, so a paused tour can be stepped
+through stage by stage with the water held at each. Switching system or
+resetting the view ends the tour. Space plays and pauses; the arrow keys step
+between stages; Home and End go to the first and last.
+
 ## Running it
 
 ```bash
@@ -74,11 +104,12 @@ legacy/
   filtration-simulation.html   Original single-file prototype, kept verbatim
 src/
   main.jsx                 React root
-  App.jsx                  Owns system/stage/focused/autoplay state, holds the rig ref
+  App.jsx                  Owns system/stage/focused state and the walkthrough, holds the rig ref
   data/
     constants.js           All stage + system copy (titles, descriptions, placement)
   hooks/
     useOrbitRig.js         Custom drag-orbit / zoom / fly-to camera rig
+    useWalkthrough.js      The tour as a timeline: play / pause / resume, seek, scrub
   three/
     layout.js              Every dimension and mount point in the world
     path.js                Builds a route from its legs: stage spans, colour, pace
@@ -88,7 +119,7 @@ src/
     Ground.jsx             The diorama plinth
     House.jsx              Cabin shell, roof, glazing, deck; roof + front wall are a cutaway
     Kitchen.jsx            Bench, open sink cabinet, sink, mixer + filtered taps
-    WaterFlow.jsx          Route line, instanced bubbles and grit along the active route
+    WaterFlow.jsx          Route line, instanced bubbles and grit along the active route; own clock, so it can be paused
     StageMarkers.jsx       Numbered badges at the four stage positions
     products/
       WholeHouseUnit.jsx   Chamfered white cabinet, label plate, riser, street meter
@@ -139,6 +170,24 @@ measure first.
 Anything animated per frame damps with `Math.min(1, delta * rate)`, never a
 fixed per-frame fraction — otherwise transitions run at different speeds on
 different monitors, and on a slow machine they look broken rather than slow.
+
+The two clocks — the walkthrough's and the water's — are the exception: they
+have to keep to real time, so they take the frame's whole delta and cap it at
+a quarter of a second rather than the 0.05 the transitions use. The cap is
+only there to swallow a stall (a background tab, a shader compile); a machine
+merely struggling to draw the scene still gets a tour that runs to time and
+water that flows at the speed it should. Both clocks read a `paused` flag
+rather than being torn down, so resuming is nothing more than letting the
+delta count again.
+
+The water's clock is stepped in a `useFrame` at priority `-1` so it is ahead
+of the bubbles and grit that read it in the same frame. r3f runs frame
+callbacks in priority order; only a priority *above* zero switches off its
+automatic render, so a negative one is safe to use purely for ordering.
+
+The play bar's playhead is written straight to the DOM — a CSS variable the
+fill and the knob both read — from a subscription on the walkthrough. Holding
+it in React state would re-render the app, canvas included, every frame.
 
 `Outline` draws a unit's own hard edges rather than the usual inverted hull —
 the shape grown slightly and drawn back-faces-only. The hull was tried first.
