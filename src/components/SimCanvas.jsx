@@ -17,6 +17,8 @@ export default function SimCanvas({
   focused,
   paused,
   subscribe,
+  cardContent,
+  showCard,
   onPick,
   rigRef,
 }) {
@@ -48,6 +50,8 @@ export default function SimCanvas({
           focused={focused}
           paused={paused}
           subscribe={subscribe}
+          cardContent={cardContent}
+          showCard={showCard}
           onPick={onPick}
           rigRef={rigRef}
         />

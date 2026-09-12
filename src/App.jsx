@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import CostCard from './components/CostCard'
 import DetailCard from './components/DetailCard'
 import Header from './components/Header'
@@ -15,6 +15,7 @@ import {
   STAGE_ORDER,
   SYSTEM_DATA,
 } from './data/constants'
+import { useMediaQuery } from './hooks/useMediaQuery'
 import { useWalkthrough } from './hooks/useWalkthrough'
 import { stageView, SYSTEMS } from './three/systems'
 
@@ -31,6 +32,14 @@ export default function App() {
    * diorama stays intact until the user asks to look inside something.
    */
   const [focused, setFocused] = useState(false)
+
+  /**
+   * Where the stage card is drawn. In the scene on a large viewport, where
+   * there is room beside the product for it; as a DOM card on a small one,
+   * where a world-anchored card has nowhere to go and would be too small to
+   * read whatever resolution it was drawn at.
+   */
+  const sceneCard = useMediaQuery('(min-width: 761px)')
 
   /** Imperative handle on the camera rig, published by <Scene>. */
   const rigRef = useRef(null)
@@ -170,6 +179,17 @@ export default function App() {
   const stage = STAGE_DATA_BY_SYSTEM[currentSystem][currentStage]
   const stageIndex = STAGE_ORDER.indexOf(currentStage)
 
+  /** One description of the current stage, whichever card ends up drawing it. */
+  const cardContent = useMemo(
+    () => ({
+      eyebrow: `STAGE ${stageIndex + 1} OF ${STAGE_ORDER.length}`,
+      title: stage.title,
+      desc: stage.desc,
+      placement: system.placement,
+    }),
+    [stageIndex, stage.title, stage.desc, system.placement],
+  )
+
   return (
     <div className="app" data-system={currentSystem}>
       <Header title={system.title} subtitle={system.subtitle} />
@@ -184,6 +204,8 @@ export default function App() {
             focused={focused}
             paused={status === 'paused'}
             subscribe={walkthrough.subscribe}
+            cardContent={cardContent}
+            showCard={sceneCard}
             onPick={handleScenePick}
             rigRef={rigRef}
           />
@@ -197,12 +219,9 @@ export default function App() {
           <CostCard before={system.before} after={system.after} savings={system.savings} />
           <TrendCard />
           <ImpactCard bottles={system.bottles} waste={system.waste} />
-          <DetailCard
-            eyebrow={`STAGE ${stageIndex + 1} OF ${STAGE_ORDER.length}`}
-            title={stage.title}
-            desc={stage.desc}
-            placement={system.placement}
-          />
+          {/* On a large viewport the card lives in the scene instead; only
+              one of the two may exist at a time. */}
+          {!sceneCard && <DetailCard {...cardContent} />}
         </div>
       </main>
 
