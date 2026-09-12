@@ -233,7 +233,11 @@ export default function App() {
 
           <CostCard before={system.before} after={system.after} show={sceneDrawn} />
           <SavingsCard before={system.before} after={system.after} />
-          <ImpactCard bottles={system.bottles} waste={system.waste} />
+          <ImpactCard
+            bottles={system.bottles}
+            waste={system.waste}
+            litres={system.litres}
+          />
           {/* On a large viewport the card lives in the scene instead; only
               one of the two may exist at a time. */}
           {!sceneCard && <DetailCard {...cardContent} />}

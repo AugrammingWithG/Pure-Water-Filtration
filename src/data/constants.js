@@ -125,8 +125,9 @@ export const SYSTEM_DATA = {
     // than it being stored here and left to drift out of step with them.
     before: 1240,
     after: 610,
-    bottles: '3,650',
-    waste: '61 kg',
+    bottles: 3650,
+    waste: 61,
+    litres: 185000,
   },
   undersink: {
     title: 'Under-Sink Filter (Reverse Osmosis)',
@@ -135,8 +136,10 @@ export const SYSTEM_DATA = {
     placement: 'Inside the under-sink cabinet in the kitchen.',
     before: 480,
     after: 260,
-    bottles: '1,900',
-    waste: '24 kg',
+    bottles: 1900,
+    waste: 24,
+    // Drinking and cooking only, so a fraction of the whole-house figure.
+    litres: 2800,
   },
   rain: {
     title: 'Rainwater Filtration (UV)',
@@ -145,8 +148,9 @@ export const SYSTEM_DATA = {
     placement: 'Outside by the rainwater tank, or where the tank line enters the house.',
     before: 380,
     after: 340,
-    bottles: '900',
-    waste: '11 kg',
+    bottles: 900,
+    waste: 11,
+    litres: 96000,
   },
 }
 
