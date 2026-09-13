@@ -12,34 +12,34 @@
     "semantic_hash": "82374b667b85bf9e5a23644ffb5d77d7"
   },
   "src/App.jsx": {
-    "mtime": 1789304035.462049,
-    "seen": 1789304042.0925136,
-    "ast_hash": "480093daae45eff4e6334a367489afea",
+    "mtime": 1789205810.3470838,
+    "seen": 1789206008.7532597,
+    "ast_hash": "a99afcca9c539eb87f77ff92965d1662",
     "semantic_hash": ""
   },
   "src/components/CostCard.jsx": {
-    "mtime": 1789304031.9871724,
-    "seen": 1789304042.0925155,
-    "ast_hash": "e931463ff35091c1042e295471983658",
-    "semantic_hash": ""
+    "mtime": 1789127548.2956774,
+    "seen": 1789199767.977344,
+    "ast_hash": "7e6526c5b45ede00903f86506fb2807b",
+    "semantic_hash": "7e6526c5b45ede00903f86506fb2807b"
   },
   "src/components/DetailCard.jsx": {
-    "mtime": 1789304031.9881718,
-    "seen": 1789304042.0925171,
-    "ast_hash": "d3fb47d7359579a6e9dc55ca1f958648",
-    "semantic_hash": ""
+    "mtime": 1789198855.036597,
+    "seen": 1789199767.977345,
+    "ast_hash": "7b40ec09869036b9bc0d7ac748b95284",
+    "semantic_hash": "7b40ec09869036b9bc0d7ac748b95284"
   },
   "src/components/Header.jsx": {
-    "mtime": 1789304031.9941723,
-    "seen": 1789304042.0925186,
+    "mtime": 1789198855.0437531,
+    "seen": 1789199767.977346,
     "ast_hash": "3db5461c834a7661c6ba389fa7dcd4bb",
     "semantic_hash": "3db5461c834a7661c6ba389fa7dcd4bb"
   },
   "src/components/ImpactCard.jsx": {
-    "mtime": 1789304031.9941723,
-    "seen": 1789304042.09252,
-    "ast_hash": "56c1c12f8c873635ec7535d2cb63d767",
-    "semantic_hash": ""
+    "mtime": 1789127548.2966757,
+    "seen": 1789199767.9773471,
+    "ast_hash": "c6932f8061019398a5798d1a6862e01e",
+    "semantic_hash": "c6932f8061019398a5798d1a6862e01e"
   },
   "src/components/PlayBar.jsx": {
     "mtime": 1789205810.353082,
@@ -54,22 +54,28 @@
     "semantic_hash": "c696eef8fb95dceb2b0ba7b02e14f30d"
   },
   "src/components/SimCanvas.jsx": {
-    "mtime": 1789304035.4630482,
-    "seen": 1789304042.092527,
-    "ast_hash": "57a8f99074be96e940b0c26351b4ef06",
+    "mtime": 1789205810.359082,
+    "seen": 1789206008.7532792,
+    "ast_hash": "0134c2cff75ad29f07a82e7187e75613",
     "semantic_hash": ""
   },
+  "src/components/TrendCard.jsx": {
+    "mtime": 1789198855.072744,
+    "seen": 1789199767.9773526,
+    "ast_hash": "605ea5f863f2a5245e86727b6292bde6",
+    "semantic_hash": "605ea5f863f2a5245e86727b6292bde6"
+  },
   "src/components/icons.jsx": {
-    "mtime": 1789304032.0321734,
-    "seen": 1789304042.092528,
+    "mtime": 1789198855.111789,
+    "seen": 1789199767.977355,
     "ast_hash": "801bc9f54331121adb353aeb4c5029b0",
     "semantic_hash": "801bc9f54331121adb353aeb4c5029b0"
   },
   "src/data/constants.js": {
-    "mtime": 1789304032.0571718,
-    "seen": 1789304042.0925293,
-    "ast_hash": "9e8bb450a62da61bf255a3edd66c0456",
-    "semantic_hash": ""
+    "mtime": 1789200225.4186854,
+    "seen": 1789201581.9632814,
+    "ast_hash": "523d3fcd80e610dc84803ab055baae76",
+    "semantic_hash": "523d3fcd80e610dc84803ab055baae76"
   },
   "src/hooks/useOrbitRig.js": {
     "mtime": 1789198855.1317873,
@@ -84,52 +90,52 @@
     "semantic_hash": "a9e9243ab8ec67744bc269fc0215256a"
   },
   "src/three/Grass.jsx": {
-    "mtime": 1789224412.4676402,
-    "seen": 1789304042.0925417,
-    "ast_hash": "5051d1ff30900efe5af234eefcf121b0",
+    "mtime": 1789222563.603027,
+    "seen": 1789222801.5476232,
+    "ast_hash": "763053ed6a26bf546fcd63d9daa5ec4f",
     "semantic_hash": ""
   },
   "src/three/Ground.jsx": {
-    "mtime": 1789224412.4686422,
-    "seen": 1789304042.092543,
+    "mtime": 1789212143.751504,
+    "seen": 1789216395.849547,
     "ast_hash": "ad70f28fcf803f2b01ba058429ac6ccf",
     "semantic_hash": ""
   },
   "src/three/House.jsx": {
-    "mtime": 1789224412.469641,
-    "seen": 1789304042.0925443,
-    "ast_hash": "91f084f82ada0bd9a423a433017bb21d",
+    "mtime": 1789223456.226774,
+    "seen": 1789224223.1035926,
+    "ast_hash": "ef47caf74d9fdb5eb8dd809d5f8b5a7a",
     "semantic_hash": ""
   },
   "src/three/Kitchen.jsx": {
-    "mtime": 1789224412.469641,
-    "seen": 1789304042.0925453,
-    "ast_hash": "111abf7167c4717556c7e83313c2806c",
+    "mtime": 1789211822.3357942,
+    "seen": 1789216395.8495526,
+    "ast_hash": "16496882ea731851def2dafa52da0f15",
     "semantic_hash": ""
   },
   "src/three/Lighting.jsx": {
-    "mtime": 1789224412.4706414,
-    "seen": 1789304042.0925465,
+    "mtime": 1789218104.2631545,
+    "seen": 1789218515.2081885,
     "ast_hash": "5cc805def9e18be783ba69aa18b3f7c4",
     "semantic_hash": ""
   },
   "src/three/Scene.jsx": {
-    "mtime": 1789304035.4630482,
-    "seen": 1789304042.092548,
-    "ast_hash": "4c93f3cc4a568b0f8cfd1bc0a6b3d291",
+    "mtime": 1789214147.8152752,
+    "seen": 1789216395.8495593,
+    "ast_hash": "d8fcd1441d0b4aa128e095a5508b183e",
     "semantic_hash": ""
   },
   "src/three/SceneEnvironment.jsx": {
-    "mtime": 1789224412.471642,
-    "seen": 1789304042.092549,
-    "ast_hash": "93286e502325cf5008cf47acbc571ec6",
+    "mtime": 1789218072.8014884,
+    "seen": 1789218515.208192,
+    "ast_hash": "485d62f9dbf3e6e2aaa99a8cb55da9ac",
     "semantic_hash": ""
   },
   "src/three/StageMarkers.jsx": {
-    "mtime": 1789224412.4726403,
-    "seen": 1789304042.0925515,
-    "ast_hash": "435a34edd03cc38e8b4027fb2d8e0d60",
-    "semantic_hash": ""
+    "mtime": 1789198855.249041,
+    "seen": 1789199767.9773736,
+    "ast_hash": "fd02d03dbed10691e628649a1141269a",
+    "semantic_hash": "fd02d03dbed10691e628649a1141269a"
   },
   "src/three/WaterFlow.jsx": {
     "mtime": 1789205956.64863,
@@ -138,8 +144,8 @@
     "semantic_hash": ""
   },
   "src/three/layout.js": {
-    "mtime": 1789224412.476641,
-    "seen": 1789304042.0925667,
+    "mtime": 1789209023.2170596,
+    "seen": 1789216395.8496041,
     "ast_hash": "30c1e0f27da45566febb7ad037d69217",
     "semantic_hash": ""
   },
@@ -180,8 +186,8 @@
     "semantic_hash": "3b9fc2d18e09a7f1564268110318ac11"
   },
   "src/three/parts/materials.js": {
-    "mtime": 1789224412.47864,
-    "seen": 1789304042.0925796,
+    "mtime": 1789223060.6572626,
+    "seen": 1789224223.1036313,
     "ast_hash": "9d41b437e698cf99b506abafe4b1a33c",
     "semantic_hash": ""
   },
@@ -192,27 +198,27 @@
     "semantic_hash": "6171c87a45561900e0d11ad3bb98798f"
   },
   "src/three/products/RainwaterUnit.jsx": {
-    "mtime": 1789304035.4780478,
-    "seen": 1789304042.0925832,
+    "mtime": 1789223489.3728278,
+    "seen": 1789224223.1036417,
     "ast_hash": "ea8b7366e621a0f7bb0457665b6ecfbf",
     "semantic_hash": ""
   },
   "src/three/products/UnderSinkUnit.jsx": {
-    "mtime": 1789304035.5110478,
-    "seen": 1789304042.0925844,
+    "mtime": 1789198855.324101,
+    "seen": 1789199767.9773848,
     "ast_hash": "5be67ce3244aafbcb1c8fe0822bb8b36",
     "semantic_hash": "5be67ce3244aafbcb1c8fe0822bb8b36"
   },
   "src/three/products/WholeHouseUnit.jsx": {
-    "mtime": 1789304035.5120482,
-    "seen": 1789304042.0925856,
+    "mtime": 1789223516.9602342,
+    "seen": 1789224223.1036465,
     "ast_hash": "f85d1635e30a88877ad1e3dd8426091d",
     "semantic_hash": ""
   },
   "src/three/systems.js": {
-    "mtime": 1789224412.481642,
-    "seen": 1789304042.092587,
-    "ast_hash": "57ad19a1af990d1c1b683b326ffd3f37",
+    "mtime": 1789205810.5025997,
+    "seen": 1789206008.7533581,
+    "ast_hash": "3324fcf9da58fbca6cd2e856ed5be675",
     "semantic_hash": ""
   },
   "vite.config.js": {
@@ -222,9 +228,9 @@
     "semantic_hash": "199e1221ae03d6974fdc8b5e23787b98"
   },
   "README.md": {
-    "mtime": 1789304031.77454,
-    "seen": 1789304042.0925906,
-    "ast_hash": "f39412186a7fafa283c3547fe3eaf4b1",
+    "mtime": 1789208184.0893722,
+    "seen": 1789208218.6423407,
+    "ast_hash": "1583d19e799a6cc2ce8f08ff66fcb7c5",
     "semantic_hash": ""
   },
   "index.html": {
@@ -276,21 +282,21 @@
     "semantic_hash": ""
   },
   "src/three/effects/MineralBalance.jsx": {
-    "mtime": 1789224412.4736402,
-    "seen": 1789304042.0925577,
-    "ast_hash": "ae63456452735e6f872d973eeb7831fd",
+    "mtime": 1789205810.4176004,
+    "seen": 1789206008.7533262,
+    "ast_hash": "64a48b3e9018cdab3375d38c5239c146",
     "semantic_hash": ""
   },
   "src/three/effects/OutputSparkle.jsx": {
-    "mtime": 1789224412.4736402,
-    "seen": 1789304042.0925589,
-    "ast_hash": "c3e2ccf62a1d6e9c0c3e7fc46c2f0313",
+    "mtime": 1789205810.4226,
+    "seen": 1789206008.7533283,
+    "ast_hash": "5adf2bb0de5fe306815b975370e9eaa0",
     "semantic_hash": ""
   },
   "src/three/effects/RainwaterEffects.jsx": {
-    "mtime": 1789224412.4746416,
-    "seen": 1789304042.09256,
-    "ast_hash": "896b9d438f189ce7eff448c0c00548ca",
+    "mtime": 1789205810.4276006,
+    "seen": 1789206008.7533305,
+    "ast_hash": "b8d8c39cb9192f0f1a29ea384b9dcea0",
     "semantic_hash": ""
   },
   "src/three/effects/SedimentCapture.jsx": {
@@ -300,9 +306,9 @@
     "semantic_hash": ""
   },
   "src/three/effects/UnderSinkEffects.jsx": {
-    "mtime": 1789224412.4746416,
-    "seen": 1789304042.0925624,
-    "ast_hash": "4533eed7754e47e047aea6462f881738",
+    "mtime": 1789205810.443601,
+    "seen": 1789206008.7533343,
+    "ast_hash": "e019fe34b85f352ced1c1270f46f793e",
     "semantic_hash": ""
   },
   "src/three/effects/UvSterilise.jsx": {
@@ -312,93 +318,39 @@
     "semantic_hash": ""
   },
   "src/three/effects/WholeHouseEffects.jsx": {
-    "mtime": 1789224412.4756422,
-    "seen": 1789304042.0925648,
-    "ast_hash": "561a7a933921822772dc97776ad6bda4",
+    "mtime": 1789205810.456599,
+    "seen": 1789206008.7533383,
+    "ast_hash": "a537a99726cd14533f6be63c89deecc2",
     "semantic_hash": ""
   },
   "src/three/effects/common.js": {
-    "mtime": 1789224412.4756422,
-    "seen": 1789304042.0925658,
-    "ast_hash": "9fdc3779dfeffe4cf7b3c929c9c5d9e1",
+    "mtime": 1789205810.4606004,
+    "seen": 1789206008.7533395,
+    "ast_hash": "c4f3df40d70b724fe28d8e1bb569fe59",
     "semantic_hash": ""
   },
   "src/three/Trees.jsx": {
-    "mtime": 1789224412.4726403,
-    "seen": 1789304042.0925524,
-    "ast_hash": "aa33c57958ac7f431612c98294e7023f",
+    "mtime": 1789209720.4853191,
+    "seen": 1789216395.8495674,
+    "ast_hash": "e485728afd839b90fe412d0b1e4f236e",
     "semantic_hash": ""
   },
   "src/three/parts/blade.js": {
-    "mtime": 1789224412.4776406,
-    "seen": 1789304042.092576,
-    "ast_hash": "3b6a717a9ed6721567fbe8445e430101",
+    "mtime": 1789207537.9407966,
+    "seen": 1789208218.6423268,
+    "ast_hash": "6aa73139dfb17aeb33d91de892a889a9",
     "semantic_hash": ""
   },
   "src/three/parts/random.js": {
-    "mtime": 1789224412.479641,
-    "seen": 1789304042.0925808,
-    "ast_hash": "d4677fe04a5237365697ad27af8bab92",
+    "mtime": 1789206834.0988863,
+    "seen": 1789208218.6423304,
+    "ast_hash": "dbea73a6815932079d3cceecbcc8c118",
     "semantic_hash": ""
   },
   "src/assets/textures/wood/grass-floor.jpg": {
-    "mtime": 1789224412.2983837,
-    "seen": 1789304042.0925949,
+    "mtime": 1789211022.657466,
+    "seen": 1789216395.849661,
     "ast_hash": "836f33c01fbe9fdcf5ad627434730293",
-    "semantic_hash": ""
-  },
-  "src/components/SavingsCard.jsx": {
-    "mtime": 1789304031.9951718,
-    "seen": 1789304042.0925233,
-    "ast_hash": "f7217133eea62b7e13504c20757b07ef",
-    "semantic_hash": ""
-  },
-  "src/data/figures.js": {
-    "mtime": 1789304032.0571718,
-    "seen": 1789304042.092531,
-    "ast_hash": "83a72341403754354d8e2694a143934f",
-    "semantic_hash": ""
-  },
-  "src/data/tones.js": {
-    "mtime": 1789224412.4656417,
-    "seen": 1789304042.0925322,
-    "ast_hash": "3b08129109f8f080dba65af51786be4d",
-    "semantic_hash": ""
-  },
-  "src/hooks/useCountUp.js": {
-    "mtime": 1789304032.0581741,
-    "seen": 1789304042.0925333,
-    "ast_hash": "ed9a20cc1e3d6f418565bca2c16333f3",
-    "semantic_hash": ""
-  },
-  "src/hooks/useInView.js": {
-    "mtime": 1789304032.0581741,
-    "seen": 1789304042.0925348,
-    "ast_hash": "3508645df9b9491d4edc368cea3f65e7",
-    "semantic_hash": ""
-  },
-  "src/hooks/useMediaQuery.js": {
-    "mtime": 1789224412.466642,
-    "seen": 1789304042.0925357,
-    "ast_hash": "14274efba5a4679c071804ba9b21b8ca",
-    "semantic_hash": ""
-  },
-  "src/three/StageCard.jsx": {
-    "mtime": 1789224412.471642,
-    "seen": 1789304042.0925498,
-    "ast_hash": "19fcd8fd4babf80caf29a723add696c1",
-    "semantic_hash": ""
-  },
-  "src/three/parts/billboard.js": {
-    "mtime": 1789224412.476641,
-    "seen": 1789304042.0925748,
-    "ast_hash": "4ab88b6b1ddc08bac4b9af65389747a2",
-    "semantic_hash": ""
-  },
-  "src/three/parts/cardTexture.js": {
-    "mtime": 1789304032.0811718,
-    "seen": 1789304042.0925784,
-    "ast_hash": "94cde29ff5e4b2b5b8bfc419553b2ce0",
     "semantic_hash": ""
   }
 }
