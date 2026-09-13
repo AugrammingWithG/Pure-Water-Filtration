@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import DetailCard from './components/DetailCard'
+import MobileSheet from './components/MobileSheet'
 import FactsCard from './components/FactsCard'
 import Header from './components/Header'
 import PlayBar from './components/PlayBar'
@@ -35,6 +36,7 @@ export default function App() {
    */
   const [focused, setFocused] = useState(false)
 
+
   /**
    * Where the stage card is drawn. In the scene on a large viewport, where
    * there is room beside the product for it; as a DOM card on a small one,
@@ -42,6 +44,21 @@ export default function App() {
    * read whatever resolution it was drawn at.
    */
   const sceneCard = useMediaQuery('(min-width: 761px)')
+  /** Where the detail card stops floating and becomes a bottom sheet. */
+  const compact = useMediaQuery('(max-width: 620px)')
+
+  /**
+   * Which tab the phone sheet is on: the stage, the product, or the company.
+   *
+   * Nothing moves it but the reader. An earlier version pulled it back to the
+   * stage tab whenever a stage was picked, on the theory that asking for a
+   * stage is asking to see it — but in the hand that reads as the sheet
+   * fighting you, because stepping through the stages while reading the
+   * product tab is a perfectly ordinary thing to want. Leaving it alone also
+   * means the sidebar can be used to compare one product against another with
+   * the figures still on screen.
+   */
+  const [sheetPage, setSheetPage] = useState(0)
 
   /** Imperative handle on the camera rig, published by <Scene>. */
   const rigRef = useRef(null)
@@ -239,7 +256,8 @@ export default function App() {
             </button>
           </div>
 
-          <FactsCard facts={system.facts} />
+          {/* above the sheet breakpoint it floats where it always has */}
+          {!compact && <FactsCard facts={system.facts} />}
           <WhyCard />
           {/*
             The three scene cards are canvas, and canvas text is invisible to a
@@ -257,7 +275,28 @@ export default function App() {
           </p>
           {/* On a large viewport the card lives in the scene instead; only
               one of the two may exist at a time. */}
-          {!sceneCard && <DetailCard {...cardContent} />}
+          {/*
+            Same rule as the scene cards: it arrives when something has been
+            picked and Reset view clears it. Without the `focused` gate the
+            phone opens with the sheet already covering half the diorama,
+            describing a stage nobody has asked about yet.
+          */}
+          {/*
+            One panel on a phone, tabbed between the stage, the product and the
+            company. Above the sheet breakpoint the figures and the reasons have
+            their own floating cards, so there is nothing to tab through and the
+            card just floats as it always has.
+          */}
+          {focused && compact && (
+            <MobileSheet
+              page={sheetPage}
+              onPage={setSheetPage}
+              content={cardContent}
+              facts={system.facts}
+              learnMore={system.learnMore}
+            />
+          )}
+          {focused && !compact && !sceneCard && <DetailCard {...cardContent} />}
         </div>
       </main>
 

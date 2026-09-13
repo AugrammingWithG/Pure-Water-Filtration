@@ -1,5 +1,5 @@
 import { CTA } from '../data/constants'
-import { DropletLogo } from './icons'
+import { DropletLogo, PhoneIcon } from './icons'
 
 export default function Header({ title, subtitle }) {
   return (
@@ -14,9 +14,21 @@ export default function Header({ title, subtitle }) {
         <h1>{title}</h1>
         <p>{subtitle}</p>
       </div>
-      <a className="browse-btn" href={CTA.quote.href} target="_blank" rel="noopener">
-        {CTA.quote.label}
-      </a>
+      {/*
+        The quote link always; click-to-call stacked under it once the layout
+        drops the Why card, which is otherwise the only place the number
+        appears — taking it off the page at exactly the size where it is the
+        easiest thing to act on.
+      */}
+      <div className="header-actions">
+        <a className="browse-btn" href={CTA.quote.href} target="_blank" rel="noopener">
+          {CTA.quote.label}
+        </a>
+        <a className="call-btn" href={CTA.phone.href}>
+          <PhoneIcon />
+          {CTA.phone.label}
+        </a>
+      </div>
     </header>
   )
 }

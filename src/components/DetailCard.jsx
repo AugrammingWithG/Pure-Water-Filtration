@@ -11,11 +11,7 @@ function Removed({ action, tone, removes, accent }) {
       <div className="fc-removed-label">{action}</div>
       <div className="fc-chips">
         {removes.map((item) => (
-          <span
-            key={item}
-            className="fc-chip"
-            style={{ '--chip': colour }}
-          >
+          <span key={item} className="fc-chip" style={{ '--chip': colour }}>
             <i />
             {item}
           </span>
@@ -26,23 +22,15 @@ function Removed({ action, tone, removes, accent }) {
 }
 
 /**
- * The stage being looked at, what it does something about, and where the
- * product goes. Its two actions are the site's: ask for a quote, or read the
- * page the stage copy came from.
+ * The stage being looked at, and what it does something about.
+ *
+ * Exported on its own because the phone sheet pages between this and the
+ * product information: both pages have to be the same markup as the floating
+ * card, or the two would drift.
  */
-export default function DetailCard({
-  eyebrow,
-  title,
-  desc,
-  placement,
-  action,
-  tone,
-  removes,
-  accent,
-  learnMore,
-}) {
+export function StageBody({ eyebrow, title, desc, placement, action, tone, removes, accent }) {
   return (
-    <div className="float-card card-detail">
+    <>
       <div className="fc-eyebrow">{eyebrow}</div>
       <h3>{title}</h3>
       <p>{desc}</p>
@@ -53,14 +41,34 @@ export default function DetailCard({
           <span>{placement}</span>
         </div>
       )}
-      <div className="detail-actions">
-        <a className="primary" href={CTA.quote.href} target="_blank" rel="noopener">
-          {CTA.quote.label}
-        </a>
-        <a href={learnMore} target="_blank" rel="noopener">
-          {CTA.learnMore}
-        </a>
-      </div>
+    </>
+  )
+}
+
+/**
+ * The two actions the site offers: ask for a quote, or read the page the copy
+ * came from. Shared chrome — on the phone sheet they sit under the stage tab,
+ * since the header carries a quote button and the number on every tab anyway.
+ */
+export function SheetActions({ learnMore }) {
+  return (
+    <div className="detail-actions">
+      <a className="primary" href={CTA.quote.href} target="_blank" rel="noopener">
+        {CTA.quote.label}
+      </a>
+      <a href={learnMore} target="_blank" rel="noopener">
+        {CTA.learnMore}
+      </a>
+    </div>
+  )
+}
+
+/** The floating card, for the band between the phone sheet and the scene card. */
+export default function DetailCard(props) {
+  return (
+    <div className="float-card card-detail">
+      <StageBody {...props} />
+      <SheetActions learnMore={props.learnMore} />
     </div>
   )
 }
