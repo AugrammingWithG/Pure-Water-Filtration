@@ -1,4 +1,5 @@
 import { useMemo } from 'react'
+import * as THREE from 'three'
 import { KITCHEN, UNDERSINK_UNIT as U } from '../layout'
 import Canister from '../parts/Canister'
 import FadeGroup from '../parts/FadeGroup'
@@ -93,6 +94,38 @@ export default function UnderSinkUnit({ active, revealed, selectedStage, accent,
       <mesh position={[bracketX, U.bracketY + 0.01, (KITCHEN.zBack + 0.03 + U.z + 0.1) / 2]} castShadow>
         <boxGeometry args={[bracketW, 0.02, U.z + 0.1 - KITCHEN.zBack - 0.03]} />
         <meshStandardMaterial {...BRACKET} />
+      </mesh>
+
+      {/*
+        Picking the unit as a whole. Unlike the other two products this one has
+        no cabinet shell to click — it is an open bracket — so without this
+        every click landed on a cartridge and the unit could only ever be
+        selected from the sidebar.
+
+        Back faces only: the cartridges sit inside this box, so its near face
+        would otherwise swallow their clicks. Rendering only the far side puts
+        it behind everything it encloses, and a raycast reaches it just when it
+        has missed all of them.
+      */}
+      <mesh
+        position={[
+          (U.tankX - U.tankR + U.canisterXs[0] + 0.14) / 2,
+          (U.floorY + U.bracketY + 0.08) / 2,
+          U.z,
+        ]}
+        onClick={(e) => {
+          e.stopPropagation()
+          onPick(null)
+        }}
+      >
+        <boxGeometry
+          args={[
+            U.canisterXs[0] + 0.14 - (U.tankX - U.tankR),
+            U.bracketY + 0.08 - U.floorY,
+            0.42,
+          ]}
+        />
+        <meshBasicMaterial visible={false} side={THREE.BackSide} />
       </mesh>
 
       {U.canisterXs.map((x, i) => (

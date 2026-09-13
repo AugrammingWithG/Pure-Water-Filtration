@@ -174,6 +174,28 @@ export default function RainwaterUnit({ active, revealed, selectedStage, accent,
         </group>
       </FadeGroup>
 
+      {/*
+        Picking the unit as a whole, including once it is revealed — the cover
+        stops taking clicks then so they can reach the cartridges behind it.
+        Same treatment as the other two products.
+
+        Back faces only: the cartridges sit inside this box, so its near face
+        would otherwise swallow their clicks. Rendering only the far side puts
+        it behind everything it encloses, and a raycast reaches it just when it
+        has missed all of them. Unrotated, so the cabinet's width-along-z
+        becomes the box's z.
+      */}
+      <mesh
+        position={center}
+        onClick={(e) => {
+          e.stopPropagation()
+          onPick(null)
+        }}
+      >
+        <boxGeometry args={[depth + 0.08, h + 0.08, w + 0.08]} />
+        <meshBasicMaterial visible={false} side={THREE.BackSide} />
+      </mesh>
+
       {/* internals, in flow order from +z */}
       {STAGE_LOOK.map((s, i) => (
         <Canister

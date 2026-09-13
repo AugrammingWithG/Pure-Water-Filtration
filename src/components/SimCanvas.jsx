@@ -24,6 +24,8 @@ export default function SimCanvas({
   subscribe,
   cardContent,
   showCard,
+  figures,
+  showStats,
   onPick,
   rigRef,
 }) {
@@ -73,6 +75,8 @@ export default function SimCanvas({
           subscribe={subscribe}
           cardContent={cardContent}
           showCard={showCard}
+          figures={figures}
+          showStats={showStats}
           onPick={onPick}
           onReady={handleReady}
           rigRef={rigRef}

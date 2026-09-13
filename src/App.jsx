@@ -178,6 +178,18 @@ export default function App() {
   const stage = STAGE_DATA_BY_SYSTEM[currentSystem][currentStage]
   const stageIndex = STAGE_ORDER.indexOf(currentStage)
 
+  /** The system figures, as one stable object the scene cards can key off. */
+  const figures = useMemo(
+    () => ({
+      before: system.before,
+      after: system.after,
+      litres: system.litres,
+      bottles: system.bottles,
+      waste: system.waste,
+    }),
+    [system],
+  )
+
   /** One description of the current stage, whichever card ends up drawing it. */
   const cardContent = useMemo(
     () => ({
@@ -211,6 +223,18 @@ export default function App() {
             subscribe={walkthrough.subscribe}
             cardContent={cardContent}
             showCard={sceneCard}
+            figures={figures}
+            /*
+             * All four cards travel together: the stage card explaining the
+             * step, and the three system cards beside it. `focused` is already
+             * exactly the right signal — false at the opening wide view, true
+             * the moment anything is picked from the sidebar or the scene, and
+             * false again on Reset view. Keying off it rather than off what
+             * kind of thing was picked also means it does not matter which
+             * mesh the raycast happened to land on: cover, cartridge or badge,
+             * you are looking at that system either way.
+             */
+            showStats={sceneCard && focused}
             onPick={handleScenePick}
             rigRef={rigRef}
           />
@@ -221,8 +245,21 @@ export default function App() {
             </button>
           </div>
 
-          <FactsCard facts={system.facts} />
-          <WhyCard />
+          {/*
+            Above the breakpoint the scene draws these instead, but they stay
+            in the tree, visually hidden: canvas text is invisible to a screen
+            reader, and these carry the sr-only sentences that were written for
+            one.
+          */}
+          <div className={sceneCard ? 'sr-only' : undefined}>
+            <CostCard before={system.before} after={system.after} show={sceneDrawn} />
+            <SavingsCard before={system.before} after={system.after} />
+            <ImpactCard
+              bottles={system.bottles}
+              waste={system.waste}
+              litres={system.litres}
+            />
+          </div>
           {/* On a large viewport the card lives in the scene instead; only
               one of the two may exist at a time. */}
           {!sceneCard && <DetailCard {...cardContent} />}
