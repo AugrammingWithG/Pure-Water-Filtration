@@ -56,6 +56,12 @@ That structure is what the scene reads:
   gradient, faint where the run is buried and lit up along the selected stage.
   It is thinner than the narrowest pipe it runs inside, so it shows only in the
   gaps: buried runs, and inside the cartridges.
+- **Both kitchen taps pour.** Each system says what the two taps carry
+  (`taps` in `systems.js`): the route's own water arrives at one, and the
+  other pours a plain stream of the system's raw or finished water — so while
+  the RO unit is selected the mixer runs untreated mains beside the filtered
+  tap. Inside a tap the water is hidden: the chrome is thinner than the
+  stream, so the leg through it carries a `bore` that keeps the bubbles in.
 
 ## The walkthrough
 
@@ -314,4 +320,6 @@ disappears underground or under the floor draws the route line faintly there.
 
 A product whose route runs inside modelled pipework should thin that pipework
 out on `revealed`, the way the three existing units do; otherwise the water is
-hidden inside its own plumbing for most of the journey.
+hidden inside its own plumbing for most of the journey. Where the pipework is
+meant to stay solid and is thinner than the stream — the kitchen taps —
+give that leg a `bore` instead, and the bubbles stay inside it.

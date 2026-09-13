@@ -58,6 +58,93 @@ const TANK_PACE = 0.45
 /** The UV lamp needs contact time, same as media does. */
 const UV_PACE = 0.3
 
+/**
+ * A short straight either side of a bend in a thin pipe. The spline's tangent
+ * at a control point runs parallel to the chord between its neighbours, so a
+ * bare corner gets a diagonal tangent and rounds off by bulging out of the
+ * pipe. Bracketing the corner keeps the tangents there along the pipe, and
+ * the rounding happens inside the fitting.
+ */
+const ELBOW = 0.02
+
+/** Where water leaves a kitchen tap's nozzle, and where it lands in the sink. */
+function tapFall(tap) {
+  const { counterY, tapZ, tapNozzle } = KITCHEN
+  const mouthZ = tapZ + tap.reach
+  return {
+    mouth: v(tap.x, counterY + tap.height - tapNozzle, mouthZ),
+    land: v(tap.x, counterY + 0.02, mouthZ),
+  }
+}
+
+/**
+ * Chrome is drawn as a solid cylinder; treat this much of its radius as the
+ * bore, leaving wall enough that a bubble pressed against it, on a spline
+ * that rounds each bend by up to a millimetre, still never shows through.
+ */
+const TAP_BORE = 0.7
+
+/**
+ * The legs through one of the kitchen taps, built from the proportions
+ * Kitchen.jsx builds the tap from. A leg's span begins where the previous one
+ * ended, so the approach to the foot of the riser is a leg of its own: that
+ * way the bore on the run through the chrome starts at the chrome and not
+ * back wherever the caller's plumbing left off.
+ *
+ *   1. up to the foot of the riser, through the counter
+ *   2. up the riser, round the swan neck, out along the spout and down the
+ *      nozzle to its mouth — chrome only 11 mm across, so a bore keeps the
+ *      bubbles in and elbow points keep the line in
+ *   3. the free fall from the mouth into the sink, out in the open
+ */
+function tapLegs(tap) {
+  const { counterY, tapZ } = KITCHEN
+  const { x } = tap
+  const neckY = counterY + tap.height
+  const { mouth, land } = tapFall(tap)
+  return [
+    { stage: 'tap', points: [v(x, counterY - 0.01, tapZ)] },
+    {
+      stage: 'tap',
+      bore: tap.radius * TAP_BORE,
+      points: [
+        v(x, neckY - ELBOW, tapZ),
+        v(x, neckY, tapZ),
+        v(x, neckY, tapZ + ELBOW),
+        v(x, neckY, mouth.z - ELBOW),
+        v(x, neckY, mouth.z),
+        v(x, neckY - ELBOW, mouth.z),
+        mouth,
+      ],
+    },
+    { stage: 'tap', points: [land] },
+  ]
+}
+
+/**
+ * How far up inside the nozzle a plain tap stream begins, so its bubbles come
+ * out of the chrome at full size instead of appearing just below it.
+ */
+const STREAM_LEAD = 0.02
+
+/**
+ * The legs of a plain stream from a kitchen tap that is pouring but is not on
+ * the route: the last of the nozzle, with the same bore the route's leg has
+ * through it, then the free fall into the sink. A path of its own, so
+ * WaterFlow can run the same bubbles down it that run the route.
+ */
+function tapStreamLegs(tap) {
+  const { mouth, land } = tapFall(tap)
+  return [
+    {
+      stage: 'tap',
+      bore: tap.radius * TAP_BORE,
+      points: [v(mouth.x, mouth.y + STREAM_LEAD, mouth.z), mouth],
+    },
+    { stage: 'tap', points: [land] },
+  ]
+}
+
 // ---------------------------------------------------------------------------
 // Whole house
 // ---------------------------------------------------------------------------
@@ -103,18 +190,11 @@ const wholeLegs = [
     buried: true,
     points: [
       v(wOutletX, 0.05, 1.0),
-      v(KITCHEN.mixerTapX, 0.05, -0.9),
-      v(KITCHEN.mixerTapX, HOUSE.floorY + 0.5, KITCHEN.zBack + 0.16),
+      v(KITCHEN.taps.mixer.x, 0.05, -0.9),
+      v(KITCHEN.taps.mixer.x, HOUSE.floorY + 0.5, KITCHEN.zBack + 0.16),
     ],
   },
-  {
-    stage: 'tap',
-    points: [
-      v(KITCHEN.mixerTapX, KITCHEN.counterY + 0.32, KITCHEN.zBack + 0.1),
-      v(KITCHEN.mixerTapX, KITCHEN.counterY + 0.34, KITCHEN.zBack + 0.3),
-      v(KITCHEN.mixerTapX, KITCHEN.counterY + 0.02, KITCHEN.zBack + 0.3),
-    ],
-  },
+  ...tapLegs(KITCHEN.taps.mixer),
 ]
 
 // ---------------------------------------------------------------------------
@@ -124,6 +204,7 @@ const wholeLegs = [
 const us = UNDERSINK_UNIT
 const usTop = us.bracketY - 0.06
 const usBottom = us.bracketY - us.canisterH - 0.02
+const usTankTop = us.floorY + us.tankR * 2 + us.tankLen
 const [usC1, usC2, usC3] = us.canisterXs
 
 const undersinkLegs = [
@@ -143,17 +224,19 @@ const undersinkLegs = [
   {
     stage: 'tap',
     pace: TANK_PACE,
-    points: [v(us.tankX, usBottom, us.z), v(us.tankX, us.floorY + 0.5, us.z)],
+    points: [v(us.tankX, usBottom, us.z), v(us.tankX, usTankTop, us.z)],
   },
+  // up the white tubing UnderSinkUnit.jsx models — off the tank, up under the
+  // counter, across to the tap. The tubing x-rays with the unit, so no bore.
   {
     stage: 'tap',
     points: [
-      v(KITCHEN.filterTapX, HOUSE.floorY + 0.75, KITCHEN.zBack + 0.16),
-      v(KITCHEN.filterTapX, KITCHEN.counterY + 0.3, KITCHEN.zBack + 0.1),
-      v(KITCHEN.filterTapX, KITCHEN.counterY + 0.32, KITCHEN.zBack + 0.3),
-      v(KITCHEN.filterTapX, KITCHEN.counterY + 0.02, KITCHEN.zBack + 0.3),
+      v(us.tankX + 0.04, usTankTop + 0.02, us.z - 0.02),
+      v(us.tankX + 0.04, KITCHEN.counterY - 0.08, us.z - 0.02),
+      v(KITCHEN.taps.filter.x, KITCHEN.counterY - 0.08, KITCHEN.tapZ),
     ],
   },
+  ...tapLegs(KITCHEN.taps.filter),
 ]
 
 // ---------------------------------------------------------------------------
@@ -225,6 +308,7 @@ function build({
   routeRadius,
   laminar,
   cardSide = 1,
+  taps,
 }) {
   const path = buildPath({ legs, colours })
   return {
@@ -240,6 +324,27 @@ function build({
      * the same journey.
      */
     colours,
+    /**
+     * What each kitchen tap pours while this system is selected: 'route' —
+     * the route ends there and WaterFlow draws its water arriving — or a
+     * plain stream of the system's 'raw' or 'finished' water. Both taps
+     * always pour; the point is what comes out of each.
+     */
+    taps,
+    /**
+     * The taps pouring a plain stream. Each gets a short path of its own,
+     * from inside the nozzle down into the sink, in the one colour of what it
+     * carries.
+     */
+    pouring: Object.keys(taps)
+      .filter((name) => taps[name] !== 'route')
+      .map((name) => {
+        const colour = taps[name] === 'raw' ? colours[0] : colours[colours.length - 1]
+        return {
+          name,
+          path: buildPath({ legs: tapStreamLegs(KITCHEN.taps[name]), colours: [colour, colour] }),
+        }
+      }),
     /**
      * Pushes the stage markers clear of the unit they label — out of the
      * cabinet and toward whichever face the camera comes in on.
@@ -303,6 +408,8 @@ export const SYSTEMS = {
     pulseRadius: 0.024,
     routeRadius: 0.011,
     laminar: true,
+    // every tap in the house is downstream of the point of entry
+    taps: { mixer: 'route', filter: 'finished' },
   }),
 
   undersink: build({
@@ -314,9 +421,9 @@ export const SYSTEMS = {
       carbon: { focus: v(usC2, us.bracketY - 0.25, us.z), radius: 1.7 },
       ro: { focus: v(usC3 - 0.1, us.bracketY - 0.25, us.z), radius: 1.7 },
       tap: {
-        focus: v(KITCHEN.filterTapX + 0.1, KITCHEN.counterY + 0.15, KITCHEN.zBack + 0.25),
+        focus: v(KITCHEN.taps.filter.x + 0.1, KITCHEN.counterY + 0.15, KITCHEN.zBack + 0.25),
         radius: 1.8,
-        marker: v(KITCHEN.filterTapX, KITCHEN.counterY + 0.2, KITCHEN.zBack + 0.3),
+        marker: v(KITCHEN.taps.filter.x, KITCHEN.counterY + 0.2, KITCHEN.zBack + 0.3),
       },
     },
     legs: undersinkLegs,
@@ -326,6 +433,8 @@ export const SYSTEMS = {
     pulseRadius: 0.013,
     routeRadius: 0.0055,
     laminar: true,
+    // the RO unit feeds its own tap only; the mixer stays on untreated mains
+    taps: { filter: 'route', mixer: 'raw' },
   }),
 
   rain: build({
@@ -355,6 +464,8 @@ export const SYSTEMS = {
     markerScale: 0.8,
     pulseRadius: 0.02,
     routeRadius: 0.01,
+    // the house runs on tank water: "straight from the tank" at every tap
+    taps: { mixer: 'finished', filter: 'finished' },
   }),
 }
 
