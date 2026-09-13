@@ -1,3 +1,4 @@
+import { CTA } from '../data/constants'
 import { DropletLogo } from './icons'
 
 export default function Header({ title, subtitle }) {
@@ -13,7 +14,9 @@ export default function Header({ title, subtitle }) {
         <h1>{title}</h1>
         <p>{subtitle}</p>
       </div>
-      <button className="browse-btn">Browse plans</button>
+      <a className="browse-btn" href={CTA.quote.href} target="_blank" rel="noopener">
+        {CTA.quote.label}
+      </a>
     </header>
   )
 }

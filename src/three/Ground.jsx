@@ -2,7 +2,7 @@ import { useMemo, useRef } from 'react'
 import { useTexture } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-import grassFloorMapUrl from '../assets/textures/wood/grass-floor.jpg'
+import grassFloorMapUrl from '../assets/textures/wood/grass-floor.webp'
 import { GROUND, PATH } from './layout'
 
 const RADIUS = GROUND.radius
@@ -63,9 +63,15 @@ export default function Ground({ accent }) {
   const grassBaseMap = useTexture(grassFloorMapUrl)
   const grassMap = useMemo(() => {
     const map = grassBaseMap.clone()
-    map.wrapS = THREE.RepeatWrapping
-    map.wrapT = THREE.RepeatWrapping
-    map.repeat.set(1, 1)
+    /*
+      A 512-px tile of speckle, mirrored so it has no seams, laid four times
+      across the plinth: the same texel density as the 2000-px original at a
+      sixteenth of the pixels. Under the blades the pattern itself is not
+      read, only its grain.
+    */
+    map.wrapS = THREE.MirroredRepeatWrapping
+    map.wrapT = THREE.MirroredRepeatWrapping
+    map.repeat.set(4, 4)
     map.colorSpace = THREE.SRGBColorSpace
     map.needsUpdate = true
     return map

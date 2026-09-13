@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import CostCard from './components/CostCard'
 import DetailCard from './components/DetailCard'
+import FactsCard from './components/FactsCard'
 import Header from './components/Header'
-import ImpactCard from './components/ImpactCard'
 import PlayBar from './components/PlayBar'
-import SavingsCard from './components/SavingsCard'
 import Sidebar from './components/Sidebar'
 import SimCanvas from './components/SimCanvas'
+import WhyCard from './components/WhyCard'
 import {
   DEFAULT_STAGE,
   DEFAULT_SYSTEM,
@@ -43,15 +42,6 @@ export default function App() {
 
   /** Imperative handle on the camera rig, published by <Scene>. */
   const rigRef = useRef(null)
-
-  /**
-   * True once the scene has drawn a frame. First load holds the page for a
-   * second or two compiling shaders; the cost card waits for this so that its
-   * figures make their entrance counting, not sitting at zero over an empty
-   * canvas until the wait is over.
-   */
-  const [sceneDrawn, setSceneDrawn] = useState(false)
-  const handleFirstFrame = useCallback(() => setSceneDrawn(true), [])
 
   /** Mirror the walkthrough can read without being rebuilt on every change. */
   const systemRef = useRef(currentSystem)
@@ -207,13 +197,14 @@ export default function App() {
       title: stage.title,
       desc: stage.desc,
       placement: system.placement,
+      learnMore: system.learnMore,
       action: stage.action,
       tone: stage.tone,
       removes: stage.removes,
       // the finished-water tone has no colour of its own; it takes the accent
       accent: SYSTEMS[currentSystem].accent,
     }),
-    [stageIndex, stage, system.placement, currentSystem],
+    [stageIndex, stage, system.placement, system.learnMore, currentSystem],
   )
 
   return (
@@ -246,7 +237,6 @@ export default function App() {
             showStats={sceneCard && focused}
             onPick={handleScenePick}
             rigRef={rigRef}
-            onFirstFrame={handleFirstFrame}
           />
 
           <div className="view-controls">

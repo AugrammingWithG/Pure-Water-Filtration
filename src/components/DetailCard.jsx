@@ -1,3 +1,4 @@
+import { CTA } from '../data/constants'
 import { toneColour } from '../data/tones'
 import { PinIcon } from './icons'
 
@@ -24,6 +25,11 @@ function Removed({ action, tone, removes, accent }) {
   )
 }
 
+/**
+ * The stage being looked at, what it does something about, and where the
+ * product goes. Its two actions are the site's: ask for a quote, or read the
+ * page the stage copy came from.
+ */
 export default function DetailCard({
   eyebrow,
   title,
@@ -33,6 +39,7 @@ export default function DetailCard({
   tone,
   removes,
   accent,
+  learnMore,
 }) {
   return (
     <div className="float-card card-detail">
@@ -47,9 +54,12 @@ export default function DetailCard({
         </div>
       )}
       <div className="detail-actions">
-        <button className="primary">Overview</button>
-        <button>How it works</button>
-        <button>Specs</button>
+        <a className="primary" href={CTA.quote.href} target="_blank" rel="noopener">
+          {CTA.quote.label}
+        </a>
+        <a href={learnMore} target="_blank" rel="noopener">
+          {CTA.learnMore}
+        </a>
       </div>
     </div>
   )

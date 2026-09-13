@@ -2,7 +2,7 @@ import { useMemo, useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { useTexture } from '@react-three/drei'
 import * as THREE from 'three'
-import woodCladdingMapUrl from '../assets/textures/wood/house-cladding.jpg'
+import woodCladdingMapUrl from '../assets/textures/wood/house-cladding.webp'
 import { CHIMNEY, DECK, FRONT_SOLID_X1, HOUSE, STEPPING_STONES } from './layout'
 import FadeGroup from './parts/FadeGroup'
 

@@ -101,8 +101,6 @@ function roundRect(ctx, x, y, w, h, r) {
   ctx.closePath()
 }
 
-const BUTTONS = ['Overview', 'How it works', 'Specs']
-
 /**
  * Lays the card out, and draws it if a context is given. Split in two passes
  * over the same code so the canvas can be created at exactly the height the
@@ -210,37 +208,9 @@ function layout(ctx, { eyebrow, title, desc, placement, accent, action, tone, re
       ctx.fillStyle = INK
       lines.forEach((line, i) => ctx.fillText(line, textLeft, y + 16 + i * 16))
     }
-    y += pillH + 12
+    y += pillH
   }
-
-  // ---- buttons ----
-  ctx.font = `600 10.5px ${FONT_UI}`
-  let x = PAD_X
-  const btnH = 22
-  for (let i = 0; i < BUTTONS.length; i++) {
-    const label = BUTTONS[i]
-    const w = ctx.measureText(label).width + 20
-    if (x + w > WIDTH - PAD_X && x > PAD_X) {
-      x = PAD_X
-      y += btnH + 6
-    }
-    if (draw) {
-      roundRect(ctx, x, y, w, btnH, 7)
-      if (i === 0) {
-        ctx.fillStyle = accentHex
-        ctx.fill()
-        ctx.fillStyle = '#ffffff'
-      } else {
-        ctx.strokeStyle = LINE
-        ctx.lineWidth = 1
-        ctx.stroke()
-        ctx.fillStyle = INK_DIM
-      }
-      ctx.fillText(label, x + 10, y + 15)
-    }
-    x += w + 6
-  }
-  y += btnH + PAD_Y
+  y += PAD_Y
 
   return y
 }
