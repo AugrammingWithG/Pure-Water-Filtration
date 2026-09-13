@@ -23,6 +23,14 @@
   --accent-rgb:46,143,224;
   --accent-ink:#ffffff;
   --shadow:0 18px 40px rgba(15,28,51,0.12), 0 2px 6px rgba(15,28,51,0.06);
+  /**
+   * Roughly what the play bar occupies at the bottom. Nothing is positioned
+   * *by* it — the bar and the canvas share a grid cell, so the overlap needs
+   * no number — but the cards anchored to the bottom of the scene use it to
+   * stay clear. Tune here if the bar changes height.
+   */
+  --playbar-h:calc(88px + env(safe-area-inset-bottom));
+
   /* Page gutter, widened past any notch when the viewport is inset. */
   --gutter-l:max(30px, env(safe-area-inset-left));
   --gutter-r:max(30px, env(safe-area-inset-right));
@@ -55,9 +63,20 @@ button{font-family:inherit; cursor:pointer; border:none; background:none; color:
   clip-path:inset(50%); white-space:nowrap;
 }
 
+/**
+ * Header, then one cell holding both the scene and the play bar.
+ *
+ * The bar used to be a third row below the scene, which left it standing on
+ * the page background. That reads fine at the opening framing, where the
+ * canvas fades to near the same colour at its lower edge — but fly the camera
+ * in and the grass runs right to the bottom of the canvas, so the bar ends up
+ * marooned on a white strip under a hard green line. Sharing the cell puts it
+ * over the scene, where the rest of the floating chrome already lives, and
+ * costs no magic number to line up.
+ */
 .app{
   height:100vh;
-  display:flex; flex-direction:column; overflow:hidden;
+  display:grid; grid-template-rows:auto 1fr; overflow:hidden;
   background:
     radial-gradient(ellipse 1100px 700px at 62% 42%, #ffffff 0%, rgba(255,255,255,0) 65%),
     radial-gradient(ellipse 900px 600px at 88% 8%, rgba(var(--accent-rgb),0.16), transparent 62%),
@@ -95,16 +114,35 @@ header > div{min-width:0;}
 .brand em{font-style:normal; font-weight:500; letter-spacing:0.22em; opacity:0.8;}
 header h1{font-size:19px; font-weight:600; letter-spacing:-0.01em; overflow-wrap:break-word;}
 header p{font-size:12.5px; color:var(--ink-dim); margin-top:4px; max-width:520px; line-height:1.5;}
-.browse-btn{
+/* One rule for both header actions, rather than a copy each: the phone
+   button is the quote button with a number in it, and sharing the
+   declaration is what stops the two drifting apart. */
+.browse-btn, .call-btn{
   font-size:12.5px; font-weight:600; color:var(--ink);
   border:1px solid var(--line); padding:9px 16px; border-radius:20px;
   background:rgba(255,255,255,0.7);
-  flex-shrink:0; white-space:nowrap; text-decoration:none;
+  flex-shrink:0; white-space:nowrap; text-decoration:none; text-align:center;
 }
-.browse-btn:hover{border-color:var(--accent); color:var(--accent);}
+.browse-btn:hover, .call-btn:hover{border-color:var(--accent); color:var(--accent);}
+
+/* Stacked and matched in width, so they read as a pair rather than as one
+   button with something bolted under it. */
+.header-actions{
+  display:flex; flex-direction:column; align-items:stretch; gap:7px;
+  flex-shrink:0;
+}
+
+/* Shown once the Why card is dropped and the number would otherwise be off
+   the page. The icon takes currentColor, so it follows the hover with the
+   label. */
+.call-btn{display:none; align-items:center; justify-content:center; gap:6px;}
+.call-btn svg{width:13px; height:13px;}
 
 /* ---------- MAIN LAYOUT ---------- */
-main{flex:1; display:flex; position:relative; min-height:0; min-width:0;}
+main{
+  grid-row:2; grid-column:1;
+  display:flex; position:relative; min-height:0; min-width:0;
+}
 
 /* sidebar */
 .sidebar{
@@ -167,7 +205,9 @@ main{flex:1; display:flex; position:relative; min-height:0; min-width:0;}
    beneath. The facts card's values are figures (a micron rating, an
    interval); the why card's are short phrases, so its type steps down. */
 .card-facts{top:15%; left:6%; width:190px;}
-.card-why{bottom:9%; left:6%; width:190px; pointer-events:auto;}
+.card-why{
+  bottom:calc(var(--playbar-h) + 8px); left:6%; width:190px; pointer-events:auto;
+}
 .fact-row{margin-bottom:10px;}
 .fact-row:last-of-type{margin-bottom:0;}
 .fact-row b{font-family:'Space Grotesk',sans-serif; font-size:17px; font-weight:600; color:var(--ink); display:block; line-height:1.2;}
@@ -197,6 +237,32 @@ main{flex:1; display:flex; position:relative; min-height:0; min-width:0;}
   padding:8px 10px; border-radius:0 8px 8px 0; margin-bottom:14px;
 }
 .fc-placement svg{flex-shrink:0; color:var(--accent); margin-top:1px;}
+/* The phone sheet rises as it fades, so it reads as arriving from the
+   bottom edge rather than blinking into place. */
+@keyframes sheet-in{
+  from{opacity:0; transform:translateY(14px);}
+  to{opacity:1; transform:none;}
+}
+@media (prefers-reduced-motion: reduce){
+  .card-detail{animation:none;}
+}
+
+/* --- phone sheet tabs ---
+   The row names all three panels in less height than two arrows and a set of
+   dots took to name none of them, which on a sheet that sits over the model
+   is the whole argument. Each tab is also its panel heading, so nothing below
+   repeats it. */
+.sheet-tabs{display:flex; gap:3px; margin:-3px -5px 5px;}
+.sheet-tab{
+  min-width:0; padding:5px 8px; border:none; background:none; border-radius:7px;
+  font-size:10px; font-weight:700; letter-spacing:0.02em; color:var(--ink-dim);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.sheet-tab[aria-selected="true"]{
+  color:var(--accent); background:rgba(var(--accent-rgb),0.10);
+}
+.sheet-tab:not([aria-selected="true"]):hover{color:var(--ink);}
+
 .detail-actions{display:flex; gap:6px; flex-wrap:wrap;}
 .detail-actions a{
   font-size:10.5px; font-weight:600; color:var(--ink-dim); text-decoration:none;
@@ -209,10 +275,13 @@ main{flex:1; display:flex; position:relative; min-height:0; min-width:0;}
 
 /* ---------- BOTTOM PLAYBACK BAR ---------- */
 .playbar-wrap{
+  grid-row:2; grid-column:1; align-self:end; z-index:6;
   display:flex; flex-direction:column; align-items:center; gap:10px;
   padding:0 16px calc(20px + env(safe-area-inset-bottom));
-  flex-shrink:0;
+  /* the strip is only a layout box now; the scene behind it stays draggable */
+  pointer-events:none;
 }
+.playbar{pointer-events:auto;}
 .playbar{
   display:flex; align-items:center; gap:14px;
   max-width:100%;
@@ -337,13 +406,15 @@ main{flex:1; display:flex; position:relative; min-height:0; min-width:0;}
        towards its own edge first... --- */
 @media (max-height:900px){
   .card-facts, .card-detail{top:10%;}
-  .card-why{bottom:4%;}
+  .card-why{bottom:calc(var(--playbar-h) + 4px);}
 }
 
 /* --- ...and only once even that will not fit, drop the lower one. It is
        the secondary card; facts and detail carry the product. --- */
 @media (max-width:900px), (max-height:780px){
   .card-why{display:none;}
+  /* the number goes to the header rather than off the page entirely */
+  .call-btn{display:inline-flex;}
 }
 
 /* --- rail: left-hand dock -> row of pills under the header --- */
@@ -373,6 +444,8 @@ main{flex:1; display:flex; position:relative; min-height:0; min-width:0;}
 
 /* --- play bar: fixed timeline -> fluid --- */
 @media (max-width:760px){
+  /* shorter bar, so the cards above it can sit lower */
+  :root{--playbar-h:calc(80px + env(safe-area-inset-bottom));}
   .playbar-wrap{padding:0 12px calc(14px + env(safe-area-inset-bottom));}
   .playbar{width:100%; max-width:460px; gap:10px; padding:7px 12px 7px 7px;}
   .progress{flex:1 1 auto; width:auto; min-width:120px;}
@@ -392,43 +465,60 @@ main{flex:1; display:flex; position:relative; min-height:0; min-width:0;}
     display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
   }
   .brand{margin-bottom:6px;}
-  .browse-btn{font-size:11.5px; padding:8px 13px;}
+  .browse-btn, .call-btn{font-size:11.5px; padding:8px 13px;}
+  .header-actions{gap:6px;}
 
   .view-controls{top:12px; right:max(12px, env(safe-area-inset-right));}
 
-  .card-facts{
-    top:12px; left:max(12px, env(safe-area-inset-left));
-    width:146px; padding:11px 13px;
-  }
+  /* the floating one goes: its rows move into the sheet below, and as a
+     corner card it was a third of the canvas height */
+  .card-facts{display:none;}
   .card-facts .fc-label{margin-bottom:7px;}
   .fact-row{margin-bottom:7px;}
   .fact-row b{font-size:13px;}
   .fact-row span{font-size:9.5px;}
 
   .card-detail{
-    top:auto; bottom:12px; width:auto;
+    top:auto; bottom:calc(var(--playbar-h) + 8px); width:auto;
     left:max(12px, env(safe-area-inset-left));
     right:max(12px, env(safe-area-inset-right));
-    max-height:46%; padding:13px 15px;
+    max-height:38%; padding:11px 14px;
+    /* it mounts on a pick rather than living there, so it gets an entrance
+       the way the scene card fades itself in on the desktop breakpoint */
+    animation:sheet-in 0.32s cubic-bezier(0.22, 0.8, 0.3, 1) both;
+    overflow-y:auto; overscroll-behavior:contain;
   }
-  .card-detail p{margin-bottom:10px;}
-  .fc-placement{margin-bottom:10px;}
+  .card-detail p{margin-bottom:8px;}
+  .card-detail h3{margin-bottom:5px;}
+  .fc-removed{margin-bottom:8px;}
+  /* A floor, so the sheet does not resize under the reader as they move
+     between tabs — but a low one, since the sheet is sitting on top of the
+     thing the page is actually about. */
+  .card-detail{min-height:20%;}
+  .card-detail .fact-row{margin-bottom:5px;}
+  .card-detail .fact-row b{font-size:12px;}
+  .card-detail .fact-row span{font-size:9px; line-height:1.35;}
+  /* horizontal changes tab, vertical still scrolls the sheet */
+  .card-detail{touch-action:pan-y;}
+  /* the placement note goes: at this width the sheet already covers half the
+     diorama, and it is the one block that repeats what the header says */
+  .fc-placement{display:none;}
 }
 
-/* --- wherever the detail card has to scroll, its buttons stay put.
-       Without this the primary action is the first thing clipped, which
-       is the one part of the card that has to stay reachable. --- */
+/* --- On a phone the actions sit at the end of the card and scroll with
+       it, rather than sticking to the bottom over the copy.
+
+       A sticky footer has to paint something, or the text slides visibly
+       between the buttons. But it sits *inside* the card, so whatever it
+       paints composites on top of the card's own translucent panel — two
+       layers of the same 74% white land at about 93%, which is the white bar
+       that would not go away. Nothing it can paint both hides the copy and
+       matches its surroundings.
+       Losing sticky costs a scroll to reach the buttons on the longest copy;
+       the placement note is dropped at this width, which takes most of the
+       height that made it necessary. --- */
 @media (max-width:620px), (max-height:560px){
-  .card-detail{padding-bottom:0;}
-  .detail-actions{
-    position:sticky; bottom:0; z-index:1;
-    padding:10px 0 13px;
-    /* opaque, not a fade: a fade leaves a line of the copy legible between
-       the buttons, which reads as a rendering fault rather than as depth.
-       The shadow above is what says the text carries on underneath. */
-    background:rgba(255,255,255,0.98);
-    box-shadow:0 -6px 10px -6px rgba(15,28,51,0.16);
-  }
+  .detail-actions{padding-top:2px;}
 }
 
 /* --- narrowest phones --- */
@@ -439,7 +529,7 @@ main{flex:1; display:flex; position:relative; min-height:0; min-width:0;}
   }
   header h1{font-size:15px;}
   .brand{font-size:9.5px;}
-  .browse-btn{font-size:11px; padding:7px 11px;}
+  .browse-btn, .call-btn{font-size:11px; padding:7px 11px;}
   .sidebar{
     gap:6px;
     padding-left:max(10px, env(safe-area-inset-left));
@@ -488,6 +578,8 @@ main{flex:1; display:flex; position:relative; min-height:0; min-width:0;}
   /* the detail card now runs the full height of the right-hand side, so the
      chip moves into the corner the facts card just vacated */
   .view-controls{top:12px; left:max(12px, env(safe-area-inset-left)); right:auto;}
+  /* everything shrinks when there is no height to spare */
+  :root{--playbar-h:calc(64px + env(safe-area-inset-bottom));}
   .playbar-wrap{padding-bottom:calc(9px + env(safe-area-inset-bottom));}
   .playbar{padding:5px 10px 5px 5px; gap:8px;}
   .play-btn{width:30px; height:30px;}

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
+import * as THREE from 'three'
 
 /**
  * Drag-to-orbit camera rig with focus/zoom support.
@@ -19,6 +20,14 @@ const IDLE_BEFORE_AUTOROTATE = 2.2
 const MAX_DELTA = 0.05
 
 const clampPhi = (p) => Math.max(0.3, Math.min(Math.PI - 0.3, p))
+
+/**
+ * How far the target may be panned from where it started, in world units.
+ * Panning only exists on two fingers, and without a leash it is very easy to
+ * push the diorama off screen on a phone with no idea how to get it back.
+ * Reset view still returns to the opening framing.
+ */
+const PAN_LIMIT = 6
 
 const TWO_PI = Math.PI * 2
 
@@ -105,39 +114,132 @@ export function useOrbitRig({
   }, [distanceScale, updateCamera])
 
   // ---------------- pointer + wheel input ----------------
+  /**
+   * One finger orbits, two fingers pinch to zoom and pan together, and the
+   * wheel zooms as before.
+   *
+   * Every live pointer is tracked, not just the first. A touch device has no
+   * wheel, and the canvas sets `touch-action: none` so the browser will not
+   * pinch-zoom the page either — meaning that before this the scene could be
+   * orbited on a phone and nothing else. Tracking a single pointer was also
+   * actively wrong once two were down: the second finger wrote into the same
+   * lastX/lastY as the first, and the camera lurched.
+   */
   useEffect(() => {
     if (!domElement) return
     const s = stateRef.current
     const d = defaultsRef.current
 
+    /** Live pointers by id. Two or more means a gesture rather than an orbit. */
+    const pointers = new Map()
+    /** Spread and midpoint of the last two-finger sample. */
+    let gesture = null
+    const right = new THREE.Vector3()
+    const up = new THREE.Vector3()
+
+    const sample = () => {
+      const [a, b] = [...pointers.values()]
+      return {
+        spread: Math.hypot(b.x - a.x, b.y - a.y),
+        x: (a.x + b.x) / 2,
+        y: (a.y + b.y) / 2,
+      }
+    }
+
+    /**
+     * Slide the target across the view plane. Pixels are converted to world
+     * units at the target distance, which is what makes the diorama keep pace
+     * with the fingers instead of sliding at some unrelated rate.
+     */
+    const panBy = (dx, dy) => {
+      const height = domElement.clientHeight || 1
+      const halfFov = (camera.fov * Math.PI) / 360
+      const perPixel = (2 * s.radius * scaleRef.current * Math.tan(halfFov)) / height
+      right.set(1, 0, 0).applyQuaternion(camera.quaternion)
+      up.set(0, 1, 0).applyQuaternion(camera.quaternion)
+      s.target.addScaledVector(right, -dx * perPixel)
+      s.target.addScaledVector(up, dy * perPixel)
+      // on a leash, so the diorama cannot be pushed off screen and lost
+      s.target.sub(d.initialTarget)
+      if (s.target.length() > PAN_LIMIT) s.target.setLength(PAN_LIMIT)
+      s.target.add(d.initialTarget)
+    }
+
+    const zoomTo = (radius) => {
+      s.radius = Math.min(d.maxRadius, Math.max(d.minRadius, radius))
+    }
+
     const onPointerDown = (e) => {
-      s.dragging = true
-      s.lastX = e.clientX
-      s.lastY = e.clientY
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY })
       s.idleTime = 0
-      s.moved = 0
-      domElement.classList.add('dragging')
       try {
         domElement.setPointerCapture(e.pointerId)
       } catch {
         // pointer capture is best-effort; dragging still works without it
       }
+
+      if (pointers.size === 1) {
+        s.dragging = true
+        s.lastX = e.clientX
+        s.lastY = e.clientY
+        s.moved = 0
+        domElement.classList.add('dragging')
+        return
+      }
+
+      // A second finger ends the orbit and begins a gesture. It also pushes
+      // `moved` past the click threshold: a pinch must never be read as a tap
+      // on whatever happened to be under the fingers.
+      s.dragging = false
+      s.moved = CLICK_MOVE_THRESHOLD
+      gesture = sample()
     }
 
     // NOTE: `moved` is intentionally left alone here. It is reset on
     // pointerdown and read back by wasClick() from the click handlers that
     // run after this, which is how a drag is told apart from a click.
-    const onPointerUp = () => {
-      s.dragging = false
-      domElement.classList.remove('dragging')
-    }
+    const onPointerUp = (e) => {
+      pointers.delete(e.pointerId)
+      if (pointers.size < 2) gesture = null
 
-    const onPointerLeave = () => {
-      s.dragging = false
-      domElement.classList.remove('dragging')
+      if (pointers.size === 1) {
+        // Back to one finger. Re-anchor on the finger still down, or the
+        // camera jumps by however far apart the two of them were.
+        const [remaining] = [...pointers.values()]
+        s.lastX = remaining.x
+        s.lastY = remaining.y
+        s.dragging = true
+        return
+      }
+
+      if (pointers.size === 0) {
+        s.dragging = false
+        domElement.classList.remove('dragging')
+      }
     }
 
     const onPointerMove = (e) => {
+      const p = pointers.get(e.pointerId)
+      if (!p) return
+      p.x = e.clientX
+      p.y = e.clientY
+
+      if (pointers.size >= 2) {
+        const now = sample()
+        if (gesture) {
+          // fingers further apart is a smaller radius, which is closer in
+          if (now.spread > 0 && gesture.spread > 0) {
+            zoomTo(s.radius * (gesture.spread / now.spread))
+          }
+          panBy(now.x - gesture.x, now.y - gesture.y)
+        }
+        gesture = now
+        s.idleTime = 0
+        s.tween = null
+        updateCamera()
+        return
+      }
+
       if (!s.dragging) return
       const dx = e.clientX - s.lastX
       const dy = e.clientY - s.lastY
@@ -153,29 +255,30 @@ export function useOrbitRig({
 
     const onWheel = (e) => {
       e.preventDefault()
-      s.radius = Math.min(
-        d.maxRadius,
-        Math.max(d.minRadius, s.radius + e.deltaY * 0.01),
-      )
+      zoomTo(s.radius + e.deltaY * 0.01)
       s.idleTime = 0
       updateCamera()
     }
 
     domElement.addEventListener('pointerdown', onPointerDown)
     domElement.addEventListener('pointerup', onPointerUp)
-    domElement.addEventListener('pointerleave', onPointerLeave)
+    // a cancelled touch never sends pointerup, and would otherwise sit in the
+    // map forever, wedging the rig in gesture mode
+    domElement.addEventListener('pointercancel', onPointerUp)
+    domElement.addEventListener('pointerleave', onPointerUp)
     domElement.addEventListener('pointermove', onPointerMove)
     domElement.addEventListener('wheel', onWheel, { passive: false })
 
     return () => {
       domElement.removeEventListener('pointerdown', onPointerDown)
       domElement.removeEventListener('pointerup', onPointerUp)
-      domElement.removeEventListener('pointerleave', onPointerLeave)
+      domElement.removeEventListener('pointercancel', onPointerUp)
+      domElement.removeEventListener('pointerleave', onPointerUp)
       domElement.removeEventListener('pointermove', onPointerMove)
       domElement.removeEventListener('wheel', onWheel)
       domElement.classList.remove('dragging')
     }
-  }, [domElement, updateCamera])
+  }, [domElement, updateCamera, camera])
 
   // ---------------- tween ----------------
   const tweenTo = useCallback(
