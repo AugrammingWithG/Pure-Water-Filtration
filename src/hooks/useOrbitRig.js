@@ -247,6 +247,27 @@ export function useOrbitRig({
         tweenTo(d.initialTarget, d.radius, d.theta, d.phi, 900)
       },
       /**
+       * How far out the camera is, in scene units, before the narrow-viewport
+       * pullback is applied — so a reader on a phone and a reader on a desktop
+       * looking at the same framing get the same number.
+       *
+       * A getter, not a value: the API object is memoised and never rebuilt,
+       * and this is meant to be sampled per frame.
+       */
+      get radius() {
+        return stateRef.current.radius
+      },
+      /**
+       * What the camera is pointed at. Moves on a two-finger pan, and on every
+       * fly-to. Sampled per frame like `radius`, and for the same reason.
+       *
+       * This is the rig's own vector, mutated in place: read from it, never
+       * keep a reference to it.
+       */
+      get target() {
+        return stateRef.current.target
+      },
+      /**
        * True when the gesture that just ended was a click rather than a drag.
        * Read from onClick handlers to suppress selection while orbiting.
        */

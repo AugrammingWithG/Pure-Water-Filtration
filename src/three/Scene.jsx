@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
-import { useThree } from '@react-three/fiber'
+import { useEffect, useState } from 'react'
+import { useFrame, useThree } from '@react-three/fiber'
 import { useOrbitRig } from '../hooks/useOrbitRig'
 import Grass from './Grass'
 import Ground from './Ground'
@@ -42,6 +42,60 @@ const FRAME_ASPECT = 1.5
 const MAX_PULLBACK = 2
 
 /**
+ * How far the reader can get from the kitchen before the house closes back up,
+ * in scene units.
+ *
+ * The kitchen views sit at 2.7 for the unit and 1.7 for a stage; the house is
+ * 6.4 x 3.4, so from about 4.5 out the whole building is in frame and the sink
+ * is no longer what you are looking at. The gap between the two numbers is
+ * hysteresis — a single wheel notch is about 1 unit, and without the gap
+ * resting on the threshold would flap the roof on and off.
+ */
+const CUTAWAY_CLOSE = 4.5
+const CUTAWAY_OPEN = 5.5
+
+/** What the house is opened to show. */
+const KITCHEN = SYSTEMS.undersink.view.target
+
+/**
+ * True while the reader is close enough to the kitchen for the house to be
+ * worth opening.
+ *
+ * The cutaway used to follow `focused` on its own, so once the camera had
+ * flown to the sink the roof stayed off however far the reader pulled back —
+ * a house with no roof, and nothing to suggest that Reset view was the way to
+ * put it back when all they had done was zoom.
+ *
+ * "How far away" is the orbit distance plus however far a two-finger pan has
+ * dragged the look-at point off the sink, so backing out and wandering off
+ * both close the house. They are summed rather than measured from the camera's
+ * own position because a sum has no orbit angle in it: taken from the camera,
+ * the near and far sides of a panned target differ by twice the radius, and
+ * the roof would flap as the reader swung round. The pan is divided by the
+ * narrow-viewport pullback for the same reason `radius` is read before it —
+ * so the same drag across the same screen means the same thing on a phone as
+ * on a desktop.
+ *
+ * Sampled per frame rather than derived from state because the rig keeps both
+ * numbers in a ref: they change on the wheel, on a two-finger drag and
+ * mid-tween, none of which pass through React.
+ */
+function useNearHouse(rig, enabled, scale) {
+  const [near, setNear] = useState(false)
+  useFrame(() => {
+    if (!enabled) {
+      if (near) setNear(false)
+      return
+    }
+    const away = rig.radius + rig.target.distanceTo(KITCHEN) / scale
+    if (near ? away > CUTAWAY_OPEN : away < CUTAWAY_CLOSE) setNear(!near)
+  })
+  // `enabled` leads the frame loop by one frame on the way down; and it is the
+  // more authoritative of the two anyway.
+  return enabled && near
+}
+
+/**
  * Everything inside the <Canvas>. Owns the camera rig and publishes its
  * imperative API (flyTo/reset) to `rigRef` so the surrounding UI can drive
  * the camera without re-rendering the scene.
@@ -68,6 +122,11 @@ export default function Scene({
 
   const rig = useOrbitRig({ ...ORBIT_OPTIONS, distanceScale })
   const system = SYSTEMS[currentSystem]
+  const cutaway = useNearHouse(
+    rig,
+    focused && currentSystem === 'undersink',
+    distanceScale,
+  )
 
   useEffect(() => {
     rigRef.current = rig
@@ -104,7 +163,7 @@ export default function Scene({
       <Ground accent={system.accentColor} />
       <Grass accent={system.accentColor} />
       <Trees />
-      <House cutaway={focused && currentSystem === 'undersink'} />
+      <House cutaway={cutaway} />
       <Kitchen accent={SYSTEMS.undersink.accent} />
 
       <WholeHouseUnit {...unitProps('whole')} />
