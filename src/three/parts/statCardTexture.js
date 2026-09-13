@@ -1,8 +1,8 @@
-import { formatFigure } from '../../data/figures'
 import {
   AMBER,
   cardCanvas,
   drawLabel,
+  formatFigure,
   FONT_DISPLAY,
   FONT_UI,
   hex,
