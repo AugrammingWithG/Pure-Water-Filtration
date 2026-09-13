@@ -8,6 +8,7 @@ import SimCanvas from './components/SimCanvas'
 import WhyCard from './components/WhyCard'
 import {
   DEFAULT_STAGE,
+  MVP_FIGURES,
   DEFAULT_SYSTEM,
   STAGE_DATA_BY_SYSTEM,
   STAGE_DWELL_MS,
@@ -17,6 +18,8 @@ import {
 import { useMediaQuery } from './hooks/useMediaQuery'
 import { useWalkthrough } from './hooks/useWalkthrough'
 import { stageView, SYSTEMS } from './three/systems'
+
+const money = (n) => '$' + Math.round(n).toLocaleString('en-AU')
 
 /** Camera fly-to duration for a stage; a little longer when changing system. */
 const STAGE_FLY_MS = 850
@@ -178,17 +181,8 @@ export default function App() {
   const stage = STAGE_DATA_BY_SYSTEM[currentSystem][currentStage]
   const stageIndex = STAGE_ORDER.indexOf(currentStage)
 
-  /** The system figures, as one stable object the scene cards can key off. */
-  const figures = useMemo(
-    () => ({
-      before: system.before,
-      after: system.after,
-      litres: system.litres,
-      bottles: system.bottles,
-      waste: system.waste,
-    }),
-    [system],
-  )
+  /** Placeholder figures for the three scene cards. See MVP_FIGURES. */
+  const figures = MVP_FIGURES[currentSystem]
 
   /** One description of the current stage, whichever card ends up drawing it. */
   const cardContent = useMemo(
@@ -224,6 +218,7 @@ export default function App() {
             cardContent={cardContent}
             showCard={sceneCard}
             figures={figures}
+            showStats={sceneCard && focused}
             /*
              * All four cards travel together: the stage card explaining the
              * step, and the three system cards beside it. `focused` is already
@@ -234,7 +229,6 @@ export default function App() {
              * mesh the raycast happened to land on: cover, cartridge or badge,
              * you are looking at that system either way.
              */
-            showStats={sceneCard && focused}
             onPick={handleScenePick}
             rigRef={rigRef}
           />
@@ -245,21 +239,22 @@ export default function App() {
             </button>
           </div>
 
+          <FactsCard facts={system.facts} />
+          <WhyCard />
           {/*
-            Above the breakpoint the scene draws these instead, but they stay
-            in the tree, visually hidden: canvas text is invisible to a screen
-            reader, and these carry the sr-only sentences that were written for
-            one.
+            The three scene cards are canvas, and canvas text is invisible to a
+            screen reader. This is the same content as a sentence, so the
+            figures are not lost to one.
           */}
-          <div className={sceneCard ? 'sr-only' : undefined}>
-            <CostCard before={system.before} after={system.after} show={sceneDrawn} />
-            <SavingsCard before={system.before} after={system.after} />
-            <ImpactCard
-              bottles={system.bottles}
-              waste={system.waste}
-              litres={system.litres}
-            />
-          </div>
+          <p className="sr-only">
+            Estimated for this system: {money(figures.before)} a year now,{' '}
+            {money(figures.after)} filtered, saving {money(figures.before - figures.after)} a
+            year. Over five years, {money(figures.before * 5)} against{' '}
+            {money(figures.after * 5)}. This year:{' '}
+            {figures.litres.toLocaleString('en-AU')} litres filtered,{' '}
+            {figures.bottles.toLocaleString('en-AU')} bottles avoided, and {figures.waste} kg
+            of plastic waste diverted.
+          </p>
           {/* On a large viewport the card lives in the scene instead; only
               one of the two may exist at a time. */}
           {!sceneCard && <DetailCard {...cardContent} />}

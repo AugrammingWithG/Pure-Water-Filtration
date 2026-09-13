@@ -32,6 +32,17 @@ export const MINT = '#1F9E6A'
 export const FONT_UI = 'Inter, system-ui, sans-serif'
 export const FONT_DISPLAY = '"Space Grotesk", Inter, system-ui, sans-serif'
 
+/** en-AU rather than the host locale: the copy is Australian throughout. */
+const NUMBER = new Intl.NumberFormat('en-AU')
+
+/**
+ * A figure with its prefix and unit. Lives here rather than in data/ because
+ * it is presentation: how a card writes a number, not what the number is.
+ */
+export function formatFigure(n, { prefix = '', unit = '' } = {}) {
+  return prefix + NUMBER.format(Math.round(n)) + (unit ? ' ' + unit : '')
+}
+
 export function rgba(colour, alpha) {
   const c = new THREE.Color(colour)
   return `rgba(${Math.round(c.r * 255)},${Math.round(c.g * 255)},${Math.round(c.b * 255)},${alpha})`

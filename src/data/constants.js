@@ -196,6 +196,26 @@ export const SYSTEM_DATA = {
  * "Why Australian Families Choose Pure Water Filtration" — the site's own
  * reasons, in the site's own words, for the card under the facts.
  */
+/**
+ * Figures for the three scene cards: annual cost, five-year cost, yearly
+ * impact.
+ *
+ * DELIBERATELY SEPARATE FROM SYSTEM_DATA. Everything in SYSTEM_DATA.facts is
+ * a figure the client's own site publishes; none of these are. They were
+ * invented for the MVP, CS-0023 removed them for that reason, and they are
+ * back at the team's request for the 3D cards.
+ *
+ * Kept under their own name so the distinction survives: if these ever need
+ * to go out in front of a customer, they need real numbers first. Do not fold
+ * them back into SYSTEM_DATA.
+ */
+export const MVP_FIGURES = {
+  whole: { before: 1240, after: 610, litres: 185000, bottles: 3650, waste: 61 },
+  // drinking and cooking only, so a fraction of the whole-house draw
+  undersink: { before: 480, after: 260, litres: 2800, bottles: 1900, waste: 24 },
+  rain: { before: 380, after: 340, litres: 96000, bottles: 900, waste: 11 },
+}
+
 export const WHY_US = [
   { value: 'Lifetime warranty', text: 'When paired with the Filter Care Plan' },
   { value: '$0 upfront', text: '6 to 36 months interest-free through Humm' },

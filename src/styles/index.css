@@ -45,6 +45,16 @@ body{
 h1,h2,h3,.display{font-family:'Space Grotesk',sans-serif;}
 button{font-family:inherit; cursor:pointer; border:none; background:none; color:inherit;}
 
+/**
+ * Present to a screen reader, absent to the eye. Used by content that exists
+ * in the scene as canvas — the three stat cards — which a screen reader cannot
+ * read at all, so the same figures are carried here as a sentence.
+ */
+.sr-only{
+  position:absolute; width:1px; height:1px; overflow:hidden;
+  clip-path:inset(50%); white-space:nowrap;
+}
+
 .app{
   height:100vh;
   display:flex; flex-direction:column; overflow:hidden;
