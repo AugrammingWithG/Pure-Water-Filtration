@@ -18,12 +18,15 @@ import * as THREE from 'three'
  * off the curve rather than found by searching for the sample nearest to a
  * hand-written point.
  *
- * Legs carry three flags the scene reads:
+ * Legs carry four flags the scene reads:
  *   media  — this run passes through a filter element. The water changes
  *            colour across it, and the stage's marker is anchored to it.
  *   pace   — how fast water moves here, relative to an open pipe run. Water
  *            crawls through media and dwells in a pressure tank.
  *   buried — underground or under the floor, so the route is drawn faintly.
+ *   bore   — inside radius of opaque pipe this run is hidden in. The stream is
+ *            kept within it, so no bubble surfaces through the wall of a tap
+ *            that is thinner than the stream.
  */
 
 /** Low tension keeps the corners close to the elbows real plumbing turns. */
@@ -40,6 +43,12 @@ const PHASE_LUT = 1024
  */
 const PACE_SMOOTH_RADIUS = 3
 const PACE_SMOOTH_PASSES = 2
+/**
+ * How quickly the stream swells back to full width after leaving a bore, in
+ * metres of radius per metre of route. At this rate it is done within a few
+ * centimetres of the nozzle, without popping the moment it clears the mouth.
+ */
+const BORE_RELEASE = 0.5
 
 const toVec3 = (p) => (p.isVector3 ? p.clone() : new THREE.Vector3(...p))
 const clamp01 = (x) => (x < 0 ? 0 : x > 1 ? 1 : x)
@@ -84,6 +93,7 @@ export function buildPath({ legs: legDefs, colours }) {
       pace: def.pace ?? 1,
       media: def.media === true,
       buried: def.buried === true,
+      bore: def.bore ?? Infinity,
       startIndex,
       endIndex: points.length - 1,
     })
@@ -144,6 +154,23 @@ export function buildPath({ legs: legDefs, colours }) {
   }
   boxBlur(pace, PACE_SMOOTH_RADIUS, PACE_SMOOTH_PASSES)
 
+  // ---- bore profile ----
+  // The radius the stream may have at each point. Inside a bore it is the
+  // bore; past the end of one it opens up gradually rather than all at once,
+  // since a bubble is half out of the nozzle before its centre is. A bucket
+  // that straddles either end of a bore counts as inside it, so the pipe is
+  // never a bucket short at its mouth or its foot.
+  const bore = new Float32Array(PACE_LUT)
+  let head = 0
+  let tail = 0
+  for (let i = 0; i < PACE_LUT; i++) {
+    while (tail < legs.length - 1 && i / PACE_LUT > legs[tail].u1) tail++
+    while (head < legs.length - 1 && (i + 1) / PACE_LUT > legs[head].u1) head++
+    bore[i] = Math.min(legs[tail].bore, legs[head].bore)
+  }
+  const release = (length / PACE_LUT) * BORE_RELEASE
+  for (let i = 1; i < PACE_LUT; i++) bore[i] = Math.min(bore[i], bore[i - 1] + release)
+
   /**
    * Covering du takes du/pace of time, so integrating 1/pace gives the moment
    * a droplet reaches each point. Normalising that and inverting it turns a
@@ -173,8 +200,21 @@ export function buildPath({ legs: legDefs, colours }) {
     distanceLut[j] = clamp01((bucket + local) / PACE_LUT)
   }
 
+  const lutIndex = (u) => Math.min(PACE_LUT - 1, Math.max(0, (u * PACE_LUT) | 0))
+
   /** Pace at distance `u` along the path, 1 being an open pipe run. */
-  const paceAt = (u) => pace[Math.min(PACE_LUT - 1, Math.max(0, (u * PACE_LUT) | 0))]
+  const paceAt = (u) => pace[lutIndex(u)]
+
+  /** The most the stream at distance `u` may reach from its centreline. */
+  const boreAt = (u) => bore[lutIndex(u)]
+
+  /**
+   * How fast water at distance `u` covers the route, as route lengths per
+   * trip: the inverse of the normalisation above, so slow routes run faster
+   * in their open stretches to finish on time. Multiply by the route length
+   * and the trip rate for metres per second.
+   */
+  const rateAt = (u) => paceAt(u) * trip
 
   /** How far along the path a droplet has reached at `phase` of its trip. */
   const distanceAt = (phase) => {
@@ -219,6 +259,8 @@ export function buildPath({ legs: legDefs, colours }) {
     mediaSpans,
     stops,
     paceAt,
+    rateAt,
+    boreAt,
     distanceAt,
     phaseAt,
     stageAt,

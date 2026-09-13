@@ -7,7 +7,8 @@ import { FLOW_SPEED } from './systems'
 /**
  * The water running the active system's route: a faint line tracing the whole
  * path, a stream of bubbles travelling it, and the grit the first stage takes
- * out.
+ * out — plus the kitchen taps the route does not reach, pouring whatever they
+ * carry under this system, as the same line and bubbles on a path of their own.
  *
  * Remount (key by system) when the system changes so particle state starts
  * fresh on the new path.
@@ -146,19 +147,13 @@ const GRIT_SCALE = 0.34
  * colour attribute has four components, so the whole line stays one draw call
  * however it is lit up.
  */
-function RouteLine({ path, radius, activeSpan }) {
+function RouteLine({ path, radius, activeSpan, segments = ROUTE_SEGMENTS }) {
   const mesh = useRef()
   const pending = useRef(true)
 
   const { geometry, rings, level } = useMemo(() => {
-    const geometry = new THREE.TubeGeometry(
-      path.curve,
-      ROUTE_SEGMENTS,
-      radius,
-      ROUTE_RADIAL,
-      false,
-    )
-    const ringCount = ROUTE_SEGMENTS + 1
+    const geometry = new THREE.TubeGeometry(path.curve, segments, radius, ROUTE_RADIAL, false)
+    const ringCount = segments + 1
     const perRing = ROUTE_RADIAL + 1
     geometry.setAttribute(
       'color',
@@ -166,12 +161,12 @@ function RouteLine({ path, radius, activeSpan }) {
     )
 
     // TubeGeometry samples the curve by arc length, so ring i sits at u =
-    // i/ROUTE_SEGMENTS — the same measure the stage spans are in.
+    // i/segments — the same measure the stage spans are in.
     const colour = new THREE.Color()
     const rings = new Float32Array(ringCount * 4)
     let leg = 0
     for (let i = 0; i < ringCount; i++) {
-      const u = i / ROUTE_SEGMENTS
+      const u = i / segments
       while (leg < path.legs.length - 1 && u > path.legs[leg].u1) leg++
       colorAt(path.stops, u, colour)
       rings[i * 4] = colour.r
@@ -181,7 +176,7 @@ function RouteLine({ path, radius, activeSpan }) {
     }
 
     return { geometry, rings, level: new Float32Array(ringCount) }
-  }, [path, radius])
+  }, [path, radius, segments])
 
   useEffect(() => () => geometry.dispose(), [geometry])
 
@@ -195,7 +190,7 @@ function RouteLine({ path, radius, activeSpan }) {
     let changed = force
 
     for (let i = 0; i < level.length; i++) {
-      const u = i / ROUTE_SEGMENTS
+      const u = i / segments
       const target = activeSpan && u >= activeSpan[0] && u <= activeSpan[1] ? 1 : 0
       const prev = level[i]
       const next = Math.abs(target - prev) < 0.004 ? target : prev + (target - prev) * step
@@ -238,8 +233,7 @@ function RouteLine({ path, radius, activeSpan }) {
  * little as the route allows, so a bubble riding the top of the bore stays at
  * the top of it the whole way down.
  */
-function buildRide(curve) {
-  const count = RIDE_SAMPLES
+function buildRide(curve, count = RIDE_SAMPLES) {
   const size = (count + 1) * 3
   const ride = {
     count,
@@ -331,8 +325,28 @@ const rideScratch = () => ({
  * sliding past as a rigid column. Each one also stretches along its direction
  * of travel in proportion to how fast it is going, so a slow bubble balls up
  * and a fast one streaks.
+ *
+ * Where the path declares a bore — the run up inside a kitchen tap, chrome
+ * thinner than the stream — the whole cross-section is pulled in to fit, so
+ * no bubble surfaces through the wall; past the mouth the path lets it open
+ * up again over a few centimetres.
+ *
+ * `rate` is trips per second; the route runs at FLOW_SPEED, a tap stream at
+ * whatever keeps its bubbles moving as the route's do leaving the nozzle.
+ * `fadeOut` is the fraction of the path over which bubbles shrink away at the
+ * end, again so a short stream can match the route it is standing in for.
  */
-function Bubbles({ path, ride, stream, count, activeSpan, clock, calmSpan }) {
+function Bubbles({
+  path,
+  ride,
+  stream,
+  count,
+  activeSpan,
+  clock,
+  calmSpan,
+  rate = FLOW_SPEED,
+  fadeOut = EDGE_FADE,
+}) {
   const mesh = useRef()
 
   const geometry = useMemo(
@@ -388,9 +402,10 @@ function Bubbles({ path, ride, stream, count, activeSpan, clock, calmSpan }) {
     const { point, along, across, third } = at
     const time = clock.time
     // Scrubbing back past the start takes the clock negative; `%` keeps the sign.
-    let base = (time * FLOW_SPEED) % 1
+    let base = (time * rate) % 1
     if (base < 0) base += 1
     const spread = stream * BUBBLE_SPREAD
+    const bubble = stream * BUBBLE_SCALE
 
     for (let i = 0; i < count; i++) {
       let phase = base + bubbles.phase[i]
@@ -408,18 +423,26 @@ function Bubbles({ path, ride, stream, count, activeSpan, clock, calmSpan }) {
       const calm = calmSpan
         ? smoothstep((u - calmSpan[0]) / (calmSpan[1] - calmSpan[0]))
         : 0
-      const reach = bubbles.reach[i] * spread * (1 - CALM_TIGHTEN * calm)
-      const offA = Math.cos(turn) * reach
-      const offB = Math.sin(turn) * reach
+      let reach = bubbles.reach[i] * spread * (1 - CALM_TIGHTEN * calm)
 
-      const size = bubbles.size[i] * smoothstep(u / EDGE_FADE) * smoothstep((1 - u) / EDGE_FADE)
+      const size = bubbles.size[i] * smoothstep(u / EDGE_FADE) * smoothstep((1 - u) / fadeOut)
       // Fast water streaks. It reads as speed, and it is also what keeps the
       // open runs — where the bubbles are furthest apart — from breaking up
       // into a dotted line: a streaked bubble spans most of the gap it opens.
       const stretch = STRETCH_STILL + path.paceAt(u) * STRETCH_RUNNING
       // squash the other two axes to keep the bubble's volume roughly constant
-      const wide = (1 / Math.sqrt(stretch)) * size
+      let wide = (1 / Math.sqrt(stretch)) * size
       const long = stretch * size
+
+      // Inside a bore, pull the bubble in and shrink it in the same
+      // proportion, so its far edge just reaches the wall and no further.
+      const fit = path.boreAt(u) / (reach + wide * bubble)
+      if (fit < 1) {
+        reach *= fit
+        wide *= fit
+      }
+      const offA = Math.cos(turn) * reach
+      const offB = Math.sin(turn) * reach
 
       // The sphere's poles point along the route, so the frame drops straight
       // into the instance matrix as its three axes.
@@ -534,8 +557,51 @@ function Grit({ path, ride, radius, clock }) {
   )
 }
 
+// --- pouring taps ----------------------------------------------------------
+
+/** Stations along a tap stream's ride: a straight fall needs few. */
+const STREAM_SAMPLES = 32
+const STREAM_SEGMENTS = 8
+/**
+ * A calm span the whole path lies beyond. Out of a tap, water falls as a tight
+ * column whatever it is — turbulence is something the stream shows inside a
+ * pipe — so every tap stream is calmed from the start.
+ */
+const CALMED = [-1, -0.5]
+
+/**
+ * Water pouring from a kitchen tap the route does not reach — the mixer while
+ * the under-sink unit is selected, say. The same line and bubbles as the
+ * route, run down the tap's own short path from inside the nozzle into the
+ * sink, on the same clock, so it pauses and scrubs with everything else.
+ *
+ * `spacing` and `speed` are the route's own as its water leaves the nozzle —
+ * metres between bubbles, and metres per second — so the two taps read as
+ * the same water; `fade` is the route's shrink-out at its end, in metres.
+ */
+function TapStream({ path, stream, routeRadius, clock, spacing, speed, fade }) {
+  const ride = useMemo(() => buildRide(path.curve, STREAM_SAMPLES), [path])
+  const count = Math.max(1, Math.round(path.length / spacing))
+  return (
+    <group>
+      <RouteLine path={path} radius={routeRadius} activeSpan={null} segments={STREAM_SEGMENTS} />
+      <Bubbles
+        path={path}
+        ride={ride}
+        stream={stream}
+        count={count}
+        activeSpan={null}
+        clock={clock}
+        calmSpan={CALMED}
+        rate={speed / path.length}
+        fadeOut={Math.min(0.5, fade / path.length)}
+      />
+    </group>
+  )
+}
+
 export default function WaterFlow({ system, currentStage, paused = false, subscribe }) {
-  const { path, pulseRadius, routeRadius, laminar} = system
+  const { path, pulseRadius, routeRadius, laminar, pouring } = system
   const activeSpan = path.spans[currentStage] ?? null
   /** The element that calms the water — the third stage, where set. */
   const calmSpan = laminar ? (path.mediaSpans[path.stageOrder[2]] ?? null) : null
@@ -544,6 +610,16 @@ export default function WaterFlow({ system, currentStage, paused = false, subscr
     Math.min(BUBBLE_MAX, Math.round(path.length / (pulseRadius * BUBBLE_GAP))),
   )
   const ride = useMemo(() => buildRide(path.curve), [path])
+
+  /**
+   * How the route's water moves as it leaves the outlet, for the plain tap
+   * streams to match: metres of route it covers per trip there, hence metres
+   * per second and metres between bubbles.
+   */
+  const outlet = path.rateAt(1) * path.length
+  const streamSpeed = outlet * FLOW_SPEED
+  const streamSpacing = outlet / count
+  const streamFade = EDGE_FADE * path.length
 
   /**
    * The water's clock: seconds it has been running, and how far it moved this
@@ -583,6 +659,18 @@ export default function WaterFlow({ system, currentStage, paused = false, subscr
         calmSpan={calmSpan}
       />
       <Grit path={path} ride={ride} radius={pulseRadius * GRIT_SCALE} clock={clock} />
+      {pouring.map((tap) => (
+        <TapStream
+          key={tap.name}
+          path={tap.path}
+          stream={pulseRadius}
+          routeRadius={routeRadius}
+          clock={clock}
+          spacing={streamSpacing}
+          speed={streamSpeed}
+          fade={streamFade}
+        />
+      ))}
     </group>
   )
 }
