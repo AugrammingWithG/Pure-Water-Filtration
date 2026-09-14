@@ -204,9 +204,9 @@
     "semantic_hash": ""
   },
   "vite.config.js": {
-    "mtime": 1789347708.0047047,
-    "seen": 1789347777.5163085,
-    "ast_hash": "d17f6b415a2251d58e2468550fa93d4a",
+    "mtime": 1789364414.701887,
+    "seen": 1789364711.7177546,
+    "ast_hash": "abaa84d49deac2097e4c5485c0b2b201",
     "semantic_hash": ""
   },
   "README.md": {
@@ -419,12 +419,6 @@
     "ast_hash": "2eb7e00d0a3bd36adfe0498eef468e56",
     "semantic_hash": ""
   },
-  ".github/workflows/deploy-pages.yml": {
-    "mtime": 1789347711.306077,
-    "seen": 1789347777.5163095,
-    "ast_hash": "995bbe858dcaf0c7d57b6268522cc5a2",
-    "semantic_hash": ""
-  },
   "src/assets/textures/env/je_gray_02_1k.jpg": {
     "mtime": 1789304284.3142262,
     "seen": 1789347777.5163152,
@@ -441,6 +435,36 @@
     "mtime": 1789304284.3602269,
     "seen": 1789347777.5163171,
     "ast_hash": "da8993910c5a17a7d37aabbdf75fdf03",
+    "semantic_hash": ""
+  },
+  "docs/assets/index-C_Y5h7ku.js": {
+    "mtime": 1789364423.9642615,
+    "seen": 1789364711.7175956,
+    "ast_hash": "bf2dc31ca8eab6d8fb9806f379f3a253",
+    "semantic_hash": ""
+  },
+  "docs/index.html": {
+    "mtime": 1789364423.9672613,
+    "seen": 1789364711.7177632,
+    "ast_hash": "964409860b4a913126c081f31966178a",
+    "semantic_hash": ""
+  },
+  "docs/assets/grass-floor-D-geEc_o.webp": {
+    "mtime": 1789364423.9642615,
+    "seen": 1789364711.717771,
+    "ast_hash": "5a343e480267b5ca1425c7528aaa841f",
+    "semantic_hash": ""
+  },
+  "docs/assets/house-cladding-IrxcGibj.webp": {
+    "mtime": 1789364423.9652622,
+    "seen": 1789364711.7177732,
+    "ast_hash": "da8993910c5a17a7d37aabbdf75fdf03",
+    "semantic_hash": ""
+  },
+  "docs/assets/je_gray_02_1k-DjhLfVcH.jpg": {
+    "mtime": 1789364423.966261,
+    "seen": 1789364711.7177753,
+    "ast_hash": "02db430b8a6bca18672ec7f6da148937",
     "semantic_hash": ""
   }
 }
