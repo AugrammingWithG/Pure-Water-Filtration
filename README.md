@@ -58,9 +58,10 @@ That structure is what the scene reads:
   gaps: buried runs, and inside the cartridges.
 - **Both kitchen taps pour.** Each system says what the two taps carry
   (`taps` in `systems.js`): the route's own water arrives at one, and the
-  other pours a plain stream of the system's raw or finished water — so while
-  the RO unit is selected the mixer runs untreated mains beside the filtered
-  tap. Inside a tap the water is hidden: the chrome is thinner than the
+  other pours a plain stream — the system's finished water if the tap is
+  downstream of the unit, or plain water-blue mains — so while the RO unit is
+  selected the mixer runs untreated mains beside the filtered tap. Inside a
+  tap the water is hidden: the chrome is thinner than the
   stream, so the leg through it carries a `bore` that keeps the bubbles in.
 
 ## The walkthrough
