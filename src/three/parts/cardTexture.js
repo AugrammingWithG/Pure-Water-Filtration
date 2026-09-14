@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { toneColour } from '../../data/tones'
+import { BORDER, PANEL } from './cardDraw'
 
 /**
  * Draws the stage card to a canvas, for use as a texture on a plane in the
@@ -24,8 +25,6 @@ const PAD_Y = 16
 const RADIUS = 14
 
 /** Palette, matching the light theme in index.css. */
-const PANEL = 'rgba(255,255,255,0.93)'
-const BORDER = 'rgba(15,28,51,0.14)'
 const INK = '#0F1C33'
 const INK_DIM = '#5D6C85'
 const LINE = 'rgba(15,28,51,0.14)'

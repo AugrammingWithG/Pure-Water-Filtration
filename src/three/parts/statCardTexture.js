@@ -31,6 +31,20 @@ import {
  */
 
 const WIDTH = 200
+/**
+ * The phone cut: the same three cards, the same figures, the same plot — just
+ * drawn narrower, so that hanging them at a fixed size on screen magnifies the
+ * type. At 150 against a card about 100px wide on a phone the labels land near
+ * 7px and the figures near 13px, where the 200px cut would put them at 5 and
+ * 10 and neither would be worth having.
+ *
+ * The one thing the narrow cut changes is the cost card's two columns, which
+ * cannot sit side by side in this width and become two rows. Everything else
+ * is already written against the card's width rather than against 200.
+ */
+export const COMPACT_WIDTH = 150
+/** Below this, the cost card stacks its two figures instead of pairing them. */
+const STACK_BELOW = 180
 /** Years the savings card looks ahead, matching SavingsCard. */
 export const YEARS = 5
 
@@ -48,7 +62,7 @@ const PLAIN = {}
 
 // ---------------------------------------------------------------------------
 
-function costLayout(ctx, { before, after }, progress, draw) {
+function costLayout(ctx, { before, after }, progress, draw, width) {
   let y = PAD_Y
   if (draw) y = drawLabel(ctx, 'Annual water cost', y)
   else y += 20
@@ -57,19 +71,41 @@ function costLayout(ctx, { before, after }, progress, draw) {
     { caption: 'Now', figure: before, colour: AMBER },
     { caption: 'Filtered', figure: after, colour: MINT },
   ]
-  let x = PAD_X
-  for (const col of columns) {
-    if (draw) {
-      ctx.font = `400 9.5px ${FONT_UI}`
-      ctx.fillStyle = INK_DIM
-      ctx.fillText(col.caption, x, y + 8)
-      ctx.font = `600 19px ${FONT_DISPLAY}`
-      ctx.fillStyle = col.colour
-      ctx.fillText(formatFigure(at(col.figure, progress), MONEY), x, y + 28)
+
+  if (width < STACK_BELOW) {
+    /*
+      Narrow: caption left, figure right, one per line. Two 88px columns do
+      not fit here, and squeezing them would cost more than the row it saves —
+      the figure is the thing being read and it keeps its size this way.
+    */
+    for (const col of columns) {
+      if (draw) {
+        ctx.font = `400 9.5px ${FONT_UI}`
+        ctx.fillStyle = INK_DIM
+        ctx.fillText(col.caption.toUpperCase(), PAD_X, y + 14)
+        const text = formatFigure(at(col.figure, progress), MONEY)
+        ctx.font = `600 17px ${FONT_DISPLAY}`
+        ctx.fillStyle = col.colour
+        ctx.fillText(text, width - PAD_X - ctx.measureText(text).width, y + 16)
+      }
+      y += 23
     }
-    x += 88
+    y += 2
+  } else {
+    let x = PAD_X
+    for (const col of columns) {
+      if (draw) {
+        ctx.font = `400 9.5px ${FONT_UI}`
+        ctx.fillStyle = INK_DIM
+        ctx.fillText(col.caption, x, y + 8)
+        ctx.font = `600 19px ${FONT_DISPLAY}`
+        ctx.fillStyle = col.colour
+        ctx.fillText(formatFigure(at(col.figure, progress), MONEY), x, y + 28)
+      }
+      x += 88
+    }
+    y += 40
   }
-  y += 40
 
   // the saving, as its own pill
   const text = 'Saves ' + formatFigure(at(before - after, progress), MONEY) + '/yr'
@@ -97,7 +133,7 @@ const TICK = 3
  * between them is the saving. Straight, because the spend is a rate — the
  * plot claims nothing about prices rising that the data does not.
  */
-function savingsLayout(ctx, { before, after }, progress, draw) {
+function savingsLayout(ctx, { before, after }, progress, draw, WIDTH) {
   let y = PAD_Y
   if (draw) y = drawLabel(ctx, YEARS + '-year water cost', y)
   else y += 20
@@ -199,7 +235,7 @@ function savingsLayout(ctx, { before, after }, progress, draw) {
 
 // ---------------------------------------------------------------------------
 
-function impactLayout(ctx, { litres, bottles, waste }, progress, draw) {
+function impactLayout(ctx, { litres, bottles, waste }, progress, draw, WIDTH) {
   let y = PAD_Y
   if (draw) y = drawLabel(ctx, 'Estimated this year', y)
   else y += 20
@@ -214,7 +250,9 @@ function impactLayout(ctx, { litres, bottles, waste }, progress, draw) {
       ctx.font = `600 17px ${FONT_DISPLAY}`
       ctx.fillStyle = INK
       ctx.fillText(formatFigure(at(row.figure, progress), row.format), PAD_X, y + 14)
-      ctx.font = `400 10px ${FONT_UI}`
+      // The longest caption here — "Plastic waste diverted" — is what sets
+      // this size: at 10px it reaches the edge of the narrow cut.
+      ctx.font = `400 ${WIDTH < STACK_BELOW ? 9 : 10}px ${FONT_UI}`
       ctx.fillStyle = INK_DIM
       ctx.fillText(row.label, PAD_X, y + 26)
     }
@@ -227,13 +265,30 @@ function impactLayout(ctx, { litres, bottles, waste }, progress, draw) {
 const LAYOUTS = { cost: costLayout, savings: savingsLayout, impact: impactLayout }
 
 /**
- * Build one stat card. `progress` runs 0..1 and scales every figure on it, so
- * the same call draws a mid-count frame and the settled card.
+ * How tall the tallest of these kinds draws, so a row of them can be squared
+ * off. Left to themselves the three come out at different heights: the tops
+ * line up and the bottoms do not, which reads as three unrelated panels rather
+ * than one set of figures about one product. Squaring them costs the shorter
+ * ones some empty panel at the foot, which is the cheaper of the two.
+ *
+ * Height does not depend on the figures or on how far the count has run —
+ * every step in every layout is a constant — so this is safe to call once.
  */
-export function createStatTexture(kind, data, progress = 1) {
+export function statRowHeight(kinds, data, progress = 1, width = WIDTH) {
+  return Math.max(
+    ...kinds.map((kind) => Math.ceil(LAYOUTS[kind](measureContext(), data, progress, false, width))),
+  )
+}
+
+/**
+ * Build one stat card. `progress` runs 0..1 and scales every figure on it, so
+ * the same call draws a mid-count frame and the settled card. Pass `height` to
+ * draw it at the row's common height rather than at its own.
+ */
+export function createStatTexture(kind, data, progress = 1, { width = WIDTH, height } = {}) {
   const layout = LAYOUTS[kind]
-  const height = Math.ceil(layout(measureContext(), data, progress, false))
-  const { canvas, ctx } = cardCanvas(WIDTH, height)
-  layout(ctx, data, progress, true)
-  return { texture: toTexture(canvas), width: WIDTH, height }
+  const drawn = height ?? Math.ceil(layout(measureContext(), data, progress, false, width))
+  const { canvas, ctx } = cardCanvas(width, drawn)
+  layout(ctx, data, progress, true, width)
+  return { texture: toTexture(canvas), width, height: drawn }
 }

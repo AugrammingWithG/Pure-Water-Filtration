@@ -26,6 +26,8 @@ export default function SimCanvas({
   showCard,
   figures,
   showStats,
+  compact,
+  insets,
   onPick,
   rigRef,
 }) {
@@ -77,6 +79,8 @@ export default function SimCanvas({
           showCard={showCard}
           figures={figures}
           showStats={showStats}
+          compact={compact}
+          insets={insets}
           onPick={onPick}
           onReady={handleReady}
           rigRef={rigRef}

@@ -17,6 +17,7 @@ import {
   SYSTEM_DATA,
 } from './data/constants'
 import { useMediaQuery } from './hooks/useMediaQuery'
+import { useUiInsets } from './hooks/useUiInsets'
 import { useWalkthrough } from './hooks/useWalkthrough'
 import { stageView, SYSTEMS } from './three/systems'
 
@@ -59,6 +60,14 @@ export default function App() {
    * the figures still on screen.
    */
   const [sheetPage, setSheetPage] = useState(0)
+
+  /**
+   * The canvas and everything floating over it. Measured so the scene cards
+   * can keep out from under the floating cards and the play bar, which they
+   * would otherwise slide beneath whenever they ran out of frame.
+   */
+  const stageRef = useRef(null)
+  const insets = useUiInsets(stageRef)
 
   /** Imperative handle on the camera rig, published by <Scene>. */
   const rigRef = useRef(null)
@@ -225,7 +234,7 @@ export default function App() {
       <main>
         <Sidebar currentSystem={currentSystem} onSelectSystem={handleSelectSystem} />
 
-        <div className="stage-region">
+        <div className="stage-region" ref={stageRef}>
           <SimCanvas
             currentSystem={currentSystem}
             currentStage={currentStage}
@@ -235,7 +244,16 @@ export default function App() {
             cardContent={cardContent}
             showCard={sceneCard}
             figures={figures}
-            showStats={sceneCard && focused}
+            /*
+              The scene card breakpoint as before, plus the phone, which now
+              has a card design narrow enough to read and a place to put three
+              of them. The band between the two is still left out: there the
+              detail card is a floating DOM one and the row would be competing
+              with it for the same corner.
+            */
+            showStats={focused && (sceneCard || compact)}
+            insets={insets}
+            compact={compact}
             /*
              * All four cards travel together: the stage card explaining the
              * step, and the three system cards beside it. `focused` is already
