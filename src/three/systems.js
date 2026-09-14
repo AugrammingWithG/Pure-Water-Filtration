@@ -34,6 +34,13 @@ export const HOME_VIEW = {
 export const FLOW_SPEED = 0.1
 
 /**
+ * Plain water, as it comes out of a kitchen tap that is not the one being
+ * shown: water-blue, and not the route's raw colour. That colour tells the
+ * story inside the unit; out of a tap it just reads as dirty water.
+ */
+const TAP_WATER = 0x6fb4e6
+
+/**
  * Pace inside a filter element, relative to an open pipe run. Low enough that
  * the three cartridges — a couple of metres out of a route that can be twenty —
  * hold the eye for as long as they hold the water.
@@ -313,8 +320,9 @@ function build({
     /**
      * What each kitchen tap pours while this system is selected: 'route' —
      * the route ends there and WaterFlow draws its water arriving — or a
-     * plain stream of the system's 'raw' or 'finished' water. Both taps
-     * always pour; the point is what comes out of each.
+     * plain stream: the system's 'finished' water if the tap is downstream
+     * of the unit, or untreated 'mains'. Both taps always pour; the point is
+     * what comes out of each.
      */
     taps,
     /**
@@ -325,7 +333,7 @@ function build({
     pouring: Object.keys(taps)
       .filter((name) => taps[name] !== 'route')
       .map((name) => {
-        const colour = taps[name] === 'raw' ? colours[0] : colours[colours.length - 1]
+        const colour = taps[name] === 'mains' ? TAP_WATER : colours[colours.length - 1]
         return {
           name,
           path: buildPath({ legs: tapStreamLegs(KITCHEN.taps[name]), colours: [colour, colour] }),
@@ -420,7 +428,7 @@ export const SYSTEMS = {
     routeRadius: 0.0055,
     laminar: true,
     // the RO unit feeds its own tap only; the mixer stays on untreated mains
-    taps: { filter: 'route', mixer: 'raw' },
+    taps: { filter: 'route', mixer: 'mains' },
   }),
 
   rain: build({
