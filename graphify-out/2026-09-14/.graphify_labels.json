@@ -1,18 +1,16 @@
 {
   "0": "RainwaterUnit.jsx",
   "1": "Grass.jsx",
-  "2": "App.jsx",
+  "2": "react",
   "3": "package.json",
-  "4": "WaterFlow.jsx",
+  "4": "systems.js",
   "5": "House.jsx",
   "6": "Scene.jsx",
   "7": "selectStage",
-  "8": "systems.js",
+  "8": "MineralBalance.jsx",
   "9": "Pure-Water-Filtration",
   "10": "Graphify Knowledge Graph",
   "11": "CLAUDE.md",
   "12": "three",
-  "13": "DetailCard.jsx",
-  "14": "statCardTexture.js",
-  "15": "bake-environment.mjs"
+  "13": "cardTexture.js"
 }

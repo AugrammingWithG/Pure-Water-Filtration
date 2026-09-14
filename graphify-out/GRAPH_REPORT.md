@@ -1,46 +1,48 @@
-# Graph Report - Pure-Water-Filtration  (2026-09-13)
+# Graph Report - Pure-Water-Filtration  (2026-09-14)
 
 ## Corpus Check
-- 63 files · ~108,277 words
+- 68 files · ~71,942 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 422 nodes · 949 edges · 14 communities (13 shown, 1 thin omitted)
-- Extraction: 94% EXTRACTED · 6% INFERRED · 0% AMBIGUOUS · INFERRED: 61 edges (avg confidence: 0.85)
+- 487 nodes · 1090 edges · 16 communities (15 shown, 1 thin omitted)
+- Extraction: 94% EXTRACTED · 6% INFERRED · 0% AMBIGUOUS · INFERRED: 64 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `813565b2`
+- Built from commit: `6f9e862e`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - RainwaterUnit.jsx
 - Grass.jsx
-- react
+- App.jsx
 - package.json
-- systems.js
+- WaterFlow.jsx
 - House.jsx
 - Scene.jsx
 - selectStage
-- MineralBalance.jsx
+- systems.js
 - Pure-Water-Filtration
 - Graphify Knowledge Graph
 - CLAUDE.md
 - three
-- cardTexture.js
+- DetailCard.jsx
+- statCardTexture.js
+- bake-environment.mjs
 
 ## God Nodes (most connected - your core abstractions)
-1. `react` - 35 edges
-2. `three` - 31 edges
-3. `@react-three/fiber` - 23 edges
+1. `react` - 39 edges
+2. `three` - 36 edges
+3. `@react-three/fiber` - 27 edges
 4. `clamp01()` - 14 edges
-5. `App()` - 12 edges
+5. `App()` - 13 edges
 6. `FadeGroup()` - 11 edges
-7. `useWalkthrough()` - 10 edges
-8. `buildPath()` - 10 edges
-9. `Walkthrough as a Timeline` - 10 edges
-10. `layout()` - 9 edges
+7. `useQuality()` - 11 edges
+8. `useWalkthrough()` - 10 edges
+9. `buildPath()` - 10 edges
+10. `Walkthrough as a Timeline` - 10 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `selectStage()` --semantically_similar_to--> `App()`  [INFERRED] [semantically similar]
@@ -63,43 +65,43 @@
 - **Frame-Rate Independent Damping Pattern** — readme_frame_rate_independent_damping, src_three_parts_fadegroup_fadegroup, src_three_parts_outline_outline, src_three_parts_canister_canister, src_three_stagemarkers_stagemarkers, src_three_lighting_lighting [INFERRED 0.85]
 - **Legacy prototype stage walkthrough and autoplay flow** — legacy_filtration_simulation_selectstage, legacy_filtration_simulation_selectsystem, legacy_filtration_simulation_startautoplay, legacy_filtration_simulation_stopautoplay, legacy_filtration_simulation_focus, legacy_filtration_simulation_reset [INFERRED 0.85]
 
-## Communities (14 total, 1 thin omitted)
+## Communities (16 total, 1 thin omitted)
 
 ### Community 0 - "RainwaterUnit.jsx"
 Cohesion: 0.06
-Nodes (48): Roof and Front Wall Cutaway, FadeGroup needsUpdate, Frame-Rate Independent Damping, Hard-Edge Outline, Light Theme Accent Switch, Rainwater System, Revealed Pipework Thinning, UI Chrome Over Canvas (+40 more)
+Nodes (45): addCanister(), Roof and Front Wall Cutaway, FadeGroup needsUpdate, Frame-Rate Independent Damping, Hard-Edge Outline, Light Theme Accent Switch, Rainwater System, Revealed Pipework Thinning (+37 more)
 
 ### Community 1 - "Grass.jsx"
-Cohesion: 0.12
-Nodes (28): blocked(), createCenters(), distToPolyline(), distToSegment(), Grass(), HOTSPOT_LAYERS, hotspotWeight(), makeLawn() (+20 more)
+Cohesion: 0.08
+Nodes (39): blocked(), createCenters(), distToPolyline(), distToSegment(), Grass(), HOTSPOT_LAYERS, hotspotWeight(), makeLawn() (+31 more)
 
-### Community 2 - "react"
-Cohesion: 0.07
-Nodes (47): Space Grotesk and Inter Google Fonts, Keyboard Tour Controls, Pause as Freeze-Frame, Playhead Written Straight to DOM, Real-Time Clocks with Stall Cap, Resume Honours Remaining Dwell, Scrubbable Progress Bar, Stage Seek Keeps Tour State (+39 more)
+### Community 2 - "App.jsx"
+Cohesion: 0.08
+Nodes (43): Space Grotesk and Inter Google Fonts, Keyboard Tour Controls, Pause as Freeze-Frame, Playhead Written Straight to DOM, Real-Time Clocks with Stall Cap, Resume Honours Remaining Dwell, Scrubbable Progress Bar, Stage Seek Keeps Tour State (+35 more)
 
 ### Community 3 - "package.json"
 Cohesion: 0.07
 Nodes (31): dependencies, react, react-dom, @react-three/drei, @react-three/fiber, three, devDependencies, eslint (+23 more)
 
-### Community 4 - "systems.js"
-Cohesion: 0.09
-Nodes (38): animate(), colorAt(), colorStops, Vanishing Contaminant Specks, Constant-speed Water Pulses, Adding a Product Checklist, Colour Ramp Across Element, Grit Capture (+30 more)
+### Community 4 - "WaterFlow.jsx"
+Cohesion: 0.13
+Nodes (30): animate(), colorAt(), Vanishing Contaminant Specks, Constant-speed Water Pulses, Adding a Product Checklist, Colour Ramp Across Element, Grit Capture, Single media Leg Declaration (+22 more)
 
 ### Community 5 - "House.jsx"
-Cohesion: 0.05
-Nodes (38): Base Colour Surfaces, House Cladding Wood Texture, Timber Cladding Material, BACK_PANELS, BOARD, BOARD_EXTRUDE, Boards(), boardShapes() (+30 more)
+Cohesion: 0.07
+Nodes (23): Base Colour Surfaces, BACK_PANELS, BOARD, BOARD_EXTRUDE, Boards(), boardShapes(), CLADDING, DECK_TIMBER (+15 more)
 
 ### Community 6 - "Scene.jsx"
-Cohesion: 0.10
-Nodes (27): Fill-Rate Budget, Hand-Written Orbit Rig, @react-three/fiber, SimCanvas(), clampPhi(), nearestAngle(), NOTE: `moved` is intentionally left alone here. It is reset on, useOrbitRig() (+19 more)
+Cohesion: 0.07
+Nodes (39): Fill-Rate Budget, Hand-Written Orbit Rig, UI Chrome Over Canvas, react, @react-three/drei, @react-three/fiber, SimCanvas(), clampPhi() (+31 more)
 
 ### Community 7 - "selectStage"
 Cohesion: 0.16
-Nodes (18): addCanister(), buildScene(), Dark Navy Glass UI Theme, orbit.focus(), makeOrbit(), orbit.reset(), roDotLabel, selectStage() (+10 more)
+Nodes (17): buildScene(), colorStops, Dark Navy Glass UI Theme, orbit.focus(), makeOrbit(), orbit.reset(), roDotLabel, selectStage() (+9 more)
 
-### Community 8 - "MineralBalance.jsx"
-Cohesion: 0.12
-Nodes (32): CarbonAbsorption(), rand(), clamp01(), getDotTexture(), getStarTexture(), lerp(), MAX_DELTA, smoothstep() (+24 more)
+### Community 8 - "systems.js"
+Cohesion: 0.09
+Nodes (41): CarbonAbsorption(), rand(), clamp01(), getDotTexture(), getStarTexture(), lerp(), MAX_DELTA, smoothstep() (+33 more)
 
 ### Community 9 - "Pure-Water-Filtration"
 Cohesion: 0.29
@@ -110,32 +112,40 @@ Cohesion: 0.67
 Nodes (3): Graphify Knowledge Graph, Graphify Update After Code Change, Query-First Rule
 
 ### Community 12 - "three"
-Cohesion: 0.19
-Nodes (18): three, ARMS_LENGTH, DECLUTTER_FAR, DECLUTTER_NEAR, declutterAt(), faceCamera(), fitAt(), MAX_FIT (+10 more)
+Cohesion: 0.17
+Nodes (20): Stage Badges, three, ARMS_LENGTH, DECLUTTER_FAR, DECLUTTER_NEAR, declutterAt(), faceCamera(), fitAt() (+12 more)
 
-### Community 13 - "cardTexture.js"
-Cohesion: 0.21
-Nodes (14): DetailCard(), Removed(), PinIcon(), toneColour(), TONES, BUTTONS, createCardTexture(), hex() (+6 more)
+### Community 13 - "DetailCard.jsx"
+Cohesion: 0.15
+Nodes (18): DetailCard(), Removed(), SheetActions(), StageBody(), PinIcon(), clamp(), MobileSheet(), TABS (+10 more)
+
+### Community 14 - "statCardTexture.js"
+Cohesion: 0.10
+Nodes (35): AMBER, BORDER, CARD_RADIUS, cardCanvas(), drawLabel(), FONT_DISPLAY, FONT_UI, formatFigure() (+27 more)
+
+### Community 15 - "bake-environment.mjs"
+Cohesion: 0.16
+Nodes (11): { clamped, peak }, clampLuminance(), encodeChannel(), floatToRgbe(), luminance(), out, rgb, small (+3 more)
 
 ## Knowledge Gaps
-- **115 isolated node(s):** `name`, `private`, `version`, `type`, `dev` (+110 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 129 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **135 isolated node(s):** `name`, `private`, `version`, `type`, `dev` (+130 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 156 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **1 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `react` connect `react` to `RainwaterUnit.jsx`, `Grass.jsx`, `package.json`, `systems.js`, `House.jsx`, `Scene.jsx`, `MineralBalance.jsx`, `three`?**
-  _High betweenness centrality (0.269) - this node is a cross-community bridge._
-- **Why does `three` connect `three` to `RainwaterUnit.jsx`, `Grass.jsx`, `package.json`, `systems.js`, `House.jsx`, `Scene.jsx`, `MineralBalance.jsx`, `cardTexture.js`?**
-  _High betweenness centrality (0.151) - this node is a cross-community bridge._
-- **Why does `@react-three/fiber` connect `Scene.jsx` to `RainwaterUnit.jsx`, `Grass.jsx`, `package.json`, `systems.js`, `House.jsx`, `MineralBalance.jsx`, `three`?**
-  _High betweenness centrality (0.062) - this node is a cross-community bridge._
+- **Why does `react` connect `Scene.jsx` to `RainwaterUnit.jsx`, `Grass.jsx`, `App.jsx`, `package.json`, `WaterFlow.jsx`, `House.jsx`, `systems.js`, `three`, `DetailCard.jsx`, `statCardTexture.js`?**
+  _High betweenness centrality (0.237) - this node is a cross-community bridge._
+- **Why does `three` connect `three` to `RainwaterUnit.jsx`, `Grass.jsx`, `package.json`, `WaterFlow.jsx`, `House.jsx`, `Scene.jsx`, `systems.js`, `DetailCard.jsx`, `statCardTexture.js`?**
+  _High betweenness centrality (0.212) - this node is a cross-community bridge._
+- **Why does `@react-three/fiber` connect `Scene.jsx` to `RainwaterUnit.jsx`, `Grass.jsx`, `package.json`, `WaterFlow.jsx`, `House.jsx`, `systems.js`, `three`, `statCardTexture.js`?**
+  _High betweenness centrality (0.053) - this node is a cross-community bridge._
 - **Are the 6 inferred relationships involving `App()` (e.g. with `selectStage()` and `selectSystem()`) actually correct?**
   _`App()` has 6 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `name`, `private`, `version` to the rest of the system?**
-  _115 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _135 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `RainwaterUnit.jsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.062146892655367235 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.0649895178197065 - nodes in this community are weakly interconnected._
 - **Should `Grass.jsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.11693548387096774 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.0782608695652174 - nodes in this community are weakly interconnected._
