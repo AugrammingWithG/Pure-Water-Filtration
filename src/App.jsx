@@ -165,11 +165,14 @@ export default function App() {
    * Transport keys: space plays and pauses; the arrows step between stages,
    * Home and End jump to the first and last. Left alone while the user is
    * typing, and space is left to a focused button — it already clicks that,
-   * and the play button is one of them.
+   * and the play button is one of them. A control that has taken the key for
+   * itself (the sheet's tabs use the arrows to move between tabs) marks the
+   * event handled, and it is left alone too.
    */
   useEffect(() => {
     const last = STAGE_ORDER.length - 1
     const onKeyDown = (e) => {
+      if (e.defaultPrevented) return
       if (e.repeat || e.altKey || e.ctrlKey || e.metaKey) return
       const tag = e.target.tagName
       if (/^(INPUT|TEXTAREA|SELECT)$/.test(tag) || e.target.isContentEditable) return

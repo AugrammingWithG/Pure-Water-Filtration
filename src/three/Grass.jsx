@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import {
@@ -14,6 +14,7 @@ import {
 } from './layout'
 import { makeBladeGeometry, WIND_FIELD } from './parts/blade'
 import { mulberry32 } from './parts/random'
+import { useReducedMotion } from '../hooks/useReducedMotion'
 import { useQuality } from './quality'
 import { TANK_OUTLET } from './systems'
 
@@ -367,6 +368,15 @@ function makeLawn(count, uniforms, options = {}) {
  */
 export default function Grass({ accent, count = 60000, wind = 0.55 }) {
   const { foliage } = useQuality()
+  /**
+   * The wind has its own clock rather than reading the renderer's, so that
+   * "reduce motion" can hold it: the shader keeps a flutter that does not
+   * scale with `wind`, so zeroing that would still leave the lawn shivering,
+   * and a lawn frozen mid-gust reads as a still day where one snapped upright
+   * reads as a fault. Holding the clock stops every term at once.
+   */
+  const still = useReducedMotion()
+  const time = useRef(0)
   const layers = useMemo(() => {
     const baseUniforms = {
       uTime: { value: 0 },
@@ -412,9 +422,10 @@ export default function Grass({ accent, count = 60000, wind = 0.55 }) {
     for (const { mesh, placed } of layers) mesh.count = Math.round(placed * foliage)
   }, [layers, foliage])
 
-  useFrame(({ clock }, delta) => {
+  useFrame((_, delta) => {
+    if (!still) time.current += delta
     for (const { uniforms } of layers) {
-      uniforms.uTime.value = clock.elapsedTime
+      uniforms.uTime.value = time.current
       uniforms.uWind.value = wind
       uniforms.uAccent.value.lerp(accent, Math.min(1, delta * 3))
     }

@@ -45,6 +45,7 @@ function Rows({ items }) {
 
 export default function MobileSheet({ page, onPage, content, facts, learnMore }) {
   const from = useRef(null)
+  const tabs = useRef([])
 
   const onPointerDown = (e) => {
     from.current = { x: e.clientX, y: e.clientY }
@@ -60,6 +61,25 @@ export default function MobileSheet({ page, onPage, content, facts, learnMore })
     onPage(clamp(page + (dx < 0 ? 1 : -1)))
   }
 
+  /**
+   * The keyboard's version of the swipe. Only the selected tab is in the tab
+   * order; the arrows move between them, Home and End to the ends, and each
+   * move both selects and focuses, so the panel changes as the focus does.
+   * The event is marked handled so the app's own arrow keys — which step the
+   * tour — leave it alone.
+   */
+  const onTabKeyDown = (e) => {
+    let next
+    if (e.key === 'ArrowRight') next = (page + 1) % TABS.length
+    else if (e.key === 'ArrowLeft') next = (page + TABS.length - 1) % TABS.length
+    else if (e.key === 'Home') next = 0
+    else if (e.key === 'End') next = TABS.length - 1
+    else return
+    e.preventDefault()
+    onPage(next)
+    tabs.current[next]?.focus()
+  }
+
   return (
     <div
       className="float-card card-detail"
@@ -69,23 +89,36 @@ export default function MobileSheet({ page, onPage, content, facts, learnMore })
         from.current = null
       }}
     >
-      <div className="sheet-tabs" role="tablist">
+      <div className="sheet-tabs" role="tablist" onKeyDown={onTabKeyDown}>
         {TABS.map((tab, i) => (
           <button
             key={tab.key}
+            ref={(el) => {
+              tabs.current[i] = el
+            }}
             type="button"
             role="tab"
+            id={`sheet-tab-${tab.key}`}
             className="sheet-tab"
             onClick={() => onPage(i)}
             aria-selected={page === i}
+            aria-controls="sheet-panel"
             aria-label={tab.full}
+            tabIndex={page === i ? 0 : -1}
           >
             {tab.label}
           </button>
         ))}
       </div>
 
-      <div role="tabpanel" aria-label={TABS[page].full}>
+      {/* in the tab order itself, so the two tabs with no link in them can
+          still be reached and read from the keyboard */}
+      <div
+        id="sheet-panel"
+        role="tabpanel"
+        aria-labelledby={`sheet-tab-${TABS[page].key}`}
+        tabIndex={0}
+      >
         {page === 0 && <StageBody {...content} />}
         {page === 1 && <Rows items={facts} />}
         {page === 2 && <Rows items={WHY_US} />}

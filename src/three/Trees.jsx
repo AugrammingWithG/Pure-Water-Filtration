@@ -4,6 +4,7 @@ import * as THREE from 'three'
 import { TREES, WIND } from './layout'
 import { makeBladeGeometry, WIND_FIELD } from './parts/blade'
 import { mulberry32 } from './parts/random'
+import { useReducedMotion } from '../hooks/useReducedMotion'
 import { useQuality } from './quality'
 
 /** Base colours only, like the rest of the diorama. Needles lighten toward the tip. */
@@ -307,7 +308,7 @@ function makeNeedles({ tiers, h, seed }, material) {
 // Trees
 // ---------------------------------------------------------------------------
 
-function PineTree({ x, z, h, r, seed, material }) {
+function PineTree({ x, z, h, r, seed, material, time }) {
   const group = useRef()
   const { foliage } = useQuality()
   const { tiers, trunkH } = useMemo(() => makeTiers({ h, r, seed }), [h, r, seed])
@@ -325,11 +326,12 @@ function PineTree({ x, z, h, r, seed, material }) {
   /**
    * A stiff tree, so the whole thing leans downwind by a few millimetres at
    * the tip and eases back, on a slower beat than the grass gusts. The pivot
-   * is the base of the trunk.
+   * is the base of the trunk. `time` is the needles' wind clock, so the lean
+   * holds when that does.
    */
-  useFrame(({ clock }) => {
+  useFrame(() => {
     if (!group.current) return
-    const t = clock.elapsedTime + seed
+    const t = time.value + seed
     const bend = 0.006 + 0.005 * Math.sin(t * 0.8) + 0.002 * Math.sin(t * 2.7)
     group.current.rotation.set(bend * WIND.y, 0, -bend * WIND.x)
   })
@@ -359,8 +361,12 @@ function PineTree({ x, z, h, r, seed, material }) {
  * The pines behind the house, placed by TREES in layout.js. All of them share
  * one needle material, so the wind uniforms are set once a frame. Needles
  * are stiffer than grass, so `wind` sits lower than the lawn's.
+ *
+ * The wind runs on its own clock, held under "reduce motion" — see Grass for
+ * why the clock is held rather than the wind zeroed.
  */
 export default function Trees({ wind = 0.4 }) {
+  const still = useReducedMotion()
   const uniforms = useMemo(
     () => ({
       uTime: { value: 0 },
@@ -375,12 +381,17 @@ export default function Trees({ wind = 0.4 }) {
   const material = useMemo(() => makeNeedleMaterial(uniforms), [uniforms])
   useEffect(() => () => material.dispose(), [material])
 
-  useFrame(({ clock }) => {
-    uniforms.uTime.value = clock.elapsedTime
+  useFrame((_, delta) => {
+    if (!still) uniforms.uTime.value += delta
     uniforms.uWind.value = wind
   })
 
   return TREES.map((tree) => (
-    <PineTree key={`${tree.x},${tree.z}`} {...tree} material={material} />
+    <PineTree
+      key={`${tree.x},${tree.z}`}
+      {...tree}
+      material={material}
+      time={uniforms.uTime}
+    />
   ))
 }

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
+import { useReducedMotion } from './useReducedMotion'
 
 /**
  * Drag-to-orbit camera rig with focus/zoom support.
@@ -95,6 +96,17 @@ export function useOrbitRig({
   // Read through a ref: updateCamera runs per-frame and must not be rebuilt
   // (and its listeners re-bound) every time the viewport changes shape.
   const scaleRef = useRef(distanceScale)
+
+  /**
+   * Under the OS "reduce motion" setting the rig keeps still unless asked:
+   * no idle drift, and a fly-to is a cut rather than a swoop. Held in a ref
+   * for the same reason as the scale — the frame loop and the tween read it.
+   */
+  const reducedMotion = useReducedMotion()
+  const stillRef = useRef(reducedMotion)
+  useEffect(() => {
+    stillRef.current = reducedMotion
+  }, [reducedMotion])
 
   const updateCamera = useCallback(() => {
     const s = stateRef.current
@@ -284,6 +296,20 @@ export function useOrbitRig({
   const tweenTo = useCallback(
     (toTarget, toRadius, toTheta, toPhi, duration) => {
       const s = stateRef.current
+      s.idleTime = 0
+
+      // Reduced motion: arrive at once. The view the user asked for is the
+      // point; the swoop on the way there is the part they asked not to have.
+      if (stillRef.current) {
+        s.tween = null
+        s.target.copy(toTarget)
+        s.radius = toRadius
+        if (toTheta !== null) s.theta = toTheta
+        if (toPhi !== null) s.phi = toPhi
+        updateCamera()
+        return
+      }
+
       s.tween = {
         startTarget: s.target.clone(),
         startRadius: s.radius,
@@ -298,9 +324,8 @@ export function useOrbitRig({
         t0: performance.now(),
         duration: duration || 850,
       }
-      s.idleTime = 0
     },
-    [],
+    [updateCamera],
   )
 
   // The legacy rig drove the tween on its own requestAnimationFrame; here it
@@ -327,7 +352,12 @@ export function useOrbitRig({
     }
 
     s.idleTime += dt
-    if (s.autoRotate && !s.dragging && s.idleTime > IDLE_BEFORE_AUTOROTATE) {
+    if (
+      s.autoRotate &&
+      !stillRef.current &&
+      !s.dragging &&
+      s.idleTime > IDLE_BEFORE_AUTOROTATE
+    ) {
       s.theta += d.autoRotateSpeed * dt
       updateCamera()
     }

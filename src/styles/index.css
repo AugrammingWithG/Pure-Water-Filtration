@@ -24,6 +24,13 @@
   --accent-ink:#ffffff;
   --shadow:0 18px 40px rgba(15,28,51,0.12), 0 2px 6px rgba(15,28,51,0.06);
   /**
+   * The keyboard focus ring. Navy rather than the accent: the teal and green
+   * accents sit under 3:1 against the white panels, and the play button is
+   * itself an accent disc — a ring the colour of the thing it surrounds is no
+   * ring at all.
+   */
+  --focus:var(--navy);
+  /**
    * Roughly what the play bar occupies at the bottom. Nothing is positioned
    * *by* it — the bar and the canvas share a grid cell, so the overlap needs
    * no number — but the cards anchored to the bottom of the scene use it to
@@ -52,6 +59,16 @@ body{
 }
 h1,h2,h3,.display{font-family:'Space Grotesk',sans-serif;}
 button{font-family:inherit; cursor:pointer; border:none; background:none; color:inherit;}
+
+/**
+ * One ring for everything the keyboard can land on — the rail, the play
+ * button, the timeline and its markers, the chips, the links, the sheet tabs.
+ * :focus-visible rather than :focus, so a click does not leave a ring behind
+ * on the button it pressed. An outline rather than a box-shadow: it follows
+ * the corner radius, it is not clipped by an overflow:hidden parent, and it
+ * survives a button that already has a shadow of its own.
+ */
+:focus-visible{outline:2px solid var(--focus); outline-offset:2px;}
 
 /**
  * Present to a screen reader, absent to the eye. Used by content that exists
@@ -243,9 +260,6 @@ main{
   from{opacity:0; transform:translateY(14px);}
   to{opacity:1; transform:none;}
 }
-@media (prefers-reduced-motion: reduce){
-  .card-detail{animation:none;}
-}
 
 /* --- phone sheet tabs ---
    The row names all three panels in less height than two arrows and a set of
@@ -310,8 +324,7 @@ main{
   position:relative; width:260px; flex-shrink:0;
   cursor:pointer; touch-action:none; user-select:none; -webkit-user-select:none;
 }
-.progress-slider{position:relative; padding:8px 0; border-radius:8px; outline:none;}
-.progress-slider:focus-visible{box-shadow:0 0 0 2px rgba(var(--accent-rgb),0.55);}
+.progress-slider{position:relative; padding:8px 0; border-radius:8px;}
 .progress-track{
   position:relative; height:4px; border-radius:3px; overflow:hidden;
   background:linear-gradient(rgba(255,255,255,0.72), rgba(255,255,255,0.72)), var(--water);
@@ -346,9 +359,8 @@ main{
 .progress-stage{
   position:absolute; top:0; height:100%;
   display:flex; align-items:flex-end; justify-content:center;
-  padding:0 3px; border-radius:6px; outline:none;
+  padding:0 3px; border-radius:6px;
 }
-.progress-stage:focus-visible{box-shadow:0 0 0 2px rgba(var(--accent-rgb),0.55);}
 .progress-marker{
   position:absolute; left:0; top:-10px;
   width:8px; height:8px; border-radius:50%;
@@ -605,4 +617,20 @@ main{
   width:5px; height:5px; border-radius:50%; flex-shrink:0;
   /* darkened so the paler tones still read on a white panel */
   background:color-mix(in srgb, var(--chip) 75%, #0F1C33);
+}
+
+/* ---------- REDUCED MOTION ----------
+   Last in the file on purpose. The sheet's entrance is declared inside the
+   phone breakpoint above, at the same specificity as this, and the one of
+   the two that comes later wins — an earlier copy of this block sat above
+   that breakpoint and never took effect.
+
+   Only the motion that lives in CSS is here: the sheet sliding up, and the
+   pulse the playhead keeps up while paused. The scene reads the same
+   preference in JavaScript (hooks/useReducedMotion.js) for the camera's idle
+   drift and fly-to and the wind in the foliage. The water is left running:
+   it is what the page is about, and Pause holds it whenever asked. */
+@media (prefers-reduced-motion: reduce){
+  .card-detail{animation:none;}
+  .playbar.paused .progress-knob{animation:none;}
 }

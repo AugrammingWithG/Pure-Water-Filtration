@@ -104,7 +104,10 @@ stage by stage with the water held at each, and the stage on screen is always
 the one the playhead says. Switching system or resetting the view ends the
 tour. Space plays and pauses; the arrow keys step between stages; Home and
 End go to the first and last; the markers themselves can be tabbed to and
-pressed.
+pressed. On the phone sheet the arrows move between its tabs instead while a
+tab has the focus (only the selected tab is in the tab order, as the ARIA
+tabs pattern has it), and the tour's keys take over again the moment focus
+leaves them.
 
 ## Running it
 
@@ -257,6 +260,26 @@ The water's clock is stepped in a `useFrame` at priority `-1` so it is ahead
 of the bubbles and grit that read it in the same frame. r3f runs frame
 callbacks in priority order; only a priority *above* zero switches off its
 automatic render, so a negative one is safe to use purely for ordering.
+
+Everything that can be clicked can be tabbed to, and one focus ring serves
+all of it: a navy outline on `:focus-visible`, so it appears for the keyboard
+and not for a click. Navy rather than the accent because two of the three
+accents fall short of 3:1 against the white panels, and the play button is an
+accent disc — a ring the colour of the thing it circles is not a ring. Scene
+picks (a cartridge, a badge) have no keyboard path of their own; the rail and
+the timeline reach every state they do.
+
+The OS "reduce motion" setting is honoured in both halves of the page. The
+stylesheet's block for it is the last thing in the file, deliberately: the
+phone sheet's entrance is declared under a breakpoint further down than the
+block used to sit, and at equal specificity the later declaration wins, so an
+earlier copy never took effect. The scene reads the same preference through
+`hooks/useReducedMotion.js` where the motion actually lives: the camera stops
+drifting at the wide view and a fly-to becomes a cut (`useOrbitRig`), and the
+lawn and the pines hold their wind clock rather than zero the wind — the
+shaders keep a flutter that does not scale with it, and a lawn frozen
+mid-gust reads as a still day where one snapped upright reads as a fault. The
+water is left running on purpose: it is the content, and Pause holds it.
 
 The play bar's playhead is written straight to the DOM — a CSS variable the
 fill and the knob both read — from a subscription on the walkthrough. Holding
