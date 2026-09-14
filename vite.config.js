@@ -6,5 +6,8 @@ import react from '@vitejs/plugin-react'
 // prefix on every asset URL. Local dev/preview keeps the root path.
 export default defineConfig(({ command }) => ({
   base: command === 'build' ? '/Pure-Water-Filtration/' : '/',
+  build: {
+    outDir: 'docs',
+  },
   plugins: [react()],
 }))
