@@ -22,8 +22,23 @@ import { useEffect, useState } from 'react'
  * churning one.
  */
 
-/** The things that sit over the canvas and must not be covered by a card. */
-const OVERLAYS = '.float-card, .playbar, .view-controls'
+/**
+ * The fixed interface: the pieces that are always somewhere, whose size the
+ * stylesheet can be told about. Their measurements go out as CSS variables so
+ * the floating cards can be placed against the real header and the real play
+ * bar rather than against a guess at them.
+ */
+const CHROME = 'header, .sidebar, .view-controls, .playbar'
+/**
+ * Everything a scene card has to keep out from under: the chrome, plus the
+ * floating cards themselves.
+ *
+ * Deliberately not the same list. The floating cards are positioned *by* the
+ * variables above, so measuring them into those variables would be a loop —
+ * the card moves, the inset grows, the card moves again. They belong only in
+ * the answer handed to the scene, which nothing in the DOM reads back.
+ */
+const OVERLAYS = CHROME + ', .float-card'
 
 /** Ignore an overlay that would swallow more than this much of an axis. */
 const MAX_INSET = 0.4
@@ -35,12 +50,10 @@ export function useUiInsets(containerRef) {
     const el = containerRef.current
     if (!el) return undefined
 
-    const measure = () => {
-      const box = el.getBoundingClientRect()
-      if (!box.width || !box.height) return
+    /** How far the matching elements reach in from each edge, as fractions. */
+    const reachOf = (box, selector) => {
       const next = { top: 0, right: 0, bottom: 0, left: 0 }
-
-      for (const node of el.querySelectorAll(OVERLAYS)) {
+      for (const node of el.querySelectorAll(selector)) {
         const r = node.getBoundingClientRect()
         if (!r.width || !r.height) continue
         /*
@@ -63,7 +76,26 @@ export function useUiInsets(containerRef) {
         if (reach[edge] <= MAX_INSET) next[edge] = Math.max(next[edge], reach[edge])
       }
 
-      Object.assign(insets, next)
+      return next
+    }
+
+    const measure = () => {
+      const box = el.getBoundingClientRect()
+      if (!box.width || !box.height) return
+
+      /*
+        The chrome goes out as CSS variables, so the floating cards can be
+        placed against the real header and the real play bar instead of
+        against a guess at them.
+      */
+      const chrome = reachOf(box, CHROME)
+      const px = (v, of) => Math.round(v * of) + 'px'
+      el.style.setProperty('--ui-top', px(chrome.top, box.height))
+      el.style.setProperty('--ui-right', px(chrome.right, box.width))
+      el.style.setProperty('--ui-bottom', px(chrome.bottom, box.height))
+      el.style.setProperty('--ui-left', px(chrome.left, box.width))
+
+      Object.assign(insets, reachOf(box, OVERLAYS))
     }
 
     measure()
