@@ -48,13 +48,6 @@ export const INTRO_VIEW = {
 export const FLOW_SPEED = 0.1
 
 /**
- * Plain water, as it comes out of a kitchen tap that is not the one being
- * shown: water-blue, and not the route's raw colour. That colour tells the
- * story inside the unit; out of a tap it just reads as dirty water.
- */
-const TAP_WATER = 0x6fb4e6
-
-/**
  * Pace inside a filter element, relative to an open pipe run. Low enough that
  * the three cartridges — a couple of metres out of a route that can be twenty —
  * hold the eye for as long as they hold the water.
@@ -315,7 +308,7 @@ function build({
   routeRadius,
   laminar,
   cardSide = 1,
-  taps,
+  routeTap = null,
 }) {
   const path = buildPath({ legs, colours })
   return {
@@ -332,27 +325,25 @@ function build({
      */
     colours,
     /**
-     * What each kitchen tap pours while this system is selected: 'route' —
-     * the route ends there and WaterFlow draws its water arriving — or a
-     * plain stream: the system's 'finished' water if the tap is downstream
-     * of the unit, or untreated 'mains'. Both taps always pour; the point is
-     * what comes out of each.
+     * The kitchen tap the route ends at, if any: WaterFlow draws its water
+     * arriving there. Every other tap pours too, and pours the same finished
+     * water, so the two never read as two different outcomes — the dedicated
+     * tap is told apart by its collar and its marker, not by its water.
      */
-    taps,
+    routeTap,
     /**
      * The taps pouring a plain stream. Each gets a short path of its own,
-     * from inside the nozzle down into the sink, in the one colour of what it
-     * carries.
+     * from inside the nozzle down into the sink, in the finished colour.
      */
-    pouring: Object.keys(taps)
-      .filter((name) => taps[name] !== 'route')
-      .map((name) => {
-        const colour = taps[name] === 'mains' ? TAP_WATER : colours[colours.length - 1]
-        return {
-          name,
-          path: buildPath({ legs: tapStreamLegs(KITCHEN.taps[name]), colours: [colour, colour] }),
-        }
-      }),
+    pouring: Object.keys(KITCHEN.taps)
+      .filter((name) => name !== routeTap)
+      .map((name) => ({
+        name,
+        path: buildPath({
+          legs: tapStreamLegs(KITCHEN.taps[name]),
+          colours: [colours[colours.length - 1], colours[colours.length - 1]],
+        }),
+      })),
     /**
      * Pushes the stage markers clear of the unit they label — out of the
      * cabinet and toward whichever face the camera comes in on.
@@ -416,8 +407,7 @@ export const SYSTEMS = {
     pulseRadius: 0.024,
     routeRadius: 0.011,
     laminar: true,
-    // every tap in the house is downstream of the point of entry
-    taps: { mixer: 'route', filter: 'finished' },
+    routeTap: 'mixer',
   }),
 
   undersink: build({
@@ -441,8 +431,7 @@ export const SYSTEMS = {
     pulseRadius: 0.013,
     routeRadius: 0.0055,
     laminar: true,
-    // the RO unit feeds its own tap only; the mixer stays on untreated mains
-    taps: { filter: 'route', mixer: 'mains' },
+    routeTap: 'filter',
   }),
 
   rain: build({
@@ -472,8 +461,7 @@ export const SYSTEMS = {
     markerScale: 0.8,
     pulseRadius: 0.02,
     routeRadius: 0.01,
-    // the house runs on tank water: "straight from the tank" at every tap
-    taps: { mixer: 'finished', filter: 'finished' },
+    // the route leaves for the house underground; both kitchen taps pour tank water
   }),
 }
 
