@@ -17,12 +17,27 @@ export const PAD_Y = 16
 export const CARD_RADIUS = 14
 
 /**
- * Palette, matching the light theme in index.css. The panel is drawn more
- * opaque than the DOM card: it sits over the diorama rather than over a soft
- * page background, and has to stay readable there.
+ * Palette, matching the light theme in index.css.
+ *
+ * The panel is the DOM cards' own — "At a glance" and "Why Pure Water
+ * Filtration" — to the number: the same 0.74, the same hairline border. Every
+ * card on screen is made of the same stuff whether the browser or the
+ * renderer drew it.
+ *
+ * They will not look identical, and no alpha here can make them. A DOM card
+ * pairs that 0.74 with a backdrop blur, which flattens whatever is behind it
+ * to an even tone before the white goes over; a canvas texture has no
+ * backdrop to blur, only whatever the renderer already drew behind the quad,
+ * so the diorama comes through these sharp. Same alpha, busier result. The
+ * honest fix is a transmission material, not a bigger number.
+ *
+ * Shared by both canvas cards: the stage card draws its own layout but takes
+ * these two from here, because a stage card and a stat card sitting side by
+ * side in the same scene at different opacities reads as a mistake, and two
+ * copies of the number is how that happens.
  */
-export const PANEL = 'rgba(255,255,255,0.93)'
-export const BORDER = 'rgba(15,28,51,0.14)'
+export const PANEL = 'rgba(255,255,255,0.74)'
+export const BORDER = 'rgba(15,28,51,0.07)'
 export const INK = '#0F1C33'
 export const INK_DIM = '#5D6C85'
 export const LINE = 'rgba(15,28,51,0.14)'

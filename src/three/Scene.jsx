@@ -20,6 +20,7 @@ import WholeHouseEffects from './effects/WholeHouseEffects'
 import RainwaterUnit from './products/RainwaterUnit'
 import UnderSinkUnit from './products/UnderSinkUnit'
 import WholeHouseUnit from './products/WholeHouseUnit'
+import { HOUSE_OCCLUDER, OCCLUDERS } from './parts/useAnchorVisible'
 import { HOME_VIEW, SYSTEMS } from './systems'
 
 const ORBIT_OPTIONS = {
@@ -110,6 +111,8 @@ export default function Scene({
   showCard,
   figures,
   showStats,
+  compact,
+  insets,
   onPick,
   onReady,
   rigRef,
@@ -162,8 +165,19 @@ export default function Scene({
 
       <Ground accent={system.accentColor} />
       <Grass accent={system.accentColor} />
-      <Trees />
-      <House cutaway={cutaway} />
+{/*
+        Named so the cards can ask whether the thing they are about is behind
+        any of it. Only the scenery goes in: a product must not be counted as
+        hiding its own card, and the ground and grass are never between the
+        camera and a unit. The house is named separately because a view that
+        opens it up stops it counting. See parts/useAnchorVisible.
+      */}
+      <group name={OCCLUDERS}>
+        <Trees />
+      </group>
+      <group name={HOUSE_OCCLUDER}>
+        <House cutaway={cutaway} />
+      </group>
       <Kitchen accent={SYSTEMS.undersink.accent} />
 
       <WholeHouseUnit {...unitProps('whole')} />
@@ -183,9 +197,23 @@ export default function Scene({
         onPick={pickFor(currentSystem)}
       />
       {showCard && cardContent && (
-        <StageCard system={system} currentStage={currentStage} content={cardContent} />
+        <StageCard
+          system={system}
+          currentStage={currentStage}
+          content={cardContent}
+          viewScale={distanceScale}
+          houseOpen={cutaway}
+        />
       )}
-      <StatCards system={system} figures={figures} visible={showStats} />
+      <StatCards
+        system={system}
+        figures={figures}
+        visible={showStats}
+        compact={compact}
+        insets={insets}
+        viewScale={distanceScale}
+        houseOpen={cutaway}
+      />
       {currentSystem === 'whole' && <WholeHouseEffects system={system} />}
       {currentSystem === 'undersink' && <UnderSinkEffects system={system} />}
       {currentSystem === 'rain' && <RainwaterEffects system={system} />}

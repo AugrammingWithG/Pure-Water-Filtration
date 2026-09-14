@@ -17,6 +17,7 @@ import {
   SYSTEM_DATA,
 } from './data/constants'
 import { useMediaQuery } from './hooks/useMediaQuery'
+import { useUiInsets } from './hooks/useUiInsets'
 import { useWalkthrough } from './hooks/useWalkthrough'
 import { stageView, SYSTEMS } from './three/systems'
 
@@ -59,6 +60,15 @@ export default function App() {
    * the figures still on screen.
    */
   const [sheetPage, setSheetPage] = useState(0)
+
+  /**
+   * The whole app, which is also the canvas: the scene fills it and every
+   * piece of interface sits on top. Measured so the scene cards can keep out
+   * from under the header, the rail, the floating cards and the play bar,
+   * which they would otherwise slide beneath whenever they ran out of frame.
+   */
+  const stageRef = useRef(null)
+  const insets = useUiInsets(stageRef)
 
   /** Imperative handle on the camera rig, published by <Scene>. */
   const rigRef = useRef(null)
@@ -219,12 +229,8 @@ export default function App() {
   )
 
   return (
-    <div className="app" data-system={currentSystem}>
-      <Header title={system.title} subtitle={system.subtitle} />
-
+    <div className="app" data-system={currentSystem} ref={stageRef}>
       <main>
-        <Sidebar currentSystem={currentSystem} onSelectSystem={handleSelectSystem} />
-
         <div className="stage-region">
           <SimCanvas
             currentSystem={currentSystem}
@@ -235,7 +241,16 @@ export default function App() {
             cardContent={cardContent}
             showCard={sceneCard}
             figures={figures}
-            showStats={sceneCard && focused}
+            /*
+              The scene card breakpoint as before, plus the phone, which now
+              has a card design narrow enough to read and a place to put three
+              of them. The band between the two is still left out: there the
+              detail card is a floating DOM one and the row would be competing
+              with it for the same corner.
+            */
+            showStats={focused && (sceneCard || compact)}
+            insets={insets}
+            compact={compact}
             /*
              * All four cards travel together: the stage card explaining the
              * step, and the three system cards beside it. `focused` is already
@@ -249,12 +264,6 @@ export default function App() {
             onPick={handleScenePick}
             rigRef={rigRef}
           />
-
-          <div className="view-controls">
-            <button className="chip-btn" onClick={handleResetView}>
-              Reset view
-            </button>
-          </div>
 
           {/* above the sheet breakpoint it floats where it always has */}
           {!compact && <FactsCard facts={system.facts} />}
@@ -299,6 +308,29 @@ export default function App() {
           {focused && !compact && !sceneCard && <DetailCard {...cardContent} />}
         </div>
       </main>
+
+      {/*
+        The interface, floating over the scene rather than framing it.
+
+        One column, so the rail sits under the header at every width without a
+        single offset being written down: the header is as tall as its copy
+        makes it, and the row below simply follows. Nothing in here takes a
+        pointer except the controls themselves — the rest is a hole through to
+        the canvas, or two thirds of the orbit surface would be dead space.
+      */}
+      <div className="chrome">
+        <Header title={system.title} subtitle={system.subtitle} />
+
+        <div className="chrome-row">
+          <Sidebar currentSystem={currentSystem} onSelectSystem={handleSelectSystem} />
+
+          <div className="view-controls">
+            <button className="chip-btn" onClick={handleResetView}>
+              Reset view
+            </button>
+          </div>
+        </div>
+      </div>
 
       <PlayBar
         currentStage={currentStage}

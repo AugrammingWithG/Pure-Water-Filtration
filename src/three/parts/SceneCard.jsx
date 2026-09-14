@@ -1,7 +1,7 @@
 import { useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
-import { fitAt, settle } from './billboard'
+import { cardFadeAt, fitAt, settle } from './billboard'
 
 /**
  * A canvas card hung in the scene: turns to face the camera, holds a steady
@@ -30,6 +30,11 @@ export default function SceneCard({
   visible = true,
   offset,
   width = BASE_WIDTH,
+  frameShare,
+  /** Step the card back as the camera pulls away. See cardFadeAt. */
+  declutter = false,
+  /** The rig's narrow-viewport pullback, so the fade is viewport-independent. */
+  viewScale = 1,
 }) {
   const mesh = useRef()
   const material = useRef()
@@ -48,16 +53,31 @@ export default function SceneCard({
     // itself by a share of its own width has to know that width first.
     const distance = camera.position.distanceTo(anchor)
     const fit = fitAt(distance)
-    const drawn = width * scale * fit
+    /*
+      `frameShare` sizes the card as a fraction of the frame instead of by the
+      distance compensation, for callers that need a size they can rely on
+      rather than one that is merely steady-ish.
+
+      fitAt only holds a card's screen size between MIN_FIT and MAX_FIT, and
+      outside that band the card is at the mercy of the view: the whole-house
+      output stage pulls the camera back to 7.5, past the ceiling, where a
+      phone card would draw about 35px wide. A share of the frame is the same
+      size on screen at every view of every system, which is what a row of
+      three that has to fit across a phone actually needs.
+    */
+    const drawn = frameShare
+      ? frameShare * 2 * distance * Math.tan((camera.fov * Math.PI) / 360) * camera.aspect
+      : width * scale * fit
 
     displacement.set(0, 0, 0)
-    offset?.(displacement, { fit, width: drawn, camera, anchor, delta })
+    offset?.(displacement, { fit, width: drawn, height: drawn * aspect, camera, anchor, delta })
     m.position.copy(anchor).add(displacement)
 
     m.quaternion.copy(camera.quaternion)
     m.scale.set(drawn, drawn * aspect, 1)
 
-    shown.current += ((visible ? 1 : 0) - shown.current) * settle(delta, FADE_SPEED)
+    const target = (visible ? 1 : 0) * (declutter ? cardFadeAt(distance / viewScale) : 1)
+    shown.current += (target - shown.current) * settle(delta, FADE_SPEED)
     mat.opacity = shown.current
     m.visible = shown.current > 0.02
   })

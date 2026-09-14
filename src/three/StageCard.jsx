@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { createCardTexture } from './parts/cardTexture'
-import { declutterAt, fitAt, settle } from './parts/billboard'
+import { cardFadeAt, fitAt, settle } from './parts/billboard'
+import { useAnchorVisible } from './parts/useAnchorVisible'
 import { markerPoint } from './systems'
 
 /**
@@ -51,7 +52,13 @@ const SIDE_GAP = 0.82
 /** Rate the card slides across when it changes sides, rather than snapping. */
 const SIDE_SPEED = 3.5
 
-export default function StageCard({ system, currentStage, content }) {
+export default function StageCard({
+  system,
+  currentStage,
+  content,
+  viewScale = 1,
+  houseOpen = false,
+}) {
   const mesh = useRef()
   const material = useRef()
   const camera = useThree((s) => s.camera)
@@ -101,6 +108,23 @@ export default function StageCard({ system, currentStage, content }) {
     () => (anchors.find((a) => a.key === currentStage) ?? anchors[0]).point,
     [anchors, currentStage],
   )
+
+  /**
+   * The unit as a whole, which is what both this card and the stat row are
+   * measured against — the same point for the visibility test and the same
+   * point for the distance fade. Testing each card against its own anchor let
+   * the two answer differently within a few centimetres of each other, so the
+   * stage card and the figures about the same product came and went at
+   * different moments.
+   */
+  const unit = useMemo(() => system.view.target.clone(), [system])
+
+  /**
+   * A card about a unit that has gone behind the house, or off the side of
+   * the frame, is describing nothing. Depth testing is off so the scene
+   * cannot hide the card itself, which is what makes this necessary.
+   */
+  const inSight = useAnchorVisible(unit, true, houseOpen)
 
   /** Smoothed -1..1, so a change of side slides across instead of jumping. */
   const side = useRef(system.cardSide)
@@ -161,7 +185,15 @@ export default function StageCard({ system, currentStage, content }) {
       lastKey.current = key
       shown.current = 0
     }
-    const target = declutterAt(distance)
+    /*
+      Faded back as the reader pulls away, and out altogether when the unit
+      cannot be seen from here. Measured to the unit rather than to this
+      card's own anchor so the figures beneath fade on exactly the same curve:
+      the two are about one product and should behave as one thing.
+    */
+    const target = inSight
+      ? cardFadeAt(camera.position.distanceTo(unit) / viewScale)
+      : 0
     shown.current += (target - shown.current) * settle(delta, SWAP_SPEED)
 
     mat.opacity = shown.current

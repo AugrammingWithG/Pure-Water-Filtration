@@ -3,7 +3,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import SceneCard from './parts/SceneCard'
-import { createStatTexture } from './parts/statCardTexture'
+import { clampIntoFrame, frameMetrics } from './parts/billboard'
+import { COMPACT_WIDTH, createStatTexture, statRowHeight } from './parts/statCardTexture'
+import { useAnchorVisible } from './parts/useAnchorVisible'
 
 /**
  * The three system cards — annual cost, five-year cost, yearly impact — hung
@@ -49,6 +51,48 @@ const SLOTS = [
   { kind: 'impact', x: 1.25, y: -1.2 },
 ]
 
+/**
+ * The phone arrangement: the same three, moved above the unit.
+ *
+ * Below is right on a desktop, for the reasons above. On a phone it is the
+ * one direction that is taken — the bottom of the screen is the detail sheet
+ * — and the stage card is not in the scene at all to want the space above.
+ *
+ * The card drawn there is the narrow cut of the same design (see
+ * statCardTexture), hung at a fixed share of the frame so it is the same size
+ * on screen at every view. The share is as large as the row can bear: three at
+ * 1.14 apart span 320 of a 375px screen, which leaves 28px of margin and about
+ * 16px of room to slide before the clamp takes over. Smaller cards would slide
+ * more freely and be harder to read, and reading them is the point.
+ */
+const COMPACT_FRAME_SHARE = 0.26
+const ROW_GAP = 1.14
+/** How far above the unit the row floats, as a share of the frame height. */
+const ROW_LIFT = 0.2
+/** Breathing room left between the row and the edge of the frame. */
+const EDGE = 0.03
+/**
+ * What the outer two do that the middle one does not: sit further back by a
+ * share of their width, and lower by a share of their height. The depth is a
+ * real cue rather than a drawn one — the quads are sized in world units, so
+ * the renderer's own perspective draws the further pair a few percent smaller
+ * — and the drop is the shape of the thing: an arc reads as three cards
+ * arranged in space, a flat line reads as a toolbar.
+ */
+const SIDE_BACK = 0.28
+const SIDE_DROP = 0.3
+const COMPACT_SLOTS = SLOTS.map((slot, i) => ({
+  kind: slot.kind,
+  x: (i - 1) * ROW_GAP,
+  back: Math.abs(i - 1) * SIDE_BACK,
+  drop: Math.abs(i - 1) * SIDE_DROP,
+}))
+/**
+ * Half a row's width, in card widths: the outer card's centre plus its half.
+ * One per arrangement, since the desktop row is spaced wider than the phone's.
+ */
+const REACH = { compact: ROW_GAP + 0.5, wide: 1.25 + 0.5 }
+
 /** How far the fan is pulled toward the camera, clear of the unit itself. */
 const PULL = 0.35
 
@@ -62,7 +106,15 @@ const PULL = 0.35
  * billboard.js is what keeps it steady across the three views.
  */
 
-export default function StatCards({ system, figures, visible }) {
+export default function StatCards({
+  system,
+  figures,
+  visible,
+  compact = false,
+  insets,
+  viewScale = 1,
+  houseOpen = false,
+}) {
   const [progress, setProgress] = useState(0)
   const elapsed = useRef(0)
   const lastDrawn = useRef(-1)
@@ -72,13 +124,30 @@ export default function StatCards({ system, figures, visible }) {
   const anchor = useMemo(() => system.view.target.clone(), [system])
 
   /**
+   * Figures about a unit nobody can see are just clutter, so the row goes with
+   * it — round the back of the house, or off the side of the frame. Boolean
+   * rather than a fade of its own: SceneCard eases whatever it is given.
+   */
+  const inSight = useAnchorVisible(anchor, visible, houseOpen)
+
+  /**
    * Rebuilt whenever the count ticks or the system changes. Three canvases and
    * three uploads per rebuild, which is why REDRAW_HZ is where it is.
    */
-  const cards = useMemo(
-    () => SLOTS.map((slot) => createStatTexture(slot.kind, figures, progress)),
-    [figures, progress],
-  )
+  const slots = compact ? COMPACT_SLOTS : SLOTS
+
+  /**
+   * All three are drawn at the tallest one's height, so the row lines up at
+   * the foot as well as the head. Left alone they come out at 118, 160 and
+   * 148, which reads as three unrelated panels rather than one set of figures
+   * about one product.
+   */
+  const cards = useMemo(() => {
+    const kinds = SLOTS.map((slot) => slot.kind)
+    const width = compact ? COMPACT_WIDTH : undefined
+    const height = statRowHeight(kinds, figures, progress, width)
+    return kinds.map((kind) => createStatTexture(kind, figures, progress, { width, height }))
+  }, [figures, progress, compact])
 
   useEffect(() => {
     return () => cards.forEach((c) => c.texture.dispose())
@@ -120,22 +189,55 @@ export default function StatCards({ system, figures, visible }) {
       right: new THREE.Vector3(),
       up: new THREE.Vector3(),
       toCamera: new THREE.Vector3(),
+      fromMiddle: new THREE.Vector3(),
     }),
     [],
   )
 
   const offsetFor = useCallback(
-    (slot) => (out, { width, camera }) => {
-      const { right, up, toCamera } = scratch
+    (slot) => (out, { width, height, camera }) => {
+      const { right, up, toCamera, fromMiddle } = scratch
       right.set(1, 0, 0).applyQuaternion(camera.quaternion)
       up.set(0, 1, 0).applyQuaternion(camera.quaternion)
       toCamera.copy(camera.position).sub(anchor).normalize()
+
+      const frame = frameMetrics(camera, anchor, fromMiddle)
+
+      // Above the unit on a phone, below it on a desktop. The phone's lift is
+      // a share of the frame; the desktop's is a share of the card, as it has
+      // always been.
+      out.addScaledVector(up, compact ? frame.height * ROW_LIFT : slot.y * width)
+
+      /*
+        Then pulled back into the part of the frame the interface is not
+        standing on. Both arrangements need it: the phone because the row is
+        nearly as wide as the screen, and the desktop because a row hung below
+        a unit that sits low in its own frame — the rainwater tank at a close
+        stage view — drops off the bottom of the canvas and behind the play
+        bar.
+
+        Every card works the slide out from the same anchor and the same
+        camera, so all three arrive at the same answer and the row stays a row.
+        That is why it is done here rather than per card inside SceneCard.
+      */
+      clampIntoFrame(out, {
+        frame,
+        offset: fromMiddle,
+        right,
+        up,
+        halfW: (compact ? REACH.compact : REACH.wide) * width,
+        halfH: height / 2,
+        insets,
+        edge: EDGE,
+        pull: PULL * system.markerScale,
+      })
+
       out
         .addScaledVector(right, slot.x * width)
-        .addScaledVector(up, slot.y * width)
-        .addScaledVector(toCamera, PULL * system.markerScale)
+        .addScaledVector(up, -(slot.drop ?? 0) * height)
+        .addScaledVector(toCamera, PULL * system.markerScale - (slot.back ?? 0) * width)
     },
-    [anchor, system, scratch],
+    [anchor, system, scratch, compact, insets],
   )
 
   // Nothing to draw, and nothing to pay for, until the unit has been picked.
@@ -143,12 +245,15 @@ export default function StatCards({ system, figures, visible }) {
 
   return (
     <group>
-      {SLOTS.map((slot, i) => (
+      {slots.map((slot, i) => (
         <SceneCard
           key={slot.kind}
           card={cards[i]}
           anchor={anchor}
-          visible={visible}
+          visible={visible && inSight}
+          declutter
+          viewScale={viewScale}
+          frameShare={compact ? COMPACT_FRAME_SHARE : undefined}
           offset={offsetFor(slot)}
         />
       ))}

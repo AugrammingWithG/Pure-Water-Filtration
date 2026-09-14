@@ -13,6 +13,8 @@
 :root{
   --bg:#eef1f5;
   --bg-2:#f8f9fb;
+  /* the same colour as channels, for the chrome scrim to fade out of */
+  --bg-2-rgb:248,249,251;
   --panel:rgba(255,255,255,0.74);
   --panel-border:rgba(15,28,51,0.07);
   --navy:#1C2F7C;
@@ -30,6 +32,17 @@
    * stay clear. Tune here if the bar changes height.
    */
   --playbar-h:calc(88px + env(safe-area-inset-bottom));
+
+  /**
+   * How much of each edge the interface is standing on. Written by
+   * hooks/useUiInsets from the elements themselves, every resize; the values
+   * here are only what the first paint uses before that has run, and are the
+   * one place in this file that guesses at the chrome.
+   */
+  --ui-top:104px;
+  --ui-right:0px;
+  --ui-bottom:var(--playbar-h);
+  --ui-left:84px;
 
   /* Page gutter, widened past any notch when the viewport is inset. */
   --gutter-l:max(30px, env(safe-area-inset-left));
@@ -64,19 +77,18 @@ button{font-family:inherit; cursor:pointer; border:none; background:none; color:
 }
 
 /**
- * Header, then one cell holding both the scene and the play bar.
+ * One cell. The scene fills it; everything else is laid over the top.
  *
- * The bar used to be a third row below the scene, which left it standing on
- * the page background. That reads fine at the opening framing, where the
- * canvas fades to near the same colour at its lower edge — but fly the camera
- * in and the grass runs right to the bottom of the canvas, so the bar ends up
- * marooned on a white strip under a hard green line. Sharing the cell puts it
- * over the scene, where the rest of the floating chrome already lives, and
- * costs no magic number to line up.
+ * The header used to own a strip of page and the rail a column of it, so the
+ * canvas was whatever was left — about 190px of a phone's height spent on
+ * chrome before the diorama got any. Stacking them means the scene is the
+ * page and the interface floats on it, which is both what CS-0058 asks for
+ * and what lets the cards in the scene be placed against real measurements
+ * (see hooks/useUiInsets) rather than against the layout's leftovers.
  */
 .app{
   height:100vh;
-  display:grid; grid-template-rows:auto 1fr; overflow:hidden;
+  display:grid; grid-template-rows:1fr; overflow:hidden;
   background:
     radial-gradient(ellipse 1100px 700px at 62% 42%, #ffffff 0%, rgba(255,255,255,0) 65%),
     radial-gradient(ellipse 900px 600px at 88% 8%, rgba(var(--accent-rgb),0.16), transparent 62%),
@@ -140,8 +152,44 @@ header p{font-size:12.5px; color:var(--ink-dim); margin-top:4px; max-width:520px
 
 /* ---------- MAIN LAYOUT ---------- */
 main{
-  grid-row:2; grid-column:1;
-  display:flex; position:relative; min-height:0; min-width:0;
+  grid-area:1/1;
+  position:relative; min-height:0; min-width:0;
+}
+
+/**
+ * The interface, in one column over the scene.
+ *
+ * A column so the rail follows the header without a single offset being
+ * written down — the header is as tall as its copy makes it and the row below
+ * simply starts there, at every breakpoint.
+ *
+ * Nothing here takes a pointer except the controls themselves. The column
+ * covers the top of the canvas edge to edge, and without this the orbit
+ * gesture would die on a strip of empty space beside the title.
+ */
+.chrome{
+  grid-area:1/1; align-self:start; z-index:8;
+  position:relative;
+  display:flex; flex-direction:column;
+  pointer-events:none;
+}
+.chrome a, .chrome button{pointer-events:auto;}
+/* A scrim, not a bar: the page colour at the top fading out by the foot of
+   the rail, so the title stays readable once the camera flies in and the
+   grass runs up behind it — without rebuilding the solid header this ticket
+   just deleted. */
+.chrome::before{
+  content:''; position:absolute; inset:0; z-index:-1;
+  background:linear-gradient(
+    180deg,
+    rgba(var(--bg-2-rgb),0.94) 0%,
+    rgba(var(--bg-2-rgb),0.72) 42%,
+    rgba(var(--bg-2-rgb),0) 100%
+  );
+}
+.chrome-row{
+  display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+  padding-right:var(--gutter-r);
 }
 
 /* sidebar */
@@ -167,8 +215,8 @@ main{
 }
 .side-btn.active span{color:var(--accent);}
 
-/* canvas region */
-.stage-region{flex:1; position:relative; min-width:0; min-height:0;}
+/* canvas region: the whole cell now */
+.stage-region{position:absolute; inset:0;}
 /* touch-action:none hands every touch drag to the orbit rig instead of
    letting the browser read it as a page scroll or a pinch-zoom */
 .sim-canvas-wrap{position:absolute; inset:0; cursor:grab; touch-action:none;}
@@ -179,10 +227,9 @@ main{
 /* the orbit rig toggles .dragging on the canvas element it listens to */
 .sim-canvas-wrap canvas.dragging{cursor:grabbing;}
 
-.view-controls{
-  position:absolute; z-index:6; display:flex; gap:8px;
-  top:16px; right:max(16px, env(safe-area-inset-right));
-}
+/* In the chrome column, level with the top of the rail, so it cannot land on
+   the header's own buttons the way a top-right absolute position would. */
+.view-controls{display:flex; gap:8px;}
 .chip-btn{
   font-size:11px; font-weight:600; color:var(--ink-dim);
   background:rgba(255,255,255,0.75); backdrop-filter:blur(6px);
@@ -204,9 +251,13 @@ main{
 /* The two cards down the left share one row: a bold value with its caption
    beneath. The facts card's values are figures (a micron rating, an
    interval); the why card's are short phrases, so its type steps down. */
-.card-facts{top:15%; left:6%; width:190px;}
+/* Placed off the measured chrome rather than off percentages of the canvas:
+   6% of the width used to clear the rail because the rail was not over the
+   canvas, and now it would sit underneath it. */
+.card-facts{top:calc(var(--ui-top) + 14px); left:calc(var(--ui-left) + 14px); width:190px;}
 .card-why{
-  bottom:calc(var(--playbar-h) + 8px); left:6%; width:190px; pointer-events:auto;
+  bottom:calc(var(--ui-bottom) + 10px); left:calc(var(--ui-left) + 14px);
+  width:190px; pointer-events:auto;
 }
 .fact-row{margin-bottom:10px;}
 .fact-row:last-of-type{margin-bottom:0;}
@@ -221,7 +272,8 @@ main{
 .phone-link:hover{background:rgba(var(--accent-rgb),0.18);}
 
 .card-detail{
-  top:15%; right:6%; width:236px; pointer-events:auto;
+  top:calc(var(--ui-top) + 14px); right:calc(var(--ui-right) + 24px);
+  width:236px; pointer-events:auto;
   /* the copy is variable-length: cap the card against the region and scroll
      the overflow rather than let it run off the bottom of the screen */
   max-height:76%; overflow-y:auto; overscroll-behavior:contain;
@@ -275,7 +327,7 @@ main{
 
 /* ---------- BOTTOM PLAYBACK BAR ---------- */
 .playbar-wrap{
-  grid-row:2; grid-column:1; align-self:end; z-index:6;
+  grid-area:1/1; align-self:end; z-index:6;
   display:flex; flex-direction:column; align-items:center; gap:10px;
   padding:0 16px calc(20px + env(safe-area-inset-bottom));
   /* the strip is only a layout box now; the scene behind it stays draggable */
@@ -405,8 +457,8 @@ main{
        anchors, which a 900px-tall laptop does not have. Pull each card
        towards its own edge first... --- */
 @media (max-height:900px){
-  .card-facts, .card-detail{top:10%;}
-  .card-why{bottom:calc(var(--playbar-h) + 4px);}
+  .card-facts, .card-detail{top:calc(var(--ui-top) + 8px);}
+  .card-why{bottom:calc(var(--ui-bottom) + 6px);}
 }
 
 /* --- ...and only once even that will not fit, drop the lower one. It is
@@ -419,7 +471,13 @@ main{
 
 /* --- rail: left-hand dock -> row of pills under the header --- */
 @media (max-width:900px), (max-height:620px){
-  main{flex-direction:column;}
+  /* The rail becomes a row of pills, so it takes the whole width of the
+     chrome column and Reset view drops to its own line beneath. */
+  /* first-paint seeds again: no rail down the side, a taller band across the
+     top. Measured over within a frame. */
+  :root{--ui-left:0px; --ui-top:150px;}
+  .chrome-row{flex-direction:column; align-items:stretch;}
+  .view-controls{align-self:flex-end;}
   .sidebar{
     width:100%; flex-direction:row; justify-content:center; align-items:stretch;
     gap:8px; padding:2px 12px 8px;
@@ -468,7 +526,7 @@ main{
   .browse-btn, .call-btn{font-size:11.5px; padding:8px 13px;}
   .header-actions{gap:6px;}
 
-  .view-controls{top:12px; right:max(12px, env(safe-area-inset-right));}
+
 
   /* the floating one goes: its rows move into the sheet below, and as a
      corner card it was a third of the canvas height */
@@ -479,7 +537,7 @@ main{
   .fact-row span{font-size:9.5px;}
 
   .card-detail{
-    top:auto; bottom:calc(var(--playbar-h) + 8px); width:auto;
+    top:auto; bottom:calc(var(--ui-bottom) + 8px); width:auto;
     left:max(12px, env(safe-area-inset-left));
     right:max(12px, env(safe-area-inset-right));
     max-height:38%; padding:11px 14px;
@@ -490,11 +548,34 @@ main{
   }
   .card-detail p{margin-bottom:8px;}
   .card-detail h3{margin-bottom:5px;}
-  .fc-removed{margin-bottom:8px;}
+
+  /* --- three lines the sheet does not need to spend on a phone ---
+     The sheet sits on top of the diorama, so every row it drops is a row of
+     the model given back. All three of these are said somewhere else on the
+     same screen. */
+
+  /* "STAGE 1 OF 4" — the play bar says exactly this, bottom right. */
+  .card-detail .fc-eyebrow{display:none;}
+
+  /* The label goes beside the chips rather than above them: "CATCHES" and
+     three short chips fit on one line at this width, and the stack was
+     costing a row for a word. */
+  .fc-removed{
+    display:flex; align-items:baseline; flex-wrap:wrap; gap:5px 8px;
+    margin-bottom:6px;
+  }
+  .fc-removed-label{margin-bottom:0; flex-shrink:0;}
+
   /* A floor, so the sheet does not resize under the reader as they move
      between tabs — but a low one, since the sheet is sitting on top of the
      thing the page is actually about. */
   .card-detail{min-height:20%;}
+
+  /* The header carries Instant quote and the phone number at every scroll
+     position on a phone, so the sheet's copy of the quote button is the one
+     duplicate that costs a whole row. Learn more is the only action here
+     that is not already on screen, so it is the one that stays. */
+  .detail-actions .primary{display:none;}
   .card-detail .fact-row{margin-bottom:5px;}
   .card-detail .fact-row b{font-size:12px;}
   .card-detail .fact-row span{font-size:9px; line-height:1.35;}
@@ -573,11 +654,11 @@ main{
   .card-facts{display:none;}
   /* short but wide: the card goes back to the right-hand side, and takes a
      little more width so its three buttons stay on one row */
-  .card-detail{top:12px; bottom:auto; left:auto; width:240px; max-height:calc(100% - 24px);}
+  .card-detail{
+    top:calc(var(--ui-top) + 8px); bottom:auto; left:auto; width:240px;
+    max-height:calc(100% - var(--ui-top) - var(--ui-bottom) - 16px);
+  }
   .detail-actions a{font-size:10px; padding:5px 8px;}
-  /* the detail card now runs the full height of the right-hand side, so the
-     chip moves into the corner the facts card just vacated */
-  .view-controls{top:12px; left:max(12px, env(safe-area-inset-left)); right:auto;}
   /* everything shrinks when there is no height to spare */
   :root{--playbar-h:calc(64px + env(safe-area-inset-bottom));}
   .playbar-wrap{padding-bottom:calc(9px + env(safe-area-inset-bottom));}
