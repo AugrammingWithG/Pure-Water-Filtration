@@ -56,12 +56,11 @@ That structure is what the scene reads:
   gradient, faint where the run is buried and lit up along the selected stage.
   It is thinner than the narrowest pipe it runs inside, so it shows only in the
   gaps: buried runs, and inside the cartridges.
-- **Both kitchen taps pour.** Each system says what the two taps carry
-  (`taps` in `systems.js`): the route's own water arrives at one, and the
-  other pours a plain stream — the system's finished water if the tap is
-  downstream of the unit, or plain water-blue mains — so while the RO unit is
-  selected the mixer runs untreated mains beside the filtered tap. Inside a
-  tap the water is hidden: the chrome is thinner than the
+- **Both kitchen taps pour.** The route's own water arrives at one tap
+  (`routeTap` in `systems.js`); every other tap pours a plain stream of the
+  same finished water, lit up when the route's outlet is, so the two never
+  read as two different outcomes. Inside a tap the water is hidden: the
+  chrome is thinner than the
   stream, so the leg through it carries a `bore` that keeps the bubbles in.
 
 ## The walkthrough

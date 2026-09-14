@@ -568,6 +568,8 @@ const STREAM_SEGMENTS = 8
  * pipe — so every tap stream is calmed from the start.
  */
 const CALMED = [-1, -0.5]
+/** The whole of a tap stream, for lighting it up along with the route's outlet. */
+const WHOLE = [0, 1]
 
 /**
  * Water pouring from a kitchen tap the route does not reach — the mixer while
@@ -576,21 +578,24 @@ const CALMED = [-1, -0.5]
  * sink, on the same clock, so it pauses and scrubs with everything else.
  *
  * `spacing` and `speed` are the route's own as its water leaves the nozzle —
- * metres between bubbles, and metres per second — so the two taps read as
- * the same water; `fade` is the route's shrink-out at its end, in metres.
+ * metres between bubbles, and metres per second — and `lit` says whether the
+ * route's outlet is on the selected stage, so this stream brightens with it.
+ * Together they keep the two taps reading as the same water; `fade` is the
+ * route's shrink-out at its end, in metres.
  */
-function TapStream({ path, stream, routeRadius, clock, spacing, speed, fade }) {
+function TapStream({ path, stream, routeRadius, clock, spacing, speed, fade, lit }) {
   const ride = useMemo(() => buildRide(path.curve, STREAM_SAMPLES), [path])
   const count = Math.max(1, Math.round(path.length / spacing))
+  const activeSpan = lit ? WHOLE : null
   return (
     <group>
-      <RouteLine path={path} radius={routeRadius} activeSpan={null} segments={STREAM_SEGMENTS} />
+      <RouteLine path={path} radius={routeRadius} activeSpan={activeSpan} segments={STREAM_SEGMENTS} />
       <Bubbles
         path={path}
         ride={ride}
         stream={stream}
         count={count}
-        activeSpan={null}
+        activeSpan={activeSpan}
         clock={clock}
         calmSpan={CALMED}
         rate={speed / path.length}
@@ -620,6 +625,8 @@ export default function WaterFlow({ system, currentStage, paused = false, subscr
   const streamSpeed = outlet * FLOW_SPEED
   const streamSpacing = outlet / count
   const streamFade = EDGE_FADE * path.length
+  /** The selected stage reaches the end of the route, so its outlet is lit. */
+  const outletLit = activeSpan !== null && activeSpan[1] >= 1
 
   /**
    * The water's clock: seconds it has been running, and how far it moved this
@@ -669,6 +676,7 @@ export default function WaterFlow({ system, currentStage, paused = false, subscr
           spacing={streamSpacing}
           speed={streamSpeed}
           fade={streamFade}
+          lit={outletLit}
         />
       ))}
     </group>
