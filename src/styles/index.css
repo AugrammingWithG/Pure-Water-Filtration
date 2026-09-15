@@ -167,19 +167,6 @@
   pointer-events:none;
 }
 .chrome a, .chrome button{pointer-events:auto;}
-/* A scrim, not a bar: the page colour at the top fading out by the foot of
-   the rail, so the title stays readable once the camera flies in and the
-   grass runs up behind it — without rebuilding the solid header this ticket
-   just deleted. */
-.chrome::before{
-  content:''; position:absolute; inset:0; z-index:-1;
-  background:linear-gradient(
-    180deg,
-    rgba(var(--bg-2-rgb),0.94) 0%,
-    rgba(var(--bg-2-rgb),0.72) 42%,
-    rgba(var(--bg-2-rgb),0) 100%
-  );
-}
 .chrome-row{
   display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
   padding-right:var(--gutter-r);
