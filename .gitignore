@@ -21,3 +21,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local environment (the quote endpoint key lives here)
+.env
+.env.local
+.env.*.local

@@ -1,51 +1,52 @@
-import { CTA } from '../../data/constants'
-import { DownloadIcon, MailIcon, OpenIcon, PhoneIcon } from '../icons'
+import { CONTACT, CTA } from '../../data/constants'
+import { MailIcon, PhoneIcon } from '../icons'
+import QuoteForm from '../quote/QuoteForm'
 import { useSite } from '../SiteContext'
 
 /**
- * Where every "Get a free quote" on the page lands. Until the on-site form
- * has somewhere to submit to (PRODUCT.md: backend undecided), the two paths
- * that actually work are the phone and the client's own contact page, so
- * those are the two things offered — not a button that scrolls to another
- * button.
+ * Where every "Get a free quote" on the page lands: the quote form itself,
+ * with the phone beside it for anyone who would rather talk. The form is
+ * the client's own Instant Quote questions (see quote/schema.js), so a lead
+ * from here reads the same as one from their current site.
  */
 export default function FinalCta() {
-  const { showToast } = useSite()
+  const { quotePrefill } = useSite()
   return (
     <section className="section final-cta" id="contact">
-      <div className="container split">
+      <div className="container split split-narrow">
         <div className="reveal">
           <div className="eyebrow">Get a free quote</div>
           <h2>Ready to feel the difference in your water?</h2>
           <p>
-            Tell us about your home and what you've noticed. A specialist will come back with a
-            recommendation and a transparent quote — same day for quote requests.
+            Answer a few quick questions about your home and what you've noticed. A specialist
+            comes back with a recommendation and a transparent quote — same business day.
           </p>
-          <button className="link quiet" onClick={showToast}>
-            Or download the pricing guide first <DownloadIcon size={12} />
-          </button>
+          <div className="contact-card">
+            <a className="contact-row" href={CTA.phone.href}>
+              <span className="contact-icon">
+                <PhoneIcon size={20} />
+              </span>
+              <span>
+                <strong>Call {CTA.phone.label}</strong>
+                <small>
+                  {CONTACT.hours.weekdays} · {CONTACT.hours.weekends}
+                </small>
+              </span>
+            </a>
+            <a className="contact-row" href={CTA.email.href}>
+              <span className="contact-icon">
+                <MailIcon size={20} />
+              </span>
+              <span>
+                <strong>{CTA.email.label}</strong>
+                <small>For anything that isn't a quote</small>
+              </span>
+            </a>
+            <p className="contact-note">No obligation. No pushy sales, just honest advice.</p>
+          </div>
         </div>
-        <div className="contact-card reveal delay2">
-          <a className="contact-row" href={CTA.phone.href}>
-            <span className="contact-icon">
-              <PhoneIcon size={20} />
-            </span>
-            <span>
-              <strong>Call {CTA.phone.label}</strong>
-              <small>Quickest way to talk to a specialist</small>
-            </span>
-          </a>
-          <a className="contact-row" href={CTA.quote.href} target="_blank" rel="noopener">
-            <span className="contact-icon">
-              <MailIcon size={20} />
-            </span>
-            <span>
-              <strong>Request a quote online</strong>
-              <small>Opens the quote form on purewaterfiltration.com.au</small>
-            </span>
-            <OpenIcon size={14} />
-          </a>
-          <p className="contact-note">No obligation. Same-day response to quote requests.</p>
+        <div className="reveal delay2">
+          <QuoteForm prefill={quotePrefill} />
         </div>
       </div>
     </section>

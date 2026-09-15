@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import logo from '../assets/brand/logo.webp'
 import { useBodyClass } from '../hooks'
 import { ArrowIcon, CloseIcon, MenuIcon, MotionIcon, PhoneIcon, TextSizeIcon } from '../icons'
 import { useSite } from '../SiteContext'
@@ -48,10 +49,7 @@ export default function SiteHeader() {
       <div className="nav-wrap">
         <nav className="nav" aria-label="Main">
           <a className="logo" href="#" aria-label="Pure Water Filtration, back to top">
-            <span className="logo-mark" />
-            <span className="logo-text">
-              PureWater<small>Filtration</small>
-            </span>
+            <img src={logo} alt="" width="550" height="200" />
           </a>
           <div className="navlinks">
             {LINKS.map(([href, label]) => (

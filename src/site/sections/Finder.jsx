@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { ArrowIcon, CheckIcon } from '../icons'
+import { useSite } from '../SiteContext'
 
 const QUESTIONS = [
   {
@@ -85,10 +86,12 @@ const RESULTS = {
   drink: {
     title: 'Under Sink Filtration',
     text: 'An under-sink system is a strong starting point when your priority is cleaner, better-tasting drinking water at the kitchen tap.',
+    service: 'Under-sink filtration',
   },
   rain: {
     title: 'Rainwater Filtration',
     text: 'A rainwater system is the natural starting point for homes relying on stored tank water, subject to a site assessment.',
+    service: 'Rainwater filtration',
   },
   unsure: {
     title: 'A Specialist Assessment',
@@ -97,10 +100,12 @@ const RESULTS = {
   default: {
     title: 'Whole House Filtration',
     text: 'A whole-house system is the strongest starting point when you want filtered water across the home.',
+    service: 'Whole-house filtration',
   },
 }
 
 export default function Finder() {
+  const { openQuote } = useSite()
   const [step, setStep] = useState(1)
   const [answers, setAnswers] = useState([])
   const [done, setDone] = useState(false)
@@ -190,9 +195,10 @@ export default function Finder() {
               <li>Designed around your local water</li>
             </ul>
             <div className="actions">
-              <a className="btn" href="#contact">
+              {/* the result's system is already the form's first answer */}
+              <button className="btn" onClick={() => openQuote({ service: result.service })}>
                 Talk to a specialist <ArrowIcon />
-              </a>
+              </button>
               <button
                 className="link quiet"
                 onClick={() => {

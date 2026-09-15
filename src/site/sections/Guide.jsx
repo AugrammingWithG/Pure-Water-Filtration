@@ -1,21 +1,25 @@
-import { CheckIcon, DownloadIcon } from '../icons'
+import pricingGuide from '../assets/brand/pricing-guide.webp'
+import { ArrowIcon, CheckIcon } from '../icons'
 import { useSite } from '../SiteContext'
 
+/**
+ * The client gates the pricing guide behind the same questions as a quote,
+ * so the button here opens the form with that intent rather than a file:
+ * the guide comes back with the specialist's reply.
+ */
 export default function Guide() {
-  const { showToast } = useSite()
+  const { openQuote } = useSite()
   return (
     <section className="section guide" id="guide">
       <div className="container split">
         <div className="guide-card reveal">
-          <div className="guide-cover">
-            <div className="eyebrow">Free guide</div>
-            <h3>
-              Water Filtration
-              <br />
-              Pricing Guide
-            </h3>
-            <p>For Australian homes</p>
-          </div>
+          <img
+            src={pricingGuide}
+            alt="The Pure Water Filtration Pricing Guide: a printed booklet, cover and an open spread"
+            width="1000"
+            height="897"
+            loading="lazy"
+          />
         </div>
         <div className="reveal delay2">
           <div className="eyebrow">Free resource</div>
@@ -35,9 +39,10 @@ export default function Guide() {
               <CheckIcon /> How Filter Care keeps costs predictable
             </li>
           </ul>
-          <button className="btn" onClick={showToast}>
-            Download the free guide <DownloadIcon />
+          <button className="btn" onClick={() => openQuote({ intent: 'pricing-guide' })}>
+            Request the free guide <ArrowIcon />
           </button>
+          <p className="guide-note">A few quick questions, then it comes back with your reply.</p>
         </div>
       </div>
     </section>

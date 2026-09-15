@@ -16,10 +16,12 @@ import FinalCta from './sections/FinalCta'
 import Finder from './sections/Finder'
 import Guide from './sections/Guide'
 import Hero from './sections/Hero'
+import Installs from './sections/Installs'
 import Reviews from './sections/Reviews'
 import Services from './sections/Services'
 import SiteFooter from './sections/SiteFooter'
 import SiteHeader from './sections/SiteHeader'
+import Specs from './sections/Specs'
 import Steps from './sections/Steps'
 import TrustStrip from './sections/TrustStrip'
 import WaterLab from './sections/WaterLab'
@@ -66,14 +68,16 @@ export default function Site() {
   useBodyClass('easy-read', prefs.easyRead)
   useBodyClass('reduced-motion', prefs.reducedMotion)
 
-  const [toast, setToast] = useState(false)
-  const toastTimer = useRef(0)
-  const showToast = useCallback(() => {
-    setToast(true)
-    clearTimeout(toastTimer.current)
-    toastTimer.current = setTimeout(() => setToast(false), 2800)
+  /**
+   * A section can send the visitor to the form with the first question
+   * already answered. `key` ticks on every call so the form reacts even when
+   * the same prefill is asked for twice in a row.
+   */
+  const [quotePrefill, setQuotePrefill] = useState(null)
+  const openQuote = useCallback((prefill = {}) => {
+    setQuotePrefill({ ...prefill, key: Date.now() })
+    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }, [])
-  useEffect(() => () => clearTimeout(toastTimer.current), [])
 
   const openViewer = useCallback(() => {
     if (window.location.hash !== LAB_HASH) {
@@ -92,8 +96,8 @@ export default function Site() {
     setViewerOpen(false)
   }, [])
   const actions = useMemo(
-    () => ({ openViewer, showToast, viewerOpen, prefs, setPref }),
-    [openViewer, showToast, viewerOpen, prefs, setPref],
+    () => ({ openViewer, openQuote, quotePrefill, viewerOpen, prefs, setPref }),
+    [openViewer, openQuote, quotePrefill, viewerOpen, prefs, setPref],
   )
 
   useReveal()
@@ -118,9 +122,11 @@ export default function Site() {
         <Services />
         <Finder />
         <Compare />
+        <Specs />
         <Benefits />
         <Steps />
         <Reviews />
+        <Installs />
         <Areas />
         <Guide />
         <Faq />
@@ -130,9 +136,6 @@ export default function Site() {
       <SiteFooter />
 
       {viewerOpen && <ViewerModal onClose={closeViewer} />}
-      <div className={`toast${toast ? ' show' : ''}`} role="status">
-        This is a design prototype — the pricing guide download is not connected yet.
-      </div>
 
       <MobileActions />
       <UtilityBar />
