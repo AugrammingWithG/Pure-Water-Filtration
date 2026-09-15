@@ -27,7 +27,7 @@ export function useReveal() {
 
     /* a section has arrived once its top is in the upper 85% of the screen */
     const sections = once('in-view', { threshold: 0, rootMargin: '0px 0px -15% 0px' })
-    document.querySelectorAll('.section, .hero, .trust-strip').forEach((el) => sections.observe(el))
+    document.querySelectorAll('.section, .hero').forEach((el) => sections.observe(el))
 
     return () => {
       reveals.disconnect()
