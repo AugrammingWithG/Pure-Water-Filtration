@@ -47,7 +47,13 @@
 
 /* ---------- BASE ---------- */
 *{box-sizing:border-box}
-html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+/* The page snaps section to section: one flick lands on the next section's
+   top, sat just under the sticky nav (scroll-padding). `mandatory` is what
+   gives the settled, one-gesture feel; a section taller than the screen is
+   still scrolled through freely, because the browser only snaps once its
+   edges come into play. Swap to `y proximity` for a softer pull that only
+   catches when a boundary is already close. */
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-snap-type:y mandatory;scroll-padding-top:var(--nav-h)}
 body{margin:0;font-family:var(--font-body);font-size:15px;line-height:1.7;color:var(--ink);background:#fff;overflow-x:hidden;-webkit-font-smoothing:antialiased}
 body.menu-open{overflow:hidden}
 a{text-decoration:none;color:inherit}
@@ -103,7 +109,8 @@ h1 em,h2 em{font-style:normal;color:var(--blue)}
 .check-list svg{color:var(--blue);flex-shrink:0;width:18px;height:18px;padding:2px;border-radius:50%;background:var(--pale)}
 
 /* ---------- HEADER ---------- */
-.topbar{height:34px;background:var(--navy);color:#dcecff;font-size:11px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;gap:20px}
+/* the page top is a stop of its own: from here one flick lands on the Lab */
+.topbar{scroll-snap-align:start;height:34px;background:var(--navy);color:#dcecff;font-size:11px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;gap:20px}
 .topbar span{opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .topbar a{font-weight:700;white-space:nowrap}
 .nav-wrap{position:sticky;top:0;z-index:50}
@@ -134,7 +141,7 @@ h1 em,h2 em{font-style:normal;color:var(--blue)}
    Every section is .section; .pale and .dark set the tide; .feature is the
    one that steps its heading up. The head, the split, the card grid and
    the figure are the four layouts, and every section is one of them. */
-.section{padding:var(--section) 0;position:relative}
+.section{padding:var(--section) 0;position:relative;scroll-snap-align:start}
 .section.pale{background:var(--section-pale)}
 .section.dark{background:var(--night);color:#fff;overflow:hidden}
 .section.dark:before{content:"";position:absolute;width:900px;height:900px;border-radius:50%;right:-300px;top:-400px;background:radial-gradient(circle,rgba(66,201,255,.2),transparent 65%);pointer-events:none}
@@ -529,7 +536,7 @@ select.q-input{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www
 .benefit-partner:hover img{opacity:1}
 
 /* ---------- FOOTER ---------- */
-.footer{background:var(--floor);color:#fff;padding:70px 0 25px}
+.footer{background:var(--floor);color:#fff;padding:70px 0 25px;scroll-snap-align:end}
 .footer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:40px}
 .footer .logo img{height:44px}
 .footer-tagline{margin-top:22px}
@@ -540,13 +547,153 @@ select.q-input{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www
 .footer a:hover{color:#fff}
 .footer-bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:45px;padding-top:20px;display:flex;justify-content:space-between;gap:12px;font-size:11px;color:#7897ac}
 
+/* ---------- MOTION ----------
+   Two hooks, both set once by the page's observer (hooks.js). `.reveal`
+   gets `.visible`: the entrance an element makes on its own. Every
+   section gets `.in-view`: the cue for the pieces inside it to arrive in
+   order, without each needing a class. All of it is keyframes with a
+   `backwards` fill rather than transitions, and moves `translate`/`scale`
+   rather than `transform` — so an element's own hover transition and its
+   own transform (the card's lift, the guide's tilt) are left alone, and
+   once the entrance is over the stylesheet's ordinary values simply
+   apply. */
+@keyframes rise{from{opacity:0;translate:0 28px}}
+@keyframes rise-left{from{opacity:0;translate:-44px 0}}
+@keyframes rise-right{from{opacity:0;translate:44px 0}}
+@keyframes zoom-in{from{opacity:0;scale:.94}}
+@keyframes pop{from{opacity:0;scale:.4}}
+@keyframes fade{from{opacity:0}}
+@keyframes grow-x{from{scale:0 1}}
+@keyframes slide-in{from{opacity:0;translate:-14px 0}}
+
+.reveal{opacity:0}
+.reveal.visible{opacity:1;animation:rise .8s var(--ease) var(--delay,0s) backwards}
+.reveal.from-left.visible{animation-name:rise-left}
+.reveal.from-right.visible{animation-name:rise-right}
+.reveal.zoom.visible{animation-name:zoom-in;animation-duration:1s}
+/* a property rather than animation-delay, which the shorthand above would reset */
+.delay1{--delay:.08s}.delay2{--delay:.16s}.delay3{--delay:.24s}.delay4{--delay:.32s}.delay5{--delay:.4s}
+
+/* a block that stays put while its lines arrive one after another:
+   eyebrow, then heading, then the paragraph, then the button */
+.reveal-stagger>*{opacity:0}
+.reveal-stagger.visible>*{opacity:1;animation:rise .7s var(--ease) backwards}
+.reveal-stagger.visible>:nth-child(2){animation-delay:.09s}
+.reveal-stagger.visible>:nth-child(3){animation-delay:.18s}
+.reveal-stagger.visible>:nth-child(4){animation-delay:.27s}
+.reveal-stagger.visible>:nth-child(5){animation-delay:.36s}
+.reveal-stagger.visible>:nth-child(n+6){animation-delay:.45s}
+
+/* Per-section choreography. `--arrived` is the gate: each piece is
+   invisible while its section is still below the fold, and animates from
+   its `from` state to its ordinary one once the section is in view. */
+.section,.hero,.trust-strip{--arrived:0}
+.in-view{--arrived:1}
+
+/* the steps' numbers pop in, one after another */
+.step-num{opacity:var(--arrived)}
+.in-view .step-num{animation:pop .6s cubic-bezier(.34,1.56,.64,1) .25s backwards}
+.in-view .step:nth-child(2) .step-num{animation-delay:.37s}
+.in-view .step:nth-child(3) .step-num{animation-delay:.49s}
+.in-view .step:nth-child(4) .step-num{animation-delay:.61s}
+
+/* the benefits' counters slide in ahead of their titles */
+.benefit:before{opacity:var(--arrived)}
+.in-view .benefit:before{animation:slide-in .5s var(--ease) .2s backwards}
+.in-view .benefit:nth-child(2):before{animation-delay:.3s}
+.in-view .benefit:nth-child(3):before{animation-delay:.4s}
+.in-view .benefit:nth-child(4):before{animation-delay:.5s}
+.in-view .benefit:nth-child(5):before{animation-delay:.6s}
+
+/* the decoder's track fills left to right, and the stops pop up along it */
+.track-fill,.water-dot,.water-labels>div{opacity:var(--arrived)}
+.track-fill{transform-origin:left}
+.in-view .track-fill{animation:grow-x 1.2s var(--ease) .35s backwards}
+.in-view .water-dot{animation:pop .5s cubic-bezier(.34,1.56,.64,1) backwards}
+.in-view .water-dot:nth-child(2){animation-delay:.45s}
+.in-view .water-dot:nth-child(3){animation-delay:.7s}
+.in-view .water-dot:nth-child(4){animation-delay:.95s}
+.in-view .water-dot:nth-child(5){animation-delay:1.2s}
+.in-view .water-labels>div{animation:rise .5s var(--ease) backwards}
+.in-view .water-labels>div:nth-child(1){animation-delay:.5s}
+.in-view .water-labels>div:nth-child(2){animation-delay:.75s}
+.in-view .water-labels>div:nth-child(3){animation-delay:1s}
+.in-view .water-labels>div:nth-child(4){animation-delay:1.25s}
+
+/* the rating lands, then its stars light up one by one */
+.rating-num,.stars svg{opacity:var(--arrived)}
+.in-view .rating-num{animation:zoom-in .7s var(--ease) .2s backwards}
+.in-view .stars svg{animation:pop .45s cubic-bezier(.34,1.56,.64,1) backwards}
+.in-view .stars svg:nth-child(1){animation-delay:.4s}
+.in-view .stars svg:nth-child(2){animation-delay:.48s}
+.in-view .stars svg:nth-child(3){animation-delay:.56s}
+.in-view .stars svg:nth-child(4){animation-delay:.64s}
+.in-view .stars svg:nth-child(5){animation-delay:.72s}
+
+/* the comparison fills in a row at a time */
+.compare-table>div{opacity:var(--arrived)}
+.in-view .compare-table>div{animation:fade .5s ease .25s backwards}
+.in-view .compare-table>div:nth-child(n+5){animation-delay:.38s}
+.in-view .compare-table>div:nth-child(n+9){animation-delay:.51s}
+.in-view .compare-table>div:nth-child(n+13){animation-delay:.64s}
+.in-view .compare-table>div:nth-child(n+17){animation-delay:.77s}
+.in-view .compare-table>div:nth-child(n+21){animation-delay:.9s}
+
+/* the map's pins drop in west to east */
+.aus-city{opacity:var(--arrived);transform-box:fill-box;transform-origin:center}
+.in-view .aus-city{animation:pop .5s cubic-bezier(.34,1.56,.64,1) .45s backwards}
+.in-view .aus-city:nth-of-type(2){animation-delay:.55s}
+.in-view .aus-city:nth-of-type(3){animation-delay:.65s}
+.in-view .aus-city:nth-of-type(4){animation-delay:.75s}
+.in-view .aus-city:nth-of-type(5){animation-delay:.85s}
+.in-view .aus-city:nth-of-type(6){animation-delay:.95s}
+.in-view .aus-city:nth-of-type(n+7){animation-delay:1.05s}
+
+/* the contact card's rows, the questions, the photo strip and the
+   datasheet's stages arrive in order */
+.contact-row,.faq-item,.install-track>li,.specs-stage{opacity:var(--arrived)}
+.in-view .contact-row{animation:slide-in .55s var(--ease) .4s backwards}
+.in-view .contact-row:nth-child(2){animation-delay:.52s}
+.in-view .faq-item{animation:rise .55s var(--ease) .15s backwards}
+.in-view .faq-item:nth-child(2){animation-delay:.23s}
+.in-view .faq-item:nth-child(3){animation-delay:.31s}
+.in-view .faq-item:nth-child(4){animation-delay:.39s}
+.in-view .faq-item:nth-child(5){animation-delay:.47s}
+.in-view .faq-item:nth-child(n+6){animation-delay:.55s}
+.in-view .install-track>li{animation:rise .6s var(--ease) .15s backwards}
+.in-view .install-track>li:nth-child(2){animation-delay:.25s}
+.in-view .install-track>li:nth-child(3){animation-delay:.35s}
+.in-view .install-track>li:nth-child(4){animation-delay:.45s}
+.in-view .install-track>li:nth-child(n+5){animation-delay:.55s}
+.in-view .specs-stage{animation:rise .6s var(--ease) .1s backwards}
+.in-view .specs-stage:nth-child(2){animation-delay:.2s}
+.in-view .specs-stage:nth-child(3){animation-delay:.3s}
+.in-view .specs-stage:nth-child(n+4){animation-delay:.4s}
+
+/* the dark sections' glow breathes the way the hero's does */
+.section.dark:before{animation:pulse 10s ease-in-out infinite}
+
+/* ---------- MICRO-INTERACTIONS ---------- */
+.btn svg,.link svg{transition:transform .3s var(--ease)}
+.btn:hover svg,.link:hover svg{transform:translateX(3px)}
+.trust-icon{transition:transform .35s cubic-bezier(.34,1.56,.64,1),background .3s}
+.trust:hover .trust-icon{transform:scale(1.1) rotate(-8deg);background:#d9f0ff}
+.chip{transition:border-color .25s,color .25s,transform .25s var(--ease)}
+.chip:hover{border-color:var(--blue);color:var(--blue);transform:translateY(-2px)}
+.contact-icon{transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+.contact-row:hover .contact-icon{transform:scale(1.08)}
+.install-shot img{transition:transform .8s var(--ease)}
+.install-shot:hover img{transform:scale(1.04)}
+.faq-item{transition:box-shadow .3s,border-color .3s}
+.faq-item:hover{border-color:#bfe0f7}
+.specs-stage,.specs-table,.specs-assurances li{transition:background .3s,border-color .3s}
+.specs-stage:hover,.specs-table:hover{background:rgba(255,255,255,.07);border-color:rgba(159,222,246,.3)}
+.specs-assurances li:hover{background:rgba(66,201,255,.13);border-color:rgba(66,201,255,.4)}
+
 /* ---------- FIXED CHROME ----------
    (.scroll-progress, not .progress: the Water Lab has a .progress of its
    own, the stage timeline, and a page rule for the same name reached into
    the modal and pulled the stage names out of the play bar.) */
-.reveal{opacity:0;transform:translateY(28px);transition:opacity .8s ease,transform .8s var(--ease)}
-.reveal.visible{opacity:1;transform:none}
-.delay1{transition-delay:.08s}.delay2{transition-delay:.16s}.delay3{transition-delay:.24s}
 .cursor-glow{position:fixed;width:240px;height:240px;border-radius:50%;pointer-events:none;background:radial-gradient(circle,rgba(66,201,255,.1),transparent 68%);transform:translate(-50%,-50%);z-index:0;mix-blend-mode:multiply}
 .scroll-progress{position:fixed;top:0;left:0;height:3px;background:var(--blue);z-index:100;width:0}
 .skip-link{position:fixed;left:15px;top:10px;transform:translateY(-150%);background:#fff;color:var(--navy);padding:12px 16px;border-radius:10px;z-index:500;font-weight:800;font-size:12px;box-shadow:var(--shadow);transition:.2s}
@@ -565,11 +712,15 @@ body.easy-read{font-size:17px}
 body.easy-read p{font-size:17px!important;line-height:1.8!important}
 body.easy-read .card p,body.easy-read .benefit p,body.easy-read .step p{font-size:15px!important}
 body.easy-read .navlinks{font-size:15px}
-body.reduced-motion *,body.reduced-motion *:before,body.reduced-motion *:after{animation-duration:.001ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.001ms!important}
+body.reduced-motion *,body.reduced-motion *:before,body.reduced-motion *:after{animation-duration:.001ms!important;animation-delay:0s!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.001ms!important}
+/* snapping is motion too: a page that pulls itself into place is not a
+   still one, so both reduced-motion switches turn it off */
+html:has(body.reduced-motion){scroll-snap-type:none}
 @media (prefers-reduced-motion:reduce){
-  *,*:before,*:after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
-  html{scroll-behavior:auto}
-  .reveal{opacity:1;transform:none}
+  *,*:before,*:after{animation-duration:.001ms!important;animation-delay:0s!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+  html{scroll-behavior:auto;scroll-snap-type:none}
+  .reveal,.reveal-stagger>*{opacity:1}
+  .section,.hero,.trust-strip{--arrived:1}
 }
 
 @keyframes pulse{0%,100%{transform:scale(1);opacity:.75}50%{transform:scale(1.1);opacity:1}}

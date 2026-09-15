@@ -12,7 +12,7 @@ export default function Guide() {
   return (
     <section className="section guide" id="guide">
       <div className="container split">
-        <div className="guide-card reveal">
+        <div className="guide-card reveal from-left">
           <img
             src={pricingGuide}
             alt="The Pure Water Filtration Pricing Guide: a printed booklet, cover and an open spread"
@@ -21,7 +21,7 @@ export default function Guide() {
             loading="lazy"
           />
         </div>
-        <div className="reveal delay2">
+        <div className="reveal-stagger">
           <div className="eyebrow">Free resource</div>
           <h2>Know what to expect before you choose a system.</h2>
           <p>

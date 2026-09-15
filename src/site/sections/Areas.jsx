@@ -7,7 +7,7 @@ export default function Areas() {
   return (
     <section className="section pale areas" id="areas">
       <div className="container split">
-        <div className="reveal">
+        <div className="reveal-stagger">
           <div className="eyebrow">Across Australia</div>
           <h2>Proudly serving Australian homes.</h2>
           <p>
@@ -25,7 +25,7 @@ export default function Areas() {
             Check your area <ArrowIcon />
           </a>
         </div>
-        <div className="figure map reveal delay2">
+        <div className="figure map reveal from-right delay2">
           <AustraliaMap />
         </div>
       </div>

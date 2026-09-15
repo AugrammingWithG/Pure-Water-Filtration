@@ -33,7 +33,7 @@ export default function Reviews() {
   return (
     <section className="section dark reviews" id="reviews">
       <div className="container">
-        <div className="section-head split-head reveal">
+        <div className="section-head split-head reveal-stagger">
           <div>
             <div className="eyebrow">Reviews</div>
             <h2>Real people. Real results.</h2>

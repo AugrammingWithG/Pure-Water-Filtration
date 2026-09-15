@@ -9,7 +9,7 @@ export default function Steps() {
   return (
     <section className="section" id="how-it-works">
       <div className="container">
-        <div className="section-head reveal">
+        <div className="section-head reveal-stagger">
           <div className="eyebrow">How it works</div>
           <h2>A simple four-step process.</h2>
         </div>

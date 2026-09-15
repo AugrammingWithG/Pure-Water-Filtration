@@ -23,7 +23,7 @@ export default function Benefits() {
   return (
     <section className="section pale" id="why-us">
       <div className="container">
-        <div className="section-head reveal">
+        <div className="section-head reveal-stagger">
           <div className="eyebrow">Why families choose Pure Water</div>
           <h2>Trusted. Proven. Local.</h2>
           <p>
@@ -33,7 +33,7 @@ export default function Benefits() {
         </div>
         <ol className="benefit-row">
           {BENEFITS.map(([title, body, partner], i) => (
-            <li className={`benefit reveal${i % 4 ? ` delay${i % 4}` : ''}`} key={title}>
+            <li className={`benefit reveal${i ? ` delay${i}` : ''}`} key={title}>
               <h3>{title}</h3>
               <p>{body}</p>
               {partner && (

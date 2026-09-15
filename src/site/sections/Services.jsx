@@ -42,7 +42,7 @@ export default function Services() {
   return (
     <section className="section" id="services">
       <div className="container">
-        <div className="section-head reveal">
+        <div className="section-head reveal-stagger">
           <div className="eyebrow">The systems</div>
           <h2>Filtration for every part of your home.</h2>
           <p>Three systems, one goal: better water where you need it.</p>

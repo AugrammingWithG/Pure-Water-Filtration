@@ -57,7 +57,7 @@ export default function Installs() {
   return (
     <section className="section installs" id="installs">
       <div className="container">
-        <div className="section-head split-head reveal">
+        <div className="section-head split-head reveal-stagger">
           <div>
             <div className="eyebrow">Real installs</div>
             <h2>What it looks like on your wall.</h2>
@@ -68,7 +68,7 @@ export default function Installs() {
           </p>
         </div>
       </div>
-      <div className="install-strip reveal delay1" aria-label="Photographs of installed systems">
+      <div className="install-strip" aria-label="Photographs of installed systems">
         <ul className="install-track">
           {INSTALLS.map(({ src, system, where, alt }) => (
             <li key={src}>

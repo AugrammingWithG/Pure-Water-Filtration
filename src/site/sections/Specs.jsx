@@ -14,7 +14,7 @@ export default function Specs() {
   return (
     <section className="section dark specs" id="specs">
       <div className="container">
-        <div className="section-head split-head reveal">
+        <div className="section-head split-head reveal-stagger">
           <div>
             <div className="eyebrow">Whole home system · Technical datasheet</div>
             <h2>What's inside the box on the wall.</h2>
@@ -26,7 +26,7 @@ export default function Specs() {
         </div>
 
         <div className="specs-grid">
-          <figure className="specs-photo reveal">
+          <figure className="specs-photo reveal zoom">
             <img
               src={wholeHouse}
               alt="The whole-house unit: a white UV-protected cover on a limestone wall with copper inlet and outlet"
@@ -35,7 +35,7 @@ export default function Specs() {
             <figcaption>74 cm × 59 cm × 21 cm · ground-mounted, optional back cover</figcaption>
           </figure>
 
-          <ol className="specs-stages reveal delay1">
+          <ol className="specs-stages">
             {STAGES.map((stage) => (
               <li className="specs-stage" key={stage.n}>
                 <span className="kicker">Stage {stage.n}</span>

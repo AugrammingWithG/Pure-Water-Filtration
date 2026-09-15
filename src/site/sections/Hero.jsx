@@ -11,7 +11,7 @@ export default function Hero() {
       </div>
       <div className="hero-scrim" aria-hidden="true" />
       <div className="container hero-grid">
-        <div className="hero-copy reveal">
+        <div className="hero-copy reveal-stagger">
           <div className="eyebrow">Australia's water filtration specialists</div>
           <h1>
             Better water <em>starts at the source.</em>

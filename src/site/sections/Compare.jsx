@@ -30,7 +30,7 @@ export default function Compare() {
   return (
     <section className="section compare" id="compare">
       <div className="container">
-        <div className="section-head reveal">
+        <div className="section-head reveal-stagger">
           <div className="eyebrow">Side by side</div>
           <h2>Which system does what.</h2>
           <p>The simple version: what each system covers, before a specialist confirms the fit.</p>

@@ -5,7 +5,7 @@ export default function About() {
   return (
     <section className="section" id="about">
       <div className="container split">
-        <div className="reveal">
+        <div className="reveal-stagger">
           <div className="eyebrow">Why filter</div>
           <h2>Your water might be the problem.</h2>
           <p>
@@ -21,7 +21,7 @@ export default function About() {
             See the three systems <ArrowIcon />
           </a>
         </div>
-        <div className="figure reveal delay2">
+        <div className="figure reveal from-right delay2">
           <HouseCutaway />
         </div>
       </div>

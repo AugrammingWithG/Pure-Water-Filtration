@@ -14,7 +14,7 @@ export default function FinalCta() {
   return (
     <section className="section final-cta" id="contact">
       <div className="container split split-narrow">
-        <div className="reveal">
+        <div className="reveal-stagger">
           <div className="eyebrow">Get a free quote</div>
           <h2>Ready to feel the difference in your water?</h2>
           <p>
@@ -45,7 +45,7 @@ export default function FinalCta() {
             <p className="contact-note">No obligation. No pushy sales, just honest advice.</p>
           </div>
         </div>
-        <div className="reveal delay2">
+        <div className="reveal from-right delay2">
           <QuoteForm prefill={quotePrefill} />
         </div>
       </div>

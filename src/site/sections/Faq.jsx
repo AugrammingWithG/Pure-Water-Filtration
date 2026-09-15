@@ -48,7 +48,7 @@ export default function Faq() {
   return (
     <section className="section pale faq" id="faq">
       <div className="container split split-narrow">
-        <div className="reveal">
+        <div className="reveal-stagger">
           <div className="eyebrow">Common questions</div>
           <h2>No pressure. Just useful answers.</h2>
           <p>
@@ -59,7 +59,7 @@ export default function Faq() {
             Ask a specialist <ArrowIcon />
           </a>
         </div>
-        <div className="faq-list reveal delay2">
+        <div className="faq-list">
           {FAQS.map((faq, i) => (
             <FaqItem key={faq.q} q={faq.q} a={faq.a} defaultOpen={i === 0} />
           ))}

@@ -27,7 +27,7 @@ export default function Difference() {
   return (
     <section className="section pale" id="difference">
       <div className="container split split-wide">
-        <div className="reveal">
+        <div className="reveal-stagger">
           <div className="eyebrow">What people actually notice</div>
           <h2>
             The difference is <em>everyday.</em>

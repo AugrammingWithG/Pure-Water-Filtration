@@ -1,23 +1,38 @@
 import { useEffect, useState } from 'react'
 
 /**
- * The page's entrance animation: every `.reveal` is given `visible` the first
- * time it comes near the viewport. One observer for the whole page, as in the
- * original concept — every section is in the tree from the first paint, so
- * there is nothing arriving later that would need re-observing.
+ * The page's entrance animation, in two layers. Every `.reveal` (and
+ * `.reveal-stagger`) is given `visible` the first time it comes near the
+ * viewport; every section is given `in-view` as its top edge arrives, and
+ * the stylesheet uses that to choreograph the pieces inside it — the step
+ * numbers, the decoder's track, the map pins — without each one needing a
+ * class of its own. Both fire once: an entrance is made, not repeated.
+ * One pass over the tree, as in the original concept — every section is in
+ * the tree from the first paint, so nothing arrives later that would need
+ * re-observing.
  */
 export function useReveal() {
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
+    const once = (className, options) =>
+      new IntersectionObserver((entries, observer) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) entry.target.classList.add('visible')
+          if (!entry.isIntersecting) return
+          entry.target.classList.add(className)
+          observer.unobserve(entry.target)
         })
-      },
-      { threshold: 0.12 },
-    )
-    document.querySelectorAll('.reveal').forEach((el) => observer.observe(el))
-    return () => observer.disconnect()
+      }, options)
+
+    const reveals = once('visible', { threshold: 0.12 })
+    document.querySelectorAll('.reveal, .reveal-stagger').forEach((el) => reveals.observe(el))
+
+    /* a section has arrived once its top is in the upper 85% of the screen */
+    const sections = once('in-view', { threshold: 0, rootMargin: '0px 0px -15% 0px' })
+    document.querySelectorAll('.section, .hero, .trust-strip').forEach((el) => sections.observe(el))
+
+    return () => {
+      reveals.disconnect()
+      sections.disconnect()
+    }
   }, [])
 }
 

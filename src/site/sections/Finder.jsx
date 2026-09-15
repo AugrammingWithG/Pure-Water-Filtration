@@ -141,7 +141,7 @@ export default function Finder() {
   return (
     <section className="section pale finder" id="finder">
       <div className="container finder-grid">
-        <div className="reveal">
+        <div className="reveal-stagger">
           <div className="eyebrow">Not sure what you need?</div>
           <h2>Find your best‑fit system in 30 seconds.</h2>
           <p>
@@ -160,7 +160,7 @@ export default function Finder() {
             </li>
           </ul>
         </div>
-        <div className="finder-panel reveal delay2">
+        <div className="finder-panel reveal from-right delay2">
           <div className="finder-progress">
             <i style={{ transform: `scaleX(${step / QUESTIONS.length})` }} />
           </div>

@@ -58,7 +58,7 @@ export default function Decoder() {
   return (
     <section className="section pale decoder" id="decoder">
       <div className="container decoder-grid">
-        <div className="decoder-intro reveal">
+        <div className="decoder-intro reveal-stagger">
           <div className="eyebrow">Start with what you notice</div>
           <h2>Tell us what's bothering you. We'll show you where to look.</h2>
           <p>
@@ -79,7 +79,7 @@ export default function Decoder() {
             ))}
           </div>
         </div>
-        <div className="decoder-panel reveal delay2">
+        <div className="decoder-panel reveal from-right delay2">
           <div className="decoder-top">
             <div>
               <small>Your water journey</small>

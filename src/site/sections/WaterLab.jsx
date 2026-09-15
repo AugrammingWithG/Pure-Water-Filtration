@@ -30,7 +30,7 @@ export default function WaterLab() {
   return (
     <section className="section dark feature water-lab" id="water-lab">
       <div className="container">
-        <div className="section-head split-head reveal">
+        <div className="section-head split-head reveal-stagger">
           <div>
             <div className="eyebrow">The Water Lab</div>
             <h2>
@@ -45,7 +45,7 @@ export default function WaterLab() {
 
         <div className="lab-stage">
           <button
-            className="lab-visual reveal"
+            className="lab-visual reveal zoom"
             onClick={openViewer}
             aria-label="Open the Water Lab, the interactive 3D filtration viewer"
           >
