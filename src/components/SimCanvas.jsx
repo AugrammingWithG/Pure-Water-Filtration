@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { Suspense, useCallback, useState } from 'react'
 import { Canvas } from '@react-three/fiber'
 import * as THREE from 'three'
 import { useQuality } from '../three/quality'
@@ -15,6 +15,17 @@ import Scene from '../three/Scene'
  * Shadow type is set explicitly: r3f's `shadows` shorthand picks
  * PCFSoftShadowMap, which three r186 removed (it warns and falls back). r186's
  * PCF is a jittered 5-tap disc that honours each light's `shadow.radius`.
+ *
+ * The scene's environment map and textures load through suspense, and the
+ * boundary that catches them sits *inside* the canvas, as in HeroCanvas. Left
+ * to r3f, the <Canvas> element re-throws into the page tree, where the Water
+ * Lab's "Priming…" boundary would hide the live canvas and show it again once
+ * the files arrive; on that reveal, StrictMode's simulated unmount/remount runs
+ * r3f's teardown against the renderer and force-loses its WebGL context. That
+ * only bit once the Lab could be the first thing on screen (a visit straight
+ * to #lab, before the hero has warmed the loader cache), but the canvas must
+ * never suspend regardless. The canvas is held blank until Precompile says
+ * ready anyway, so nothing is lost by drawing nothing while they load.
  */
 export default function SimCanvas({
   currentSystem,
@@ -63,16 +74,18 @@ export default function SimCanvas({
           gl.debug.checkShaderErrors = import.meta.env.DEV
         }}
       >
-        <Scene
-          currentSystem={currentSystem}
-          currentStage={currentStage}
-          focused={focused}
-          paused={paused}
-          subscribe={subscribe}
-          onPick={onPick}
-          onReady={handleReady}
-          rigRef={rigRef}
-        />
+        <Suspense fallback={null}>
+          <Scene
+            currentSystem={currentSystem}
+            currentStage={currentStage}
+            focused={focused}
+            paused={paused}
+            subscribe={subscribe}
+            onPick={onPick}
+            onReady={handleReady}
+            rigRef={rigRef}
+          />
+        </Suspense>
       </Canvas>
     </div>
   )

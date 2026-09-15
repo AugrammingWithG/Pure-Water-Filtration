@@ -33,11 +33,16 @@ function ViewerLoading() {
   )
 }
 
+/**
+ * The Water Lab as its own screen. It takes the whole viewport, the page
+ * behind it is not shown, and leaving it is a Back rather than a dismiss —
+ * <Site> gives it a history entry so the browser's own Back button works too.
+ */
 export default function ViewerModal({ onClose }) {
   const closeRef = useRef(null)
 
   /**
-   * Escape closes, and the button that opened the modal gets the focus back
+   * Escape goes back, and the button that opened the Lab gets the focus back
    * when it does. The viewer has its own keyboard transport on the window
    * (space, arrows) and no use for Escape, so the two do not collide.
    */
@@ -60,13 +65,10 @@ export default function ViewerModal({ onClose }) {
       role="dialog"
       aria-modal="true"
       aria-label="The Water Lab — interactive 3D filtration viewer"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose()
-      }}
     >
       <div className="modal-inner">
-        <button className="modal-close" onClick={onClose} aria-label="Close" ref={closeRef}>
-          ×
+        <button className="modal-close" onClick={onClose} ref={closeRef}>
+          <span aria-hidden="true">←</span> Back to site
         </button>
         {/*
           The viewer sizes itself to whatever hosts it, so the frame decides how

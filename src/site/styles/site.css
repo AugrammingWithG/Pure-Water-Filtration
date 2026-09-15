@@ -479,19 +479,24 @@ body.reduced-motion *,body.reduced-motion *:before,body.reduced-motion *:after{a
 @keyframes flow{0%{transform:translateY(-30px);opacity:0}30%{opacity:1}100%{transform:translateY(70px);opacity:0}}
 
 /* ============================================================
-   The Water Lab modal. The viewer measures itself against
-   whatever hosts it, so the frame decides how big the Lab is;
-   its own chrome, cards and play bar lay themselves out inside.
+   The Water Lab screen. Not a dialog over the page but a page
+   of its own: it covers the viewport edge to edge, arrives the
+   way a route change would, and is left by going Back. The
+   viewer measures itself against whatever hosts it, so its
+   chrome, cards and play bar lay themselves out inside.
    ============================================================ */
-.viewer-modal{position:fixed;inset:0;background:rgba(2,15,28,.94);backdrop-filter:blur(18px);z-index:200;display:flex;align-items:center;justify-content:center;padding:30px}
-.modal-inner{width:min(1250px,100%);height:min(800px,90vh);border:1px solid rgba(130,220,255,.25);border-radius:28px;background:linear-gradient(140deg,#0b466e,#031827);position:relative;overflow:hidden;box-shadow:0 40px 120px rgba(0,0,0,.45)}
-@supports (height:100dvh){.modal-inner{height:min(800px,90dvh)}}
-/* The close button has to beat the viewer's chrome, not just the backdrop. */
-.modal-close{position:absolute;right:16px;top:16px;z-index:5;border:1px solid rgba(15,28,51,.12);background:rgba(255,255,255,.85);backdrop-filter:blur(8px);color:var(--navy);border-radius:50%;width:42px;height:42px;font-size:22px;line-height:1;display:grid;place-items:center;box-shadow:0 6px 18px rgba(15,28,51,.14);transition:background .2s,transform .2s}
-.modal-close:hover{background:#fff;transform:scale(1.06)}
-.viewer-host{position:absolute;inset:0;z-index:1;border-radius:inherit;overflow:hidden}
+.viewer-modal{position:fixed;inset:0;z-index:200;background:linear-gradient(140deg,#0b466e,#031827);animation:lab-enter .42s cubic-bezier(.2,.7,.2,1) both}
+.modal-inner{position:absolute;inset:0;overflow:hidden}
+/* The Back control has to beat the viewer's chrome, not just the backdrop. */
+.modal-close{position:absolute;right:16px;top:16px;z-index:5;display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(15,28,51,.12);background:rgba(255,255,255,.85);backdrop-filter:blur(8px);color:var(--navy);border-radius:999px;height:42px;padding:0 18px 0 14px;font-size:13px;font-weight:700;letter-spacing:.01em;line-height:1;box-shadow:0 6px 18px rgba(15,28,51,.14);transition:background .2s,transform .2s}
+.modal-close span{font-size:16px;line-height:1;transition:transform .2s}
+.modal-close:hover{background:#fff;transform:translateY(-1px)}
+.modal-close:hover span{transform:translateX(-3px)}
+.viewer-host{position:absolute;inset:0;z-index:1;overflow:hidden}
 /* ...and the viewer's own header has to keep out from under it. */
-.viewer-host .app header{padding-right:74px}
+.viewer-host .app header{padding-right:170px}
+/* no scale: r3f sizes the canvas from getBoundingClientRect, which a scaled ancestor would shrink */
+@keyframes lab-enter{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
 
 /* the loading state: the concept's pipes-and-canisters animation, doing an honest job */
 .viewer-loading{position:absolute;inset:0}
@@ -611,12 +616,10 @@ body.reduced-motion *,body.reduced-motion *:before,body.reduced-motion *:after{a
   .section-head p,.section p{max-width:none}
 }
 
-/* On a phone the Lab's frame is the screen: 30px of backdrop around a 3D
-   scene is 30px the scene does not get. */
+/* On a phone the Back control drops its label; the arrow alone is the
+   convention there, and the viewer's header needs the width. */
 @media (max-width:760px){
-  .viewer-modal{padding:0}
-  .modal-inner{width:100%;height:100%;border-radius:0;border:none}
-  @supports (height:100dvh){.modal-inner{height:100dvh}}
-  .modal-close{right:12px;top:12px;width:38px;height:38px}
+  .modal-close{right:12px;top:12px;height:38px;width:38px;padding:0;justify-content:center;font-size:0;gap:0}
+  .modal-close span{font-size:18px}
   .viewer-host .app header{padding-right:60px}
 }
