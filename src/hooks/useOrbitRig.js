@@ -48,6 +48,12 @@ export function useOrbitRig({
   maxRadius = 14,
   autoRotateSpeed = 0.05,
   /**
+   * Whether the wheel zooms. Off where the canvas sits in a scrolling page
+   * (the hero): a reader scrolling past must not find the page stuck and the
+   * diorama rushing at them instead.
+   */
+  wheelZoom = true,
+  /**
    * Multiplies the working radius when the camera is placed, without touching
    * the radius itself — so zoom limits and fly-to distances stay in scene
    * units and the caller can pull back for a narrow viewport. See Scene.jsx.
@@ -89,6 +95,7 @@ export function useOrbitRig({
       minRadius,
       maxRadius,
       autoRotateSpeed,
+      wheelZoom,
     }
   }
 
@@ -267,7 +274,7 @@ export function useOrbitRig({
     domElement.addEventListener('pointercancel', onPointerUp)
     domElement.addEventListener('pointerleave', onPointerUp)
     domElement.addEventListener('pointermove', onPointerMove)
-    domElement.addEventListener('wheel', onWheel, { passive: false })
+    if (d.wheelZoom) domElement.addEventListener('wheel', onWheel, { passive: false })
 
     return () => {
       domElement.removeEventListener('pointerdown', onPointerDown)

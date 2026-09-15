@@ -24,7 +24,6 @@ import { HOUSE_OCCLUDER, OCCLUDERS } from './parts/useAnchorVisible'
 import { HOME_VIEW, SYSTEMS } from './systems'
 
 const ORBIT_OPTIONS = {
-  ...HOME_VIEW,
   minRadius: 1.1,
   maxRadius: 20,
   autoRotateSpeed: 0.04,
@@ -116,6 +115,14 @@ export default function Scene({
   onPick,
   onReady,
   rigRef,
+  /** Off for the hero, where the wheel belongs to the page. See useOrbitRig. */
+  wheelZoom = true,
+  /**
+   * The opening framing, and where Reset view returns to. The viewer takes
+   * the home view; the hero, with less room and nothing to click, sits
+   * further back so the whole plinth is in frame.
+   */
+  view = HOME_VIEW,
 }) {
   const { width, height } = useThree((s) => s.size)
   const distanceScale = Math.min(
@@ -123,7 +130,7 @@ export default function Scene({
     Math.max(1, FRAME_ASPECT / (width / height)),
   )
 
-  const rig = useOrbitRig({ ...ORBIT_OPTIONS, distanceScale })
+  const rig = useOrbitRig({ ...ORBIT_OPTIONS, ...view, distanceScale, wheelZoom })
   const system = SYSTEMS[currentSystem]
   const cutaway = useNearHouse(
     rig,

@@ -1,11 +1,10 @@
-import waterLab from '../assets/water-lab.png'
+import HeroScene from '../HeroScene'
 import { useSite } from '../SiteContext'
 
 export default function Hero() {
   const { openViewer } = useSite()
   return (
     <section className="hero">
-      <div className="water-line" />
       <div className="container hero-grid">
         <div className="hero-copy reveal">
           <div className="eyebrow">Australia's water filtration specialists</div>
@@ -49,32 +48,8 @@ export default function Hero() {
             </span>
           </div>
         </div>
-        <div className="hero-signature reveal delay2">
-          <div className="signature-frame">
-            <img
-              src={waterLab}
-              alt="Pure Water Filtration interactive 3D water filtration viewer showing a home, filtration system and water journey stages"
-            />
-            <div className="signature-top">
-              <div className="signature-chip">
-                <b>THE WATER LAB</b>
-                <span>Interactive 3D water journey</span>
-              </div>
-              <div className="signature-live">
-                <i />
-                LIVE EXPERIENCE
-              </div>
-            </div>
-            <div className="signature-bottom">
-              <div className="signature-caption">
-                <strong>See your water, stage by stage.</strong>
-                <span>Explore the system behind every tap.</span>
-              </div>
-              <button className="btn dark" onClick={openViewer}>
-                Launch 3D Experience ↗
-              </button>
-            </div>
-          </div>
+        <div className="hero-stage reveal delay2">
+          <HeroScene />
         </div>
       </div>
     </section>

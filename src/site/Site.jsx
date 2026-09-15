@@ -50,7 +50,10 @@ export default function Site() {
 
   const openViewer = useCallback(() => setViewerOpen(true), [])
   const closeViewer = useCallback(() => setViewerOpen(false), [])
-  const actions = useMemo(() => ({ openViewer, showToast }), [openViewer, showToast])
+  const actions = useMemo(
+    () => ({ openViewer, showToast, viewerOpen }),
+    [openViewer, showToast, viewerOpen],
+  )
 
   useReveal()
   useCardTilt()
