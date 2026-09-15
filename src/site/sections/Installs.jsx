@@ -4,15 +4,22 @@ import perth03 from '../assets/photos/install-perth-03.webp'
 import rainwater from '../assets/photos/install-rainwater-02.webp'
 import underSink from '../assets/photos/install-under-sink-03.webp'
 import brick from '../assets/photos/install-whole-house-brick.webp'
-import { ArrowIcon } from '../icons'
+import { ArrowIcon, HomeIcon, PinIcon, RainIcon, TapIcon } from '../icons'
 import { useSite } from '../SiteContext'
+import Stage from '../Stage'
 
 /**
  * The client's own installation photos, from their site, as a strip the
  * visitor can flick through. Captions say only what the photograph shows and
  * what the filename says about where; nothing is claimed that the picture
  * does not support.
+ *
+ * The strip is laid out like a contact sheet — a sprocket edge above and
+ * below — and the prints are dealt onto it one after another as the
+ * section arrives, each landing from a slight angle (stages.css).
  */
+const ICONS = { 'Whole house': HomeIcon, 'Under sink': TapIcon, Rainwater: RainIcon }
+
 const INSTALLS = [
   {
     src: perth01,
@@ -55,10 +62,10 @@ const INSTALLS = [
 export default function Installs() {
   const { openQuote } = useSite()
   return (
-    <section className="section installs" id="installs">
+    <Stage id="installs" className="installs" curtain="advance">
       <div className="container">
-        <div className="section-head split-head reveal-stagger">
-          <div>
+        <div className="section-head split-head stage-copy">
+          <div className="stage-copy">
             <div className="eyebrow">Real installs</div>
             <h2>What it looks like on your wall.</h2>
           </div>
@@ -70,24 +77,33 @@ export default function Installs() {
       </div>
       <div className="install-strip" aria-label="Photographs of installed systems">
         <ul className="install-track">
-          {INSTALLS.map(({ src, system, where, alt }) => (
-            <li key={src}>
-              <figure className="install-shot">
-                <img src={src} alt={alt} loading="lazy" />
-                <figcaption>
-                  <strong>{system}</strong>
-                  <span>{where}</span>
-                </figcaption>
-              </figure>
-            </li>
-          ))}
+          {INSTALLS.map(({ src, system, where, alt }, i) => {
+            const Icon = ICONS[system]
+            return (
+              <li key={src} style={{ '--i': i }}>
+                <figure className="install-shot">
+                  <img src={src} alt={alt} loading="lazy" />
+                  <figcaption>
+                    <strong>
+                      <Icon size={14} />
+                      {system}
+                    </strong>
+                    <span>
+                      <PinIcon size={13} />
+                      {where}
+                    </span>
+                  </figcaption>
+                </figure>
+              </li>
+            )
+          })}
         </ul>
       </div>
-      <div className="container install-foot reveal delay2">
+      <div className="container install-foot stage-copy">
         <button className="btn outline" onClick={() => openQuote()}>
           Get one for your home <ArrowIcon />
         </button>
       </div>
-    </section>
+    </Stage>
   )
 }

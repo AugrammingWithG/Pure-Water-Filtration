@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef } from 'react'
+import { useCountUp, usePresence } from '../hooks'
 import { StarIcon } from '../icons'
 
 /**
@@ -29,55 +30,6 @@ const TRUST = [
 const ENTER_DELAY = 0.1
 const ENTER_STEP = 0.09
 
-const prefersStill = () =>
-  document.body.classList.contains('reduced-motion') ||
-  window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
-/** True while the strip is on screen; `from` is the edge it last left by. */
-function usePresence(ref) {
-  const [state, setState] = useState({ present: false, from: 1 })
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setState((s) => ({ ...s, present: true }))
-        } else {
-          setState({ present: false, from: entry.boundingClientRect.top < 0 ? -1 : 1 })
-        }
-      },
-      { threshold: 0.3 },
-    )
-    observer.observe(ref.current)
-    return () => observer.disconnect()
-  }, [ref])
-  return state
-}
-
-/** Counts from 0 to `target` over `duration`ms once `active`, easing out. */
-function useCountUp(target, decimals, active, delay, duration = 1400) {
-  const [value, setValue] = useState(0)
-  useEffect(() => {
-    if (!active) return undefined
-    /* under reduced motion the count is instant: a zero-length run, no wait */
-    const still = prefersStill()
-    let frame
-    const timer = setTimeout(() => {
-      const start = performance.now()
-      const tick = (now) => {
-        const p = still ? 1 : Math.min(1, (now - start) / duration)
-        setValue(target * (1 - (1 - p) ** 4))
-        if (p < 1) frame = requestAnimationFrame(tick)
-      }
-      frame = requestAnimationFrame(tick)
-    }, still ? 0 : delay * 1000)
-    return () => {
-      clearTimeout(timer)
-      cancelAnimationFrame(frame)
-    }
-  }, [active, target, duration, delay])
-  return value.toFixed(decimals)
-}
-
 /* "5.0" and "50+" count up; a word ("Lifetime", "AU") simply lands */
 function Figure({ text, active, delay }) {
   const match = /^(\d+(?:\.(\d+))?)(\D*)$/.exec(text)
@@ -95,7 +47,7 @@ function Figure({ text, active, delay }) {
 
 export default function TrustStrip() {
   const ref = useRef(null)
-  const { present, from } = usePresence(ref)
+  const { present, from } = usePresence(ref, { threshold: 0.3, rootMargin: '0px' })
   return (
     <section
       ref={ref}

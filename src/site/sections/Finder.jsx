@@ -1,6 +1,21 @@
 import { useRef, useState } from 'react'
-import { ArrowIcon, CheckIcon } from '../icons'
+import {
+  ArrowIcon,
+  BuildingIcon,
+  CheckCircleIcon,
+  CheckIcon,
+  CompassIcon,
+  DotsIcon,
+  FamilyIcon,
+  GlassIcon,
+  HomeIcon,
+  RainIcon,
+  ShieldIcon,
+  SparkleIcon,
+  TankIcon,
+} from '../icons'
 import { useSite } from '../SiteContext'
+import Stage from '../Stage'
 
 const QUESTIONS = [
   {
@@ -10,18 +25,21 @@ const QUESTIONS = [
         value: 'whole',
         label: 'Every tap',
         note: 'Kitchen, bathroom, shower and appliances.',
+        Icon: HomeIcon,
       },
       {
         value: 'drink',
         label: 'Kitchen drinking water',
         note: 'Cleaner, better-tasting water at the tap.',
+        Icon: GlassIcon,
       },
       {
         value: 'rain',
         label: 'Rainwater / tank',
         note: 'Filtration for homes using stored water.',
+        Icon: RainIcon,
       },
-      { value: 'unsure', label: 'I’m not sure', note: 'Help me work it out.' },
+      { value: 'unsure', label: 'I’m not sure', note: 'Help me work it out.', Icon: CompassIcon },
     ],
   },
   {
@@ -31,21 +49,25 @@ const QUESTIONS = [
         value: 'health',
         label: 'Whole-home protection',
         note: 'Cleaner water throughout the house.',
+        Icon: ShieldIcon,
       },
       {
         value: 'taste',
         label: 'Better taste & smell',
         note: 'Focus on the water you drink.',
+        Icon: SparkleIcon,
       },
       {
         value: 'family',
         label: 'Family comfort',
         note: 'Showers, skin, hair and everyday use.',
+        Icon: FamilyIcon,
       },
       {
         value: 'simple',
         label: 'Keep it simple',
         note: 'A straightforward solution with minimal fuss.',
+        Icon: CheckCircleIcon,
       },
     ],
   },
@@ -56,21 +78,25 @@ const QUESTIONS = [
         value: 'house',
         label: 'Family home',
         note: 'Multiple bathrooms and regular daily use.',
+        Icon: HomeIcon,
       },
       {
         value: 'apartment',
         label: 'Apartment / unit',
         note: 'Compact, targeted filtration may suit.',
+        Icon: BuildingIcon,
       },
       {
         value: 'tankhome',
         label: 'Tank-water home',
         note: 'Rainwater is part of the supply.',
+        Icon: TankIcon,
       },
       {
         value: 'other',
         label: 'Something else',
         note: 'A specialist can help assess it.',
+        Icon: DotsIcon,
       },
     ],
   },
@@ -104,11 +130,21 @@ const RESULTS = {
   },
 }
 
+const CHECKS = ['No technical jargon', 'No obligation', 'A starting point, not a diagnosis']
+
+const RESULT_POINTS = [
+  'Water treated at the point of entry',
+  'Cleaner water from multiple taps',
+  'Designed around your local water',
+]
+
 export default function Finder() {
   const { openQuote } = useSite()
   const [step, setStep] = useState(1)
   const [answers, setAnswers] = useState([])
   const [done, setDone] = useState(false)
+  /* which way the last question left, so the next one arrives from the other side */
+  const [dir, setDir] = useState(1)
   const nextRef = useRef(null)
 
   const choose = (index, value) => {
@@ -132,16 +168,30 @@ export default function Finder() {
       )
       return
     }
+    setDir(1)
     if (step < QUESTIONS.length) setStep(step + 1)
     else setDone(true)
   }
 
+  const onBack = () => {
+    setDir(-1)
+    setStep((s) => Math.max(1, s - 1))
+  }
+
+  const restart = () => {
+    setDir(-1)
+    setDone(false)
+    setStep(1)
+    setAnswers([])
+  }
+
   const result = RESULTS[answers[0]] ?? RESULTS.default
+  const question = QUESTIONS[step - 1]
 
   return (
-    <section className="section pale finder" id="finder">
+    <Stage id="finder" className="pale finder" curtain="iris">
       <div className="container finder-grid">
-        <div className="reveal-stagger">
+        <div className="stage-copy">
           <div className="eyebrow">Not sure what you need?</div>
           <h2>Find your best‑fit system in 30 seconds.</h2>
           <p>
@@ -149,74 +199,77 @@ export default function Finder() {
             sense for your home — then a specialist confirms the final recommendation.
           </p>
           <ul className="check-list">
-            <li>
-              <CheckIcon /> No technical jargon
-            </li>
-            <li>
-              <CheckIcon /> No obligation
-            </li>
-            <li>
-              <CheckIcon /> A starting point, not a diagnosis
-            </li>
+            {CHECKS.map((line, i) => (
+              <li key={line} style={{ '--i': i }}>
+                <CheckIcon /> {line}
+              </li>
+            ))}
           </ul>
         </div>
-        <div className="finder-panel reveal from-right delay2">
+        <div className="finder-panel">
           <div className="finder-progress">
-            <i style={{ transform: `scaleX(${step / QUESTIONS.length})` }} />
+            <i style={{ transform: `scaleX(${done ? 1 : step / QUESTIONS.length})` }} />
           </div>
-          {QUESTIONS.map((question, i) => (
-            <div
-              className={`question${!done && i === step - 1 ? ' active' : ''}`}
-              data-q={i + 1}
-              key={question.title}
-            >
+          {!done && (
+            /* keyed on the step so a new question is a new element, and slides in */
+            <div className="question" key={step} style={{ '--dir': dir }}>
               <h3>{question.title}</h3>
               <div className="choice-grid">
-                {question.choices.map((choice) => (
+                {question.choices.map(({ value, label, note, Icon }, i) => (
                   <button
-                    className={`choice${answers[i] === choice.value ? ' selected' : ''}`}
-                    key={choice.value}
-                    onClick={() => choose(i, choice.value)}
+                    className={`choice${answers[step - 1] === value ? ' selected' : ''}`}
+                    style={{ '--i': i }}
+                    key={value}
+                    onClick={() => choose(step - 1, value)}
                   >
-                    <strong>{choice.label}</strong>
-                    <small>{choice.note}</small>
+                    <span className="choice-icon" aria-hidden="true">
+                      <Icon size={18} />
+                    </span>
+                    <span>
+                      <strong>{label}</strong>
+                      <small>{note}</small>
+                    </span>
                   </button>
                 ))}
               </div>
             </div>
-          ))}
-          <div className={`finder-result${done ? ' active' : ''}`}>
-            <span className="result-badge">Your starting point</span>
-            <h3>{result.title}</h3>
-            <p>{result.text}</p>
-            <ul className="result-list">
-              <li>Water treated at the point of entry</li>
-              <li>Cleaner water from multiple taps</li>
-              <li>Designed around your local water</li>
-            </ul>
-            <div className="actions">
-              {/* the result's system is already the form's first answer */}
-              <button className="btn" onClick={() => openQuote({ service: result.service })}>
-                Talk to a specialist <ArrowIcon />
-              </button>
-              <button
-                className="link quiet"
-                onClick={() => {
-                  setDone(false)
-                  setStep(1)
-                  setAnswers([])
-                }}
-              >
-                Start again
-              </button>
+          )}
+          {done && (
+            <div className="finder-result">
+              <span className="result-badge">
+                {/* a ring that draws itself round the badge */}
+                <svg className="result-ring" aria-hidden="true">
+                  <rect x="1" y="1" rx="999" pathLength="1" />
+                </svg>
+                Your starting point
+              </span>
+              <h3>{result.title}</h3>
+              <p>{result.text}</p>
+              <ul className="result-list">
+                {RESULT_POINTS.map((line, i) => (
+                  <li key={line} style={{ '--i': i }}>
+                    <CheckIcon size={13} />
+                    {line}
+                  </li>
+                ))}
+              </ul>
+              <div className="actions">
+                {/* the result's system is already the form's first answer */}
+                <button className="btn" onClick={() => openQuote({ service: result.service })}>
+                  Talk to a specialist <ArrowIcon />
+                </button>
+                <button className="link quiet" onClick={restart}>
+                  Start again
+                </button>
+              </div>
             </div>
-          </div>
+          )}
           {!done && (
             <div className="finder-nav">
               <button
                 className="link quiet"
                 style={{ visibility: step > 1 ? 'visible' : 'hidden' }}
-                onClick={() => setStep((s) => Math.max(1, s - 1))}
+                onClick={onBack}
               >
                 Back
               </button>
@@ -230,6 +283,6 @@ export default function Finder() {
           )}
         </div>
       </div>
-    </section>
+    </Stage>
   )
 }

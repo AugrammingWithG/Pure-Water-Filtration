@@ -1,3 +1,5 @@
+import { CITIES } from './cities'
+
 /**
  * The mainland and Tasmania, simplified to about fifty points, with a pin on
  * each city the site names. Coordinates are longitude 112–155 → x 0–100 and
@@ -19,16 +21,6 @@ const MAINLAND =
 const TASMANIA =
   'M76 90.3 L79.6 89.8 83.7 90.6 84.4 94.7 83 97.4 81.4 98.5 78.8 98.2 77.9 97 76.4 94.6 Z'
 
-/** [x, y] from the same projection. */
-const CITIES = [
-  { name: 'Perth', x: 9, y: 64.7, label: 'end' },
-  { name: 'Adelaide', x: 61.9, y: 73.2, label: 'below' },
-  { name: 'Melbourne', x: 76.7, y: 81.8, label: 'below' },
-  { name: 'Sydney', x: 91.2, y: 70.3, label: 'start' },
-  { name: 'Brisbane', x: 95.8, y: 51.5, label: 'start' },
-  { name: 'Gold Coast', x: 96.4, y: 54.3, label: 'start-below' },
-]
-
 function labelPos({ x, y, label }) {
   if (label === 'end') return { x: x - 2.4, y: y + 1, anchor: 'end' }
   if (label === 'below') return { x, y: y + 5.2, anchor: 'middle' }
@@ -44,12 +36,13 @@ export default function AustraliaMap() {
       role="img"
       aria-label="Map of Australia with the six cities Pure Water Filtration serves: Perth, Adelaide, Melbourne, Sydney, Brisbane and Gold Coast."
     >
-      <path d={MAINLAND} className="aus-land" />
-      <path d={TASMANIA} className="aus-land" />
-      {CITIES.map((city) => {
+      {/* pathLength="1": the coastline is drawn by the stylesheet as the section arrives */}
+      <path d={MAINLAND} className="aus-land" pathLength="1" />
+      <path d={TASMANIA} className="aus-land" pathLength="1" style={{ '--d': 1 }} />
+      {CITIES.map((city, i) => {
         const pos = labelPos(city)
         return (
-          <g key={city.name} className="aus-city">
+          <g key={city.name} className="aus-city" data-city={city.slug} style={{ '--i': i }}>
             <circle cx={city.x} cy={city.y} r="2.4" className="aus-ping" />
             <circle cx={city.x} cy={city.y} r="1.15" className="aus-pin" />
             <text x={pos.x} y={pos.y} textAnchor={pos.anchor} className="aus-name">

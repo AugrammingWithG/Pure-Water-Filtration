@@ -28,6 +28,7 @@ import WaterLab from './sections/WaterLab'
 import { SiteContext } from './SiteContext'
 import ViewerModal from './ViewerModal'
 import './styles/site.css'
+import './styles/stages.css'
 
 /** The Lab's address: the hash that opens it, and the history entry it owns. */
 const LAB_HASH = '#lab'

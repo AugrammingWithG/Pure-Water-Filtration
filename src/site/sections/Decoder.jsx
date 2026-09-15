@@ -1,16 +1,23 @@
 import { useState } from 'react'
-import { ArrowIcon } from '../icons'
+import { ArrowIcon, FunnelIcon, GlassIcon, InletIcon, KettleIcon, ShowerIcon, SparkleIcon, TankIcon } from '../icons'
+import Stage from '../Stage'
 
 /**
  * The reader picks the thing they actually notice at home; the panel answers
  * in the same language. Deliberately not a diagnosis — see the note it ends on.
+ *
+ * `lit` is which stops on the journey the concern points at, so the track
+ * relights when the tab changes: a taste problem lives at the tap end, a
+ * shower problem at the entry end, tank water at the source.
  */
 const CONCERNS = [
   {
     key: 'taste',
     tab: 'Taste & smell',
+    Icon: GlassIcon,
     title: 'From source to tap',
     state: 'KITCHEN FOCUS',
+    lit: [2, 3],
     lead: 'Start at the kitchen tap.',
     answer:
       ' An under-sink system may be worth exploring when taste and odour are your main concern.',
@@ -18,8 +25,10 @@ const CONCERNS = [
   {
     key: 'shower',
     tab: 'Shower & skin',
+    Icon: ShowerIcon,
     title: 'From mains to shower',
     state: 'WHOLE-HOME FOCUS',
+    lit: [0, 1],
     lead: 'Think beyond the kitchen.',
     answer:
       ' If your concern follows you into the shower and bathroom, whole-house filtration is worth discussing.',
@@ -27,8 +36,10 @@ const CONCERNS = [
   {
     key: 'scale',
     tab: 'Scale & residue',
+    Icon: KettleIcon,
     title: 'From hard water to home',
     state: 'PROTECTION FOCUS',
+    lit: [1, 2],
     lead: 'Look at the whole system.',
     answer:
       ' If residue and mineral build-up are the issue, a specialist can assess your local water and recommend the right configuration.',
@@ -36,8 +47,10 @@ const CONCERNS = [
   {
     key: 'tank',
     tab: 'Tank water',
+    Icon: TankIcon,
     title: 'From tank to tap',
     state: 'RAINWATER FOCUS',
+    lit: [0],
     lead: 'Start with your water source.',
     answer:
       ' Tank-water homes need a filtration approach designed around the stored water and intended use.',
@@ -45,10 +58,10 @@ const CONCERNS = [
 ]
 
 const JOURNEY = [
-  ['Incoming', 'Water enters your home.'],
-  ['Filter', 'Targeted filtration stages.'],
-  ['Refine', 'Water is further treated.'],
-  ['Enjoy', 'Filtered water where needed.'],
+  ['Incoming', 'Water enters your home.', InletIcon],
+  ['Filter', 'Targeted filtration stages.', FunnelIcon],
+  ['Refine', 'Water is further treated.', SparkleIcon],
+  ['Enjoy', 'Filtered water where needed.', GlassIcon],
 ]
 
 export default function Decoder() {
@@ -56,9 +69,9 @@ export default function Decoder() {
   const current = CONCERNS.find((c) => c.key === active)
 
   return (
-    <section className="section pale decoder" id="decoder">
+    <Stage id="decoder" className="pale decoder" curtain="drain">
       <div className="container decoder-grid">
-        <div className="decoder-intro reveal-stagger">
+        <div className="decoder-intro stage-copy">
           <div className="eyebrow">Start with what you notice</div>
           <h2>Tell us what's bothering you. We'll show you where to look.</h2>
           <p>
@@ -66,44 +79,57 @@ export default function Decoder() {
             part of the system that deals with it.
           </p>
           <div className="decoder-tabs" role="tablist" aria-label="Water concerns">
-            {CONCERNS.map((concern) => (
+            {CONCERNS.map(({ key, tab, Icon }, i) => (
               <button
-                key={concern.key}
-                className={`decoder-tab${concern.key === active ? ' active' : ''}`}
+                key={key}
+                className={`decoder-tab${key === active ? ' active' : ''}`}
+                style={{ '--i': i }}
                 role="tab"
-                aria-selected={concern.key === active}
-                onClick={() => setActive(concern.key)}
+                aria-selected={key === active}
+                onClick={() => setActive(key)}
               >
-                {concern.tab}
+                <Icon size={15} />
+                <span>{tab}</span>
               </button>
             ))}
           </div>
         </div>
-        <div className="decoder-panel reveal from-right delay2">
+
+        {/* the instrument: re-keyed pieces re-enter on every tab change */}
+        <div className="decoder-panel">
           <div className="decoder-top">
             <div>
               <small>Your water journey</small>
-              <h3>{current.title}</h3>
+              <h3 className="decoder-title" key={current.key}>
+                {current.title}
+              </h3>
             </div>
-            <span className="decoder-state">{current.state}</span>
+            <span className="decoder-state" key={current.state}>
+              {current.state}
+            </span>
           </div>
           <div className="water-track" aria-hidden="true">
-            <div className="track-fill" />
-            <div className="water-dot">01</div>
-            <div className="water-dot">02</div>
-            <div className="water-dot">03</div>
-            <div className="water-dot">04</div>
+            <div className="track-fill" key={current.key} />
+            {JOURNEY.map(([title, , Icon], i) => (
+              <div
+                className={`water-dot${current.lit.includes(i) ? ' lit' : ''}`}
+                style={{ '--i': i }}
+                key={title}
+              >
+                <Icon size={14} />
+              </div>
+            ))}
           </div>
           <div className="water-labels">
-            {JOURNEY.map(([title, note]) => (
-              <div key={title}>
+            {JOURNEY.map(([title, note], i) => (
+              <div key={title} style={{ '--i': i }} className={current.lit.includes(i) ? 'lit' : ''}>
                 <strong>{title}</strong>
                 {note}
               </div>
             ))}
           </div>
           <div className="decoder-answer">
-            <p aria-live="polite">
+            <p aria-live="polite" className="decoder-reply" key={current.key}>
               <strong>{current.lead}</strong>
               {current.answer}
             </p>
@@ -117,6 +143,6 @@ export default function Decoder() {
           </p>
         </div>
       </div>
-    </section>
+    </Stage>
   )
 }
