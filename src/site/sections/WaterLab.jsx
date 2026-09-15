@@ -1,32 +1,17 @@
-import waterLab from '../assets/water-lab.png'
-import { PlayIcon } from '../icons'
-import { useSite } from '../SiteContext'
+import LabControls from '../lab/LabControls'
+import LabStage from '../lab/LabStage'
+import { useMiniLab } from '../lab/useMiniLab'
 
 /**
- * What the visitor can do in the Lab, in the order they will do it. This is
- * the one section that sells the Lab; the old "See filtration in motion"
- * block said the same thing a second time with a cartoon.
+ * The Water Lab, live on the page. The frame on the left is the diorama
+ * itself — orbit it, click a unit, watch the water — and the three cards on
+ * the right are the Lab's three moves as working controls. One piece of
+ * state (useMiniLab) sits under both, so the scene and the cards always
+ * agree. The full-screen Lab is still one button away for the reader who
+ * wants the cards, the figures and the whole chrome.
  */
-const CAN_DO = [
-  {
-    num: '01',
-    title: 'Pick a system.',
-    body: 'Whole house, under sink or rainwater — see exactly where each one is installed in a real home.',
-  },
-  {
-    num: '02',
-    title: 'Follow the water.',
-    body: 'Play the walkthrough and watch water clear stage by stage: sediment, carbon, polish or UV, then the tap.',
-  },
-  {
-    num: '03',
-    title: 'See what each stage removes.',
-    body: 'Every stage names what it catches — rust, sand, chlorine, taste and odour — so you know what changes and why.',
-  },
-]
-
 export default function WaterLab() {
-  const { openViewer } = useSite()
+  const lab = useMiniLab()
   return (
     <section className="section dark feature water-lab" id="water-lab">
       <div className="container">
@@ -38,38 +23,14 @@ export default function WaterLab() {
             </h2>
           </div>
           <p>
-            An interactive 3D home that shows where each Pure Water system goes and how water moves
-            through its stages. Open it in full screen, or start with the home above.
+            A live 3D home showing where each Pure Water system goes and how water moves through
+            its stages. Take hold of it here, or open it full screen.
           </p>
         </div>
 
         <div className="lab-stage">
-          <button
-            className="lab-visual reveal zoom"
-            onClick={openViewer}
-            aria-label="Open the Water Lab, the interactive 3D filtration viewer"
-          >
-            <img src={waterLab} alt="" />
-            <span className="lab-tag">
-              <i /> Interactive 3D
-            </span>
-            <span className="lab-play">
-              <span className="lab-play-btn">
-                <PlayIcon size={18} />
-              </span>
-              <span>Open the Water Lab</span>
-            </span>
-          </button>
-
-          <div className="lab-info">
-            {CAN_DO.map((item, i) => (
-              <article className={`lab-card reveal delay${i + 1}`} key={item.num}>
-                <div className="kicker">{item.num}</div>
-                <h3>{item.title}</h3>
-                <p>{item.body}</p>
-              </article>
-            ))}
-          </div>
+          <LabStage lab={lab} />
+          <LabControls lab={lab} />
         </div>
       </div>
     </section>

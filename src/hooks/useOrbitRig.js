@@ -59,6 +59,13 @@ export function useOrbitRig({
    * units and the caller can pull back for a narrow viewport. See Scene.jsx.
    */
   distanceScale = 1,
+  /**
+   * Where the camera is placed on the first frame, when that is not the
+   * view it rests at. The Lab preview opens from further out and higher
+   * and flies down to `view` as the section arrives (see LabStage); reset()
+   * still returns to `view`, never here. Read once, on mount.
+   */
+  start = null,
 }) {
   const camera = useThree((s) => s.camera)
   const domElement = useThree((s) => s.gl.domElement)
@@ -67,11 +74,12 @@ export function useOrbitRig({
   // never trigger a React render.
   const stateRef = useRef(null)
   if (stateRef.current === null) {
+    const from = start ?? { target, theta, phi, radius }
     stateRef.current = {
-      target: target.clone(),
-      theta,
-      phi,
-      radius,
+      target: from.target.clone(),
+      theta: from.theta,
+      phi: from.phi,
+      radius: from.radius,
       dragging: false,
       lastX: 0,
       lastY: 0,
@@ -350,11 +358,11 @@ export function useOrbitRig({
         stateRef.current.autoRotate = false
         tweenTo(to, toRadius, toTheta ?? null, toPhi ?? null, duration)
       },
-      /** Return to the opening framing. */
-      reset() {
+      /** Return to the opening framing; slower for the preview's fly-in. */
+      reset(duration = 900) {
         const d = defaultsRef.current
         stateRef.current.autoRotate = true
-        tweenTo(d.initialTarget, d.radius, d.theta, d.phi, 900)
+        tweenTo(d.initialTarget, d.radius, d.theta, d.phi, duration)
       },
       /**
        * How far out the camera is, in scene units, before the narrow-viewport

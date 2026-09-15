@@ -274,28 +274,154 @@ h1 em,h2 em{font-style:normal;color:var(--blue)}
 @keyframes trust-float{0%,100%{translate:0 0}50%{translate:0 -3px}}
 @keyframes glint{0%,84%,100%{filter:none}91%{filter:drop-shadow(0 0 5px rgba(66,201,255,.95)) brightness(1.4)}}
 
-/* ---------- WATER LAB ---------- */
-.lab-stage{display:grid;grid-template-columns:1.55fr .75fr;gap:22px;align-items:stretch}
+/* ---------- WATER LAB ----------
+   The Lab itself, live in the page. Tighter corners than the rest of the
+   page — 14px on the frame and the cards, 8px on the controls, 6px on the
+   chips — so it reads as an instrument rather than another card. States
+   the frame carries, as data attributes so the reveal observer's own
+   class survives React's re-renders: [data-ready] once the scene's
+   shaders are built (the poster gives way to the live canvas),
+   [data-focused] once the camera has flown to something (the readout
+   replaces the hint, Reset view appears), [data-touched] once the reader
+   has taken hold of it (the hint has done its job). Everything is a
+   transition from its base state so those compose with the arrival. */
+.water-lab{--lab-r:14px;--lab-line:rgba(159,222,246,.16);--lab-line-hi:rgba(102,220,255,.4);--lab-glass:rgba(6,27,46,.68)}
+.lab-stage{display:grid;grid-template-columns:1.55fr .75fr;gap:18px;align-items:stretch}
+
+/* the frame: a pale ground for the diorama, as the Lab's own poster had.
+   A set height, not the cards' — the canvas is measured from it, and a
+   card's copy changing length must not resize the scene */
 .lab-visual{
-  position:relative;display:block;width:100%;min-height:560px;padding:0;border:1px solid rgba(159,222,246,.2);
-  border-radius:var(--r-xl);overflow:hidden;background:#eef7fb;box-shadow:0 35px 100px rgba(0,0,0,.3);cursor:pointer;text-align:left
+  position:relative;height:600px;border:1px solid var(--lab-line);border-radius:var(--lab-r);overflow:hidden;isolation:isolate;
+  background:radial-gradient(90% 70% at 50% 42%,#f8fcff,#dbe9f2);box-shadow:0 35px 100px rgba(0,0,0,.3);transition:border-color .4s
 }
-/* a crop of the Lab itself, framed on the diorama rather than on its chrome */
-.lab-visual img{position:absolute;left:50%;top:50%;height:150%;width:auto;max-width:none;transform:translate(-54%,-51%);transition:transform .8s var(--ease)}
-.lab-visual:hover img{transform:translate(-54%,-51%) scale(1.03)}
-.lab-visual:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(3,26,43,0) 55%,rgba(3,26,43,.55));pointer-events:none}
-.lab-tag{position:absolute;left:22px;top:22px;z-index:2;display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(6,27,46,.7);backdrop-filter:blur(8px);color:#fff;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
-.lab-tag i{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan);animation:pulse 2.4s ease-in-out infinite}
-.lab-play{position:absolute;left:22px;bottom:22px;z-index:2;display:flex;align-items:center;gap:14px;color:#fff;font-weight:800;font-size:14px}
-.lab-play-btn{width:58px;height:58px;border-radius:50%;background:var(--blue);display:grid;place-items:center;box-shadow:0 12px 30px rgba(8,121,232,.45);transition:transform .3s var(--ease)}
-.lab-play-btn svg{margin-left:3px}
-.lab-visual:hover .lab-play-btn{transform:scale(1.08)}
-.lab-info{display:flex;flex-direction:column;gap:10px}
-.lab-card{flex:1;border:1px solid rgba(159,222,246,.15);background:rgba(255,255,255,.045);border-radius:22px;padding:24px;transition:background .3s,border-color .3s}
-.lab-card:hover{background:rgba(66,201,255,.1);border-color:rgba(102,220,255,.35)}
-.lab-card h3{font-size:19px;margin-top:12px}
-.lab-card p{font-size:12.5px;line-height:1.6;margin-top:8px;color:#a4bfd2}
-.lab-launch{justify-content:center;margin-top:4px}
+.lab-visual:hover{border-color:rgba(159,222,246,.32)}
+/* the still the section used to show, until the live scene is built — then it blurs away under it */
+.lab-poster{position:absolute;left:50%;top:50%;height:150%;width:auto;max-width:none;transform:translate(-54%,-51%);transition:opacity 1.2s var(--ease),filter 1.2s var(--ease),transform 1.2s var(--ease)}
+.lab-visual[data-ready] .lab-poster{opacity:0;filter:blur(14px);transform:translate(-54%,-51%) scale(1.06)}
+/* pan-y: a finger dragged sideways orbits, dragged up or down scrolls the page — the frame never traps the reader */
+.lab-scene{position:absolute;inset:0;cursor:grab;touch-action:pan-y}
+.lab-scene canvas{display:block;width:100%!important;height:100%!important;touch-action:pan-y;opacity:0;transition:opacity 1s ease}
+.lab-visual[data-ready] .lab-scene canvas{opacity:1}
+.lab-scene canvas.dragging{cursor:grabbing}
+/* a soft scrim along the bottom so the readout and the button sit on something */
+.lab-visual:after{content:"";position:absolute;inset:0;z-index:2;background:linear-gradient(180deg,rgba(3,26,43,0) 64%,rgba(3,26,43,.48));pointer-events:none}
+
+/* light sweeps once round the frame's edge as the section arrives: a
+   conic gradient on a spinning square, masked down to the 1.5px rim */
+.lab-sweep{
+  position:absolute;inset:0;z-index:4;border-radius:inherit;padding:1.5px;overflow:hidden;pointer-events:none;opacity:0;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude
+}
+.lab-sweep:before{content:"";position:absolute;left:50%;top:50%;width:200%;aspect-ratio:1;translate:-50% -50%;background:conic-gradient(from 0deg,transparent 0 60%,rgba(126,220,255,.9) 78%,#fff 82%,transparent 90%)}
+.in-view .lab-sweep{animation:lab-sweep-fade 2.8s ease .55s both}
+.in-view .lab-sweep:before{animation:lab-sweep-turn 2.8s cubic-bezier(.45,0,.2,1) .55s both}
+@keyframes lab-sweep-turn{to{rotate:360deg}}
+@keyframes lab-sweep-fade{0%{opacity:0}12%,78%{opacity:1}100%{opacity:0}}
+
+/* the frame's chrome: glass tags in the corners, 8px corners throughout */
+.lab-tag,.lab-reset,.lab-readout{background:var(--lab-glass);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12);color:#fff;border-radius:8px}
+.lab-tag{position:absolute;left:18px;top:18px;z-index:3;display:inline-flex;align-items:center;gap:8px;padding:8px 12px;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.lab-tag i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.55);animation:pulse 1.4s ease-in-out infinite;transition:background .5s,box-shadow .5s}
+.lab-visual[data-ready] .lab-tag i{background:var(--cyan);box-shadow:0 0 12px var(--cyan);animation-duration:2.4s}
+.lab-reset{
+  position:absolute;right:18px;top:18px;z-index:3;display:inline-flex;align-items:center;height:34px;padding:0 14px;
+  font-size:12px;font-weight:700;transition:opacity .35s var(--ease),translate .35s var(--ease),background .25s,border-color .25s
+}
+.lab-reset:hover{background:rgba(6,27,46,.85);border-color:rgba(255,255,255,.3)}
+.lab-reset[hidden]{display:inline-flex;opacity:0;translate:0 -6px;visibility:hidden;pointer-events:none;transition:opacity .3s var(--ease),translate .3s var(--ease),visibility 0s .3s}
+
+/* bottom-left: the hint until the reader has the scene in hand, then the stage readout */
+.lab-hud{position:absolute;left:18px;bottom:20px;z-index:3;display:grid;max-width:min(62%,380px)}
+.lab-hud>*{grid-area:1/1;align-self:end}
+.lab-hint{display:flex;align-items:center;gap:9px;margin:0 0 6px;color:#fff;font-size:13px;font-weight:600;text-shadow:0 1px 14px rgba(3,26,43,.7);transition:opacity .45s var(--ease),translate .45s var(--ease)}
+.lab-hint-dot{color:rgba(255,255,255,.5)}
+.lab-hint-drag{position:relative;flex:none;width:24px;height:15px;border:1.5px solid rgba(255,255,255,.8);border-radius:8px}
+.lab-hint-drag:after{content:"";position:absolute;top:50%;left:4px;width:5px;height:5px;margin-top:-2.5px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan);animation:lab-drag 2.2s ease-in-out infinite}
+@keyframes lab-drag{0%,100%{left:4px}50%{left:12px}}
+.lab-visual:not([data-ready]) .lab-hint,.lab-visual[data-focused] .lab-hint,.lab-visual[data-touched] .lab-hint{opacity:0;translate:0 6px;pointer-events:none}
+.lab-readout{display:flex;flex-direction:column;gap:3px;padding:12px 16px;opacity:0;translate:0 8px;transition:opacity .4s var(--ease),translate .4s var(--ease)}
+.lab-readout small{font:800 10px/1 var(--font-display);letter-spacing:.16em;text-transform:uppercase;color:var(--cyan-text)}
+.lab-readout strong{font:800 15px/1.2 var(--font-display);letter-spacing:-.01em;text-wrap:balance}
+.lab-visual[data-focused] .lab-readout{opacity:1;translate:0 0;animation:rise .5s var(--ease)}
+
+/* bottom-right: the way into the full Lab */
+.section .lab-open{position:absolute;right:18px;bottom:18px;z-index:3;margin:0;border-radius:10px;padding:13px 18px;font-size:12.5px}
+.lab-open svg{transition:transform .3s var(--ease)}
+.lab-open:hover svg{transform:translate(2px,-2px)}
+
+/* the cards: the Lab's three moves as the controls that make them */
+.lab-info{display:flex;flex-direction:column;gap:12px}
+.lab-card{
+  position:relative;flex:1;display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--lab-line);border-radius:var(--lab-r);padding:20px 22px;
+  background:linear-gradient(160deg,rgba(255,255,255,.065),rgba(255,255,255,.03));
+  transition:background .3s,border-color .3s,translate .4s var(--ease),box-shadow .4s
+}
+.lab-card:hover{border-color:var(--lab-line-hi);translate:0 -3px;box-shadow:0 18px 44px rgba(0,0,0,.26)}
+/* a thread of light along the top edge, brighter under the pointer */
+.lab-card:before{content:"";position:absolute;left:10%;right:10%;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(126,220,255,.6),transparent);opacity:.45;transition:opacity .3s}
+.lab-card:hover:before{opacity:1}
+.lab-card-head{display:flex;align-items:baseline;gap:12px}
+.lab-card h3{font-size:17px;margin:0}
+.lab-card p{font-size:12.5px;line-height:1.55;color:#a4bfd2}
+
+/* 01 — the three systems, and where the chosen one is installed */
+.lab-systems{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:14px}
+.lab-sys{
+  display:flex;flex-direction:column;align-items:center;gap:6px;padding:11px 6px 9px;border:1px solid rgba(255,255,255,.12);border-radius:8px;
+  background:rgba(255,255,255,.04);color:#dcefff;font-size:11px;font-weight:700;letter-spacing:.01em;
+  transition:background .25s,border-color .25s,color .25s,translate .25s var(--ease),box-shadow .3s
+}
+.lab-sys svg{width:18px;height:18px;transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+.lab-sys:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.28);translate:0 -2px}
+.lab-sys:hover svg{transform:scale(1.12)}
+.lab-sys.active{background:#fff;border-color:#fff;color:var(--navy);box-shadow:0 8px 24px rgba(66,201,255,.28)}
+.lab-sys.active svg{color:var(--blue)}
+.lab-placement{margin-top:12px;min-height:58px;animation:fade .5s ease}
+
+/* 02 — play, and the four stages on a track painted in the water's own colours */
+.lab-transport{display:flex;align-items:flex-start;gap:14px;margin-top:16px}
+.lab-play{
+  position:relative;flex:none;width:46px;height:46px;border:0;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;
+  box-shadow:0 10px 26px rgba(8,121,232,.4);transition:transform .3s var(--ease),box-shadow .3s,background .3s
+}
+.lab-play svg{margin-left:2px;transition:transform .2s var(--ease)}
+.lab-card-water[data-status="playing"] .lab-play svg{margin-left:0}
+.lab-play:hover{transform:scale(1.06);background:var(--blue-deep);box-shadow:0 14px 32px rgba(8,121,232,.5)}
+.lab-play:active svg{transform:scale(.85)}
+/* a ring of light turns round the button while the water is running */
+.lab-play:before{
+  content:"";position:absolute;inset:-6px;border-radius:50%;padding:2px;opacity:0;transition:opacity .3s;
+  background:conic-gradient(from 0deg,transparent 0 55%,rgba(126,220,255,.95) 85%,transparent);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude
+}
+.lab-card-water[data-status="playing"] .lab-play:before{opacity:1;animation:lab-turn 1.6s linear infinite}
+@keyframes lab-turn{to{rotate:360deg}}
+.lab-timeline{position:relative;flex:1;height:34px;margin-top:2px;--p:0%}
+.lab-track{position:absolute;left:0;right:0;top:3px;height:4px;border-radius:2px;background:rgba(255,255,255,.12);overflow:hidden;transform-origin:left}
+.lab-fill{position:absolute;inset:0;background:var(--water);clip-path:inset(0 calc(100% - var(--p)) 0 0);box-shadow:0 0 12px rgba(66,201,255,.6)}
+.lab-stops{position:absolute;inset:0;display:grid;grid-template-columns:repeat(4,1fr)}
+.lab-stop{display:flex;flex-direction:column;align-items:flex-start;gap:9px;padding:0 6px 0 0;border:0;background:none;color:#8fb0c8;font-size:10px;font-weight:700;letter-spacing:.04em;text-align:left;transition:color .25s}
+.lab-marker{width:10px;height:10px;box-sizing:border-box;border-radius:50%;background:#0a2a44;border:2px solid rgba(255,255,255,.35);transition:border-color .25s,background .25s,transform .35s cubic-bezier(.34,1.56,.64,1),box-shadow .3s}
+.lab-stop:hover{color:#fff}
+.lab-stop:hover .lab-marker{border-color:#fff}
+.lab-stop.passed .lab-marker{border-color:rgba(126,220,255,.75)}
+.lab-stop.active{color:#fff}
+.lab-stop.active .lab-marker{background:var(--cyan);border-color:#fff;transform:scale(1.3);box-shadow:0 0 14px rgba(66,201,255,.85)}
+.lab-status{margin-top:12px;min-height:1.6em}
+.lab-status b{color:#fff;font-weight:800}
+
+/* 03 — the stage on screen, and what it takes out; re-enters on every stage change */
+.lab-removes{margin-top:14px}
+.lab-stage-name{display:flex;align-items:baseline;gap:10px;color:#fff;font-size:13px;font-weight:700;animation:slide-in .45s var(--ease)}
+.lab-stage-name b{flex:none;font:800 10px/1 var(--font-display);letter-spacing:.14em;text-transform:uppercase;color:var(--cyan-text)}
+.lab-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.lab-action,.lab-chip{padding:6px 10px;border-radius:6px;font-size:12px;animation:pop .45s cubic-bezier(.34,1.56,.64,1) backwards}
+.lab-action{background:var(--blue);color:#fff;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.lab-chip{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);color:#e3f3ff;font-weight:600;animation-delay:calc(.08s + var(--i) * .06s);transition:background .25s,border-color .25s}
+.lab-chip:hover{background:rgba(66,201,255,.14);border-color:rgba(102,220,255,.4)}
 
 /* ---------- DECODER ---------- */
 .decoder-grid{display:grid;grid-template-columns:42% 58%;gap:64px;align-items:center}
@@ -721,6 +847,22 @@ select.q-input{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www
 .in-view .specs-stage:nth-child(3){animation-delay:.3s}
 .in-view .specs-stage:nth-child(n+4){animation-delay:.4s}
 
+/* the Lab: the frame settles in (.reveal.zoom) and its cards rise; inside
+   them the numbers pop, the system buttons rise one after another, the
+   track draws out and its four stops pop on along it */
+.water-lab .lab-card .kicker,.water-lab .lab-sys,.water-lab .lab-track,.water-lab .lab-stop{opacity:var(--arrived)}
+.in-view .lab-card .kicker{animation:pop .5s cubic-bezier(.34,1.56,.64,1) .3s backwards}
+.in-view .lab-card:nth-child(2) .kicker{animation-delay:.4s}
+.in-view .lab-card:nth-child(3) .kicker{animation-delay:.5s}
+.in-view .lab-sys{animation:rise .5s var(--ease) .45s backwards}
+.in-view .lab-sys:nth-child(2){animation-delay:.53s}
+.in-view .lab-sys:nth-child(3){animation-delay:.61s}
+.in-view .lab-track{animation:grow-x 1s var(--ease) .6s backwards}
+.in-view .lab-stop{animation:pop .45s cubic-bezier(.34,1.56,.64,1) .75s backwards}
+.in-view .lab-stop:nth-child(2){animation-delay:.85s}
+.in-view .lab-stop:nth-child(3){animation-delay:.95s}
+.in-view .lab-stop:nth-child(4){animation-delay:1.05s}
+
 /* the dark sections' glow breathes the way the hero's does */
 .section.dark:before{animation:pulse 10s ease-in-out infinite}
 
@@ -875,7 +1017,7 @@ html:has(body.reduced-motion){scroll-snap-type:none}
   .trust:nth-child(odd):before{display:none}
 
   .lab-stage{grid-template-columns:1fr}
-  .lab-visual{min-height:420px}
+  .lab-visual{height:auto;min-height:440px}
   .card-grid.three{grid-template-columns:1fr}
   .benefit-row{grid-template-columns:1fr 1fr}
   .benefit:nth-child(odd){border-left:0;padding-left:0}
@@ -920,9 +1062,16 @@ html:has(body.reduced-motion){scroll-snap-type:none}
   .trust{padding:2px 18px}
   .trust-num{font-size:26px}
   .trust-figure{min-height:30px}
-  .lab-visual{min-height:300px}
-  .lab-play span:last-child{font-size:13px}
-  .lab-play-btn{width:50px;height:50px}
+  .lab-visual{min-height:360px}
+  .lab-tag{left:12px;top:12px}
+  .lab-reset{right:12px;top:12px}
+  .lab-hud{left:12px;bottom:14px;max-width:calc(100% - 24px)}
+  .lab-readout{padding:9px 12px}
+  .lab-readout strong{font-size:13px}
+  .section .lab-open{right:12px;bottom:14px;padding:11px 14px;font-size:12px}
+  .lab-open svg{display:none}
+  .lab-card{padding:18px}
+  .lab-stop-label{font-size:9px}
   .card-grid.two{grid-template-columns:1fr}
   .card{padding:22px}
   .decoder-panel{padding:20px;border-radius:22px}

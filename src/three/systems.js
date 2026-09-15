@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { buildPath } from './path'
+import { WATER_COLOURS } from './waterColours'
 import {
   HOUSE,
   KITCHEN,
@@ -28,6 +29,19 @@ export const HOME_VIEW = {
   radius: 13.5,
   theta: 0.62,
   phi: 1.08,
+}
+
+/**
+ * Where the page's Lab preview waits before its section arrives: further
+ * out and higher than the home view, so the fly-in reads as descending onto
+ * the diorama rather than as a zoom. Same look-at point, so the tween is a
+ * pure dolly and the house never slides across the frame.
+ */
+export const INTRO_VIEW = {
+  target: HOME_VIEW.target,
+  radius: HOME_VIEW.radius * 1.55,
+  theta: HOME_VIEW.theta - 0.45,
+  phi: HOME_VIEW.phi - 0.22,
 }
 
 /** Trips per second taken by the water. Every system takes the same time. */
@@ -283,7 +297,7 @@ export const SYSTEMS = {
       },
     },
     legs: wholeLegs,
-    colours: [0xd98d3c, 0xb9a98a, 0x8fc4e8, 0x2e8fe0],
+    colours: WATER_COLOURS.whole,
     markerOffset: v(0, 0, wu.depth / 2 + 0.14),
     markerScale: 1,
     pulseRadius: 0.024,
@@ -306,7 +320,7 @@ export const SYSTEMS = {
       },
     },
     legs: undersinkLegs,
-    colours: [0xc9b08a, 0xb2c4cc, 0x8fd8e6, 0x17b3c6],
+    colours: WATER_COLOURS.undersink,
     markerOffset: v(0, 0, 0.22),
     markerScale: 0.6,
     pulseRadius: 0.013,
@@ -336,7 +350,7 @@ export const SYSTEMS = {
       },
     },
     legs: rainLegs,
-    colours: [0x9a9a5e, 0xb4c0a8, 0xa8dcc4, 0x2fb872],
+    colours: WATER_COLOURS.rain,
     markerOffset: v(ru.depth / 2 + 0.14, 0, 0),
     markerScale: 0.8,
     pulseRadius: 0.02,

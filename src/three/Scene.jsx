@@ -114,6 +114,8 @@ export default function Scene({
    * further back so the whole plinth is in frame.
    */
   view = HOME_VIEW,
+  /** Where the camera starts before flying to `view`; see useOrbitRig. */
+  start = null,
 }) {
   const { width, height } = useThree((s) => s.size)
   const distanceScale = Math.min(MAX_PULLBACK, Math.max(1, FRAME_ASPECT / (width / height)))
@@ -121,6 +123,7 @@ export default function Scene({
   const rig = useOrbitRig({
     ...ORBIT_OPTIONS,
     ...view,
+    start,
     distanceScale,
     wheelZoom,
   })
