@@ -1,48 +1,51 @@
+import { CTA, SYSTEM_DATA } from '../../data/constants'
+
+const CITIES = ['Perth', 'Sydney', 'Melbourne', 'Brisbane', 'Adelaide', 'Gold Coast']
+
 export default function SiteFooter() {
   return (
     <footer className="footer">
       <div className="container">
         <div className="footer-grid">
           <div>
-            <a className="logo" href="#" style={{ color: '#fff' }}>
+            <a className="logo" href="#" aria-label="Pure Water Filtration, back to top">
               <span className="logo-mark" />
               <span className="logo-text">
-                PureWater<small>FILTRATION</small>
+                PureWater<small>Filtration</small>
               </span>
             </a>
-            <p style={{ marginTop: '22px' }}>Cleaner Water. Healthier Living.</p>
+            <p className="footer-tagline">Cleaner water. Healthier living.</p>
           </div>
           <div>
-            <h4>CONTACT</h4>
-            <a href="tel:1300720031">1300 720 031</a>
+            <h4>Contact</h4>
+            <a href={CTA.phone.href}>{CTA.phone.label}</a>
             <a href="mailto:admin@purewaterfiltration.com.au">admin@purewaterfiltration.com.au</a>
-            <a href="#">
+            <p>
               34 Welshpool Road
               <br />
               Welshpool, WA
-            </a>
+            </p>
           </div>
           <div>
-            <h4>OUR SERVICES</h4>
-            <a href="#services">Whole House Water Filters</a>
-            <a href="#services">Under Sink Water Filters</a>
-            <a href="#services">Rainwater Filtration</a>
-            <a href="#">Filter Replacements</a>
-            <a href="#">Maintenance &amp; Repairs</a>
+            <h4>Systems</h4>
+            <a href="#services">{SYSTEM_DATA.whole.title}</a>
+            <a href="#services">{SYSTEM_DATA.undersink.title}</a>
+            <a href="#services">{SYSTEM_DATA.rain.title}</a>
+            <a href="#water-lab">The Water Lab</a>
+            <a href="#guide">Pricing guide</a>
           </div>
           <div>
-            <h4>SERVICE AREAS</h4>
-            <a href="#">Perth</a>
-            <a href="#">Sydney</a>
-            <a href="#">Melbourne</a>
-            <a href="#">Brisbane</a>
-            <a href="#">Adelaide</a>
-            <a href="#">Gold Coast</a>
+            <h4>Service areas</h4>
+            {CITIES.map((city) => (
+              <a href="#areas" key={city}>
+                {city}
+              </a>
+            ))}
           </div>
         </div>
         <div className="footer-bottom">
           <span>© 2026 Pure Water Filtration. All rights reserved.</span>
-          <span>Privacy Policy &nbsp;·&nbsp; Terms &amp; Conditions &nbsp;·&nbsp; Sitemap</span>
+          <span>Privacy policy · Terms &amp; conditions</span>
         </div>
       </div>
     </footer>

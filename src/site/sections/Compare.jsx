@@ -1,31 +1,50 @@
+import { CheckIcon } from '../icons'
+
+/** yes / yes with a footnote / no / it depends */
 const ROWS = [
-  ['Every tap & shower', ['✓ Yes', 'yes'], ['—'], ['✓*', 'yes']],
-  ['Drinking water', ['✓ Yes', 'yes'], ['✓ Yes', 'yes'], ['✓ Yes*', 'yes']],
-  ['Tank water', ['—'], ['—'], ['✓ Yes', 'yes']],
-  ['Compact installation', ['—'], ['✓ Yes', 'yes'], ['Depends']],
-  ['Whole-home coverage', ['✓ Yes', 'yes'], ['—'], ['✓*', 'yes']],
+  ['Every tap & shower', 'yes', 'no', 'note'],
+  ['Drinking water', 'yes', 'yes', 'note'],
+  ['Tank water', 'no', 'no', 'yes'],
+  ['Compact installation', 'no', 'yes', 'depends'],
+  ['Whole-home coverage', 'yes', 'no', 'note'],
 ]
+
+function Cell({ value }) {
+  if (value === 'yes' || value === 'note') {
+    return (
+      <div className="yes">
+        <CheckIcon size={13} />
+        Yes{value === 'note' && <sup>*</sup>}
+      </div>
+    )
+  }
+  if (value === 'depends') return <div className="depends">Depends</div>
+  return (
+    <div className="no" aria-label="No">
+      —
+    </div>
+  )
+}
 
 export default function Compare() {
   return (
     <section className="section compare" id="compare">
       <div className="container">
-        <div className="section-intro reveal">
-          <div className="eyebrow">Make the choice easier</div>
-          <h2>See the difference at a glance.</h2>
-          <p>
-            You shouldn't need to understand filtration engineering to choose a system. Here's the
-            simple version.
-          </p>
+        <div className="section-head reveal">
+          <div className="eyebrow">Side by side</div>
+          <h2>Which system does what.</h2>
+          <p>The simple version: what each system covers, before a specialist confirms the fit.</p>
         </div>
-        <div className="compare-table reveal delay1">
-          <div className="head">Best for</div>
-          <div className="head">Whole House</div>
-          <div className="head">Under Sink</div>
-          <div className="head">Rainwater</div>
-          {ROWS.map(([label, ...cells]) => (
-            <Row label={label} cells={cells} key={label} />
-          ))}
+        <div className="compare-scroll reveal delay1">
+          <div className="compare-table" role="table" aria-label="Which system covers what">
+            <div className="head">Covers</div>
+            <div className="head">Whole house</div>
+            <div className="head">Under sink</div>
+            <div className="head">Rainwater</div>
+            {ROWS.map(([label, ...cells]) => (
+              <Row label={label} cells={cells} key={label} />
+            ))}
+          </div>
         </div>
         <p className="compare-note">
           *Suitability depends on the home's plumbing, water source and system configuration. A
@@ -40,10 +59,8 @@ function Row({ label, cells }) {
   return (
     <>
       <div className="label">{label}</div>
-      {cells.map(([text, tone], i) => (
-        <div className={tone} key={i}>
-          {text}
-        </div>
+      {cells.map((value, i) => (
+        <Cell value={value} key={i} />
       ))}
     </>
   )

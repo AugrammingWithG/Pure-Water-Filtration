@@ -1,15 +1,16 @@
 import { useRef } from 'react'
 import { WHY_US } from '../data/constants'
 import { SheetActions, StageBody } from './DetailCard'
+import { StatsBody } from './StatsCard'
 
 /**
- * The phone panel: one sheet, three tabs.
+ * The phone panel: one sheet, four tabs.
  *
- * A phone has room for one card, and the things it has to say belong to three
- * different scopes — this stage, this product, and this company. Tabs are what
- * let all three exist without any of them floating over the diorama, and
- * splitting them three ways rather than two keeps each one short: the sheet
- * sits on top of the model, so its height is the whole cost.
+ * A phone has room for one card, and the things it has to say belong to four
+ * different scopes — this stage, this product, its figures, and this company.
+ * Tabs are what let all of them exist without any floating over the diorama,
+ * and splitting them keeps each one short: the sheet sits on top of the
+ * model, so its height is the whole cost.
  *
  * Each tab is its own heading, so the panels carry no title of their own.
  *
@@ -29,6 +30,7 @@ const SWIPE_BIAS = 1.5
 const TABS = [
   { key: 'stage', label: 'Stage', full: 'Stage details' },
   { key: 'facts', label: 'At a glance', full: 'At a glance' },
+  { key: 'figures', label: 'Figures', full: 'In figures' },
   { key: 'why', label: 'Why us', full: 'Why Pure Water Filtration' },
 ]
 
@@ -43,7 +45,7 @@ function Rows({ items }) {
   ))
 }
 
-export default function MobileSheet({ page, onPage, content, facts, learnMore }) {
+export default function MobileSheet({ page, onPage, content, facts, figures, learnMore }) {
   const from = useRef(null)
 
   const onPointerDown = (e) => {
@@ -88,7 +90,8 @@ export default function MobileSheet({ page, onPage, content, facts, learnMore })
       <div role="tabpanel" aria-label={TABS[page].full}>
         {page === 0 && <StageBody {...content} />}
         {page === 1 && <Rows items={facts} />}
-        {page === 2 && <Rows items={WHY_US} />}
+        {page === 2 && <StatsBody figures={figures} />}
+        {page === 3 && <Rows items={WHY_US} />}
       </div>
 
       {page === 0 && <SheetActions learnMore={learnMore} />}

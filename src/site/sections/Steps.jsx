@@ -1,28 +1,29 @@
 const STEPS = [
-  ['01', 'Get in Touch', 'Request a free quote or call us for a quick chat.'],
-  ['02', 'Chat With a Specialist', 'We’ll understand your water quality and needs.'],
-  ['03', 'Your Tailored Solution', 'Get a customised plan and transparent quote.'],
-  ['04', 'Enjoy the Difference', 'Cleaner, healthier water for your home.'],
+  ['Get in touch', 'Request a free quote or call us for a quick chat.'],
+  ['Chat with a specialist', 'We’ll understand your water quality and needs.'],
+  ['Your tailored solution', 'Get a customised plan and a transparent quote.'],
+  ['Enjoy the difference', 'Cleaner, healthier water for your home.'],
 ]
 
 export default function Steps() {
   return (
-    <section className="section pale">
+    <section className="section" id="how-it-works">
       <div className="container">
-        <div className="reveal">
-          <div className="eyebrow">How It Works</div>
-          <h2>A simple 4-step process.</h2>
+        <div className="section-head reveal">
+          <div className="eyebrow">How it works</div>
+          <h2>A simple four-step process.</h2>
         </div>
-        <div className="steps">
-          {STEPS.map(([num, title, body], i) => (
-            <article className={`step reveal${i ? ` delay${i}` : ''}`} key={num}>
-              <div className="step-num">{num}</div>
+        <ol className="steps">
+          {STEPS.map(([title, body], i) => (
+            <li className={`step reveal${i ? ` delay${i}` : ''}`} key={title}>
+              <div className="step-num" aria-hidden="true">
+                {i + 1}
+              </div>
               <h3>{title}</h3>
               <p>{body}</p>
-              {i < STEPS.length - 1 && <span className="arrow">→</span>}
-            </article>
+            </li>
           ))}
-        </div>
+        </ol>
       </div>
     </section>
   )

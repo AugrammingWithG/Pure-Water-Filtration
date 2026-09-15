@@ -1,20 +1,32 @@
+import { HomeIcon, PinIcon, ShieldIcon, StarIcon } from '../icons'
+
 const TRUST = [
-  { icon: '★', title: '5.0 Google Reviews', note: '5.0 Google rating' },
-  { icon: '⌖', title: '50+ Service Areas', note: 'Across Australia' },
-  { icon: '✓', title: 'Lifetime Warranty', note: 'On all systems' },
-  { icon: '⌂', title: 'Locally Owned', note: 'Australian operated' },
+  {
+    Icon: StarIcon,
+    title: '5.0 Google rating',
+    note: 'From verified customer reviews',
+  },
+  { Icon: PinIcon, title: '50+ service areas', note: 'Across Australia' },
+  {
+    Icon: ShieldIcon,
+    title: 'Lifetime warranty',
+    note: 'With the Filter Care Plan',
+  },
+  { Icon: HomeIcon, title: 'Locally owned', note: 'Australian operated' },
 ]
 
 export default function TrustStrip() {
   return (
-    <section className="trust-strip">
+    <section className="trust-strip" aria-label="Why customers trust Pure Water">
       <div className="container trust-grid">
-        {TRUST.map((item, i) => (
-          <div className={`trust reveal${i ? ` delay${i}` : ''}`} key={item.title}>
-            <div className="trust-icon">{item.icon}</div>
+        {TRUST.map(({ Icon, title, note }, i) => (
+          <div className={`trust reveal${i ? ` delay${i}` : ''}`} key={title}>
+            <div className="trust-icon">
+              <Icon size={18} />
+            </div>
             <div>
-              <strong>{item.title}</strong>
-              <span>{item.note}</span>
+              <strong>{title}</strong>
+              <span>{note}</span>
             </div>
           </div>
         ))}

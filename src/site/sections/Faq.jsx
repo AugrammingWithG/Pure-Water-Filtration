@@ -1,4 +1,5 @@
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useState } from 'react'
+import { ArrowIcon, PlusIcon } from '../icons'
 
 const FAQS = [
   {
@@ -23,29 +24,21 @@ const FAQS = [
   },
 ]
 
-/**
- * Each answer opens to its own height rather than to a guessed maximum, so a
- * long answer is never clipped and a short one does not leave the panel
- * hanging open. The height is measured from the element, which is why this is
- * a layout effect and not a style.
- */
+/** One question; the answer opens to its own height (see .faq-a in site.css). */
 function FaqItem({ q, a, defaultOpen }) {
   const [open, setOpen] = useState(Boolean(defaultOpen))
-  const answerRef = useRef(null)
-  const [maxHeight, setMaxHeight] = useState('0px')
-
-  useLayoutEffect(() => {
-    setMaxHeight(open && answerRef.current ? `${answerRef.current.scrollHeight}px` : '0px')
-  }, [open])
-
   return (
     <div className={`faq-item${open ? ' open' : ''}`}>
       <button className="faq-q" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
         {q}
-        <span>+</span>
+        <span className="faq-toggle">
+          <PlusIcon />
+        </span>
       </button>
-      <div className="faq-a" ref={answerRef} style={{ maxHeight }}>
-        <p>{a}</p>
+      <div className="faq-a">
+        <div>
+          <p>{a}</p>
+        </div>
       </div>
     </div>
   )
@@ -53,17 +46,17 @@ function FaqItem({ q, a, defaultOpen }) {
 
 export default function Faq() {
   return (
-    <section className="section faq" id="faq">
-      <div className="container faq-grid">
+    <section className="section pale faq" id="faq">
+      <div className="container split split-narrow">
         <div className="reveal">
-          <div className="eyebrow">Questions, answered simply</div>
-          <h2>No pressure. Just useful information.</h2>
+          <div className="eyebrow">Common questions</div>
+          <h2>No pressure. Just useful answers.</h2>
           <p>
             Buying a filtration system is a home decision, not a technical exam. Here are the
             questions people usually ask first.
           </p>
           <a className="btn outline" href="#contact">
-            Ask a Specialist →
+            Ask a specialist <ArrowIcon />
           </a>
         </div>
         <div className="faq-list reveal delay2">

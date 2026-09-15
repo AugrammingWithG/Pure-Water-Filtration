@@ -16,5 +16,5 @@ export default function ScrollProgress() {
       window.removeEventListener('resize', onScroll)
     }
   }, [])
-  return <div className="progress" ref={ref} />
+  return <div className="scroll-progress" ref={ref} aria-hidden="true" />
 }

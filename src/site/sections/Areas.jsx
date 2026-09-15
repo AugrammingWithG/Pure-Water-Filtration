@@ -1,34 +1,32 @@
+import AustraliaMap from '../art/AustraliaMap'
+import { ArrowIcon } from '../icons'
+
 const CITIES = ['Perth', 'Sydney', 'Melbourne', 'Brisbane', 'Adelaide', 'Gold Coast']
 
 export default function Areas() {
   return (
-    <section className="section areas">
-      <div className="container area-layout">
+    <section className="section pale areas" id="areas">
+      <div className="container split">
         <div className="reveal">
-          <div className="eyebrow">Pure Water, Across Australia</div>
+          <div className="eyebrow">Across Australia</div>
           <h2>Proudly serving Australian homes.</h2>
           <p>
             Water quality varies from city to city. Your filtration should too. We provide tailored
             solutions and expert installation across our service areas.
           </p>
-          <a className="btn outline" href="#contact">
-            View Service Areas →
-          </a>
-          <div className="city-tags">
+          <ul className="city-tags" aria-label="Cities served">
             {CITIES.map((city) => (
-              <span className="city" key={city}>
+              <li className="chip" key={city}>
                 {city}
-              </span>
+              </li>
             ))}
-          </div>
+          </ul>
+          <a className="btn outline" href="#contact">
+            Check your area <ArrowIcon />
+          </a>
         </div>
-        <div className="map reveal delay2">
-          <div className="aus" />
-          <span className="pin p1" />
-          <span className="pin p2" />
-          <span className="pin p3" />
-          <span className="pin p4" />
-          <span className="pin p5" />
+        <div className="figure map reveal delay2">
+          <AustraliaMap />
         </div>
       </div>
     </section>

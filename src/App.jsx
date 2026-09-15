@@ -6,6 +6,7 @@ import Header from './components/Header'
 import PlayBar from './components/PlayBar'
 import Sidebar from './components/Sidebar'
 import SimCanvas from './components/SimCanvas'
+import StatsCard from './components/StatsCard'
 import WhyCard from './components/WhyCard'
 import {
   DEFAULT_STAGE,
@@ -27,8 +28,6 @@ import { stageView, SYSTEMS } from './three/systems'
  */
 import './styles/index.css'
 
-const money = (n) => '$' + Math.round(n).toLocaleString('en-AU')
-
 /** Camera fly-to duration for a stage; a little longer when changing system. */
 const STAGE_FLY_MS = 850
 const SYSTEM_FLY_MS = 1100
@@ -43,14 +42,6 @@ export default function App() {
    */
   const [focused, setFocused] = useState(false)
 
-
-  /**
-   * Where the stage card is drawn. In the scene on a large viewport, where
-   * there is room beside the product for it; as a DOM card on a small one,
-   * where a world-anchored card has nowhere to go and would be too small to
-   * read whatever resolution it was drawn at.
-   */
-  const sceneCard = useMediaQuery('(min-width: 761px)')
   /** Where the detail card stops floating and becomes a bottom sheet. */
   const compact = useMediaQuery('(max-width: 620px)')
 
@@ -69,12 +60,12 @@ export default function App() {
 
   /**
    * The whole app, which is also the canvas: the scene fills it and every
-   * piece of interface sits on top. Measured so the scene cards can keep out
-   * from under the header, the rail, the floating cards and the play bar,
-   * which they would otherwise slide beneath whenever they ran out of frame.
+   * piece of interface sits on top. Measured so the floating cards can be
+   * placed against the real header, rail and play bar (as CSS variables)
+   * rather than against a guess at them.
    */
   const stageRef = useRef(null)
-  const insets = useUiInsets(stageRef)
+  useUiInsets(stageRef)
 
   /** Imperative handle on the camera rig, published by <Scene>. */
   const rigRef = useRef(null)
@@ -134,10 +125,7 @@ export default function App() {
     play()
   }, [status, currentStage, selectStage, play, pause])
 
-  const handleStageMarker = useCallback(
-    (key) => pickStage(systemRef.current, key),
-    [pickStage],
-  )
+  const handleStageMarker = useCallback((key) => pickStage(systemRef.current, key), [pickStage])
 
   /**
    * Sidebar: switch system and fly the camera to that product. Clicking the
@@ -214,10 +202,10 @@ export default function App() {
   const stage = STAGE_DATA_BY_SYSTEM[currentSystem][currentStage]
   const stageIndex = STAGE_ORDER.indexOf(currentStage)
 
-  /** Placeholder figures for the three scene cards. See MVP_FIGURES. */
+  /** Placeholder figures for the stats card. See MVP_FIGURES. */
   const figures = MVP_FIGURES[currentSystem]
 
-  /** One description of the current stage, whichever card ends up drawing it. */
+  /** One description of the current stage, whichever card ends up showing it. */
   const cardContent = useMemo(
     () => ({
       eyebrow: `STAGE ${stageIndex + 1} OF ${STAGE_ORDER.length}`,
@@ -244,29 +232,6 @@ export default function App() {
             focused={focused}
             paused={status === 'paused'}
             subscribe={walkthrough.subscribe}
-            cardContent={cardContent}
-            showCard={sceneCard}
-            figures={figures}
-            /*
-              The scene card breakpoint as before, plus the phone, which now
-              has a card design narrow enough to read and a place to put three
-              of them. The band between the two is still left out: there the
-              detail card is a floating DOM one and the row would be competing
-              with it for the same corner.
-            */
-            showStats={focused && (sceneCard || compact)}
-            insets={insets}
-            compact={compact}
-            /*
-             * All four cards travel together: the stage card explaining the
-             * step, and the three system cards beside it. `focused` is already
-             * exactly the right signal — false at the opening wide view, true
-             * the moment anything is picked from the sidebar or the scene, and
-             * false again on Reset view. Keying off it rather than off what
-             * kind of thing was picked also means it does not matter which
-             * mesh the raycast happened to land on: cover, cartridge or badge,
-             * you are looking at that system either way.
-             */
             onPick={handleScenePick}
             rigRef={rigRef}
           />
@@ -275,32 +240,28 @@ export default function App() {
           {!compact && <FactsCard facts={system.facts} />}
           <WhyCard />
           {/*
-            The three scene cards are canvas, and canvas text is invisible to a
-            screen reader. This is the same content as a sentence, so the
-            figures are not lost to one.
+            The stage and the figures arrive when something has been picked and
+            Reset view clears them: `focused` is false at the opening wide view,
+            true the moment anything is picked from the sidebar or the scene,
+            and false again on Reset view. Without that gate the Lab opens with
+            cards already covering the diorama, describing a stage nobody has
+            asked about yet.
+
+            Both used to be drawn into the scene as textures beside the unit,
+            where they came out grey, perspective-skewed and on top of the
+            product. They are DOM cards now, in the same panel style as the
+            facts and reasons, and always crisp.
           */}
-          <p className="sr-only">
-            Estimated for this system: {money(figures.before)} a year now,{' '}
-            {money(figures.after)} filtered, saving {money(figures.before - figures.after)} a
-            year. Over five years, {money(figures.before * 5)} against{' '}
-            {money(figures.after * 5)}. This year:{' '}
-            {figures.litres.toLocaleString('en-AU')} litres filtered,{' '}
-            {figures.bottles.toLocaleString('en-AU')} bottles avoided, and {figures.waste} kg
-            of plastic waste diverted.
-          </p>
-          {/* On a large viewport the card lives in the scene instead; only
-              one of the two may exist at a time. */}
+          {focused && !compact && (
+            <div className="card-column">
+              <DetailCard {...cardContent} />
+              <StatsCard figures={figures} />
+            </div>
+          )}
           {/*
-            Same rule as the scene cards: it arrives when something has been
-            picked and Reset view clears it. Without the `focused` gate the
-            phone opens with the sheet already covering half the diorama,
-            describing a stage nobody has asked about yet.
-          */}
-          {/*
-            One panel on a phone, tabbed between the stage, the product and the
-            company. Above the sheet breakpoint the figures and the reasons have
-            their own floating cards, so there is nothing to tab through and the
-            card just floats as it always has.
+            One panel on a phone, tabbed between the stage, the product, the
+            figures and the company. Above the sheet breakpoint each has its
+            own floating card, so there is nothing to tab through.
           */}
           {focused && compact && (
             <MobileSheet
@@ -308,10 +269,10 @@ export default function App() {
               onPage={setSheetPage}
               content={cardContent}
               facts={system.facts}
+              figures={figures}
               learnMore={system.learnMore}
             />
           )}
-          {focused && !compact && !sceneCard && <DetailCard {...cardContent} />}
         </div>
       </main>
 

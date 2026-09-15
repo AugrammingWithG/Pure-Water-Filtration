@@ -1,4 +1,5 @@
 import HeroScene from '../HeroScene'
+import { ArrowIcon, OpenIcon } from '../icons'
 import { useSite } from '../SiteContext'
 
 export default function Hero() {
@@ -9,47 +10,34 @@ export default function Hero() {
         <div className="hero-copy reveal">
           <div className="eyebrow">Australia's water filtration specialists</div>
           <h1>
-            Better water <span className="gradient">starts at the source.</span>
+            Better water <em>starts at the source.</em>
           </h1>
-          <p>
-            Your water enters your home long before you turn on the tap. We design filtration
-            around your home, your water and what you actually want to change.
+          <p className="lead">
+            Your water enters your home long before you turn on the tap. We design filtration around
+            your home, your water and what you actually want to change.
           </p>
-          <div className="hero-actions">
+          <div className="actions">
             <a className="btn" href="#contact">
-              Get My Free Quote <span>→</span>
+              Get a free quote <ArrowIcon />
             </a>
             <button className="btn outline" onClick={openViewer}>
-              Enter the Water Lab <span>↗</span>
+              Open the Water Lab <OpenIcon />
             </button>
           </div>
-          <div className="mini-trust">
+          <dl className="mini-trust">
             <div>
-              <strong>Lifetime Warranty</strong>
-              <span>With Filter Care Plan</span>
+              <dt>Lifetime warranty</dt>
+              <dd>With the Filter Care Plan</dd>
             </div>
             <div>
-              <strong>5.0 Google Rating</strong>
-              <span>50+ service areas</span>
+              <dt>5.0 Google rating</dt>
+              <dd>50+ service areas</dd>
             </div>
-          </div>
-          <div className="hero-micro">
-            <span>
-              <i />
-              Whole house
-            </span>
-            <span>
-              <i />
-              Under sink
-            </span>
-            <span>
-              <i />
-              Rainwater
-            </span>
-          </div>
+          </dl>
         </div>
         <div className="hero-stage reveal delay2">
           <HeroScene />
+          <p className="hero-hint">Drag to look around · click the home to open the Water Lab</p>
         </div>
       </div>
     </section>

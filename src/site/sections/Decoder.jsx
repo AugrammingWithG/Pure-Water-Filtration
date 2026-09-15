@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ArrowIcon } from '../icons'
 
 /**
  * The reader picks the thing they actually notice at home; the panel answers
@@ -55,16 +56,14 @@ export default function Decoder() {
   const current = CONCERNS.find((c) => c.key === active)
 
   return (
-    <section className="decoder" id="decoder">
+    <section className="section pale decoder" id="decoder">
       <div className="container decoder-grid">
         <div className="decoder-intro reveal">
-          <div className="decoder-kicker">
-            <i /> The Pure Water Difference
-          </div>
-          <h2>Start with what you notice. We'll show you where to look.</h2>
+          <div className="eyebrow">Start with what you notice</div>
+          <h2>Tell us what's bothering you. We'll show you where to look.</h2>
           <p>
-            Forget the technical terms. Tell us what is bothering you and we will show you the
-            filtration path worth exploring.
+            Forget the technical terms. Pick the thing you notice at home and we'll point at the
+            part of the system that deals with it.
           </p>
           <div className="decoder-tabs" role="tablist" aria-label="Water concerns">
             {CONCERNS.map((concern) => (
@@ -108,8 +107,8 @@ export default function Decoder() {
               <strong>{current.lead}</strong>
               {current.answer}
             </p>
-            <a className="btn light decoder-cta" href="#finder">
-              Find My System →
+            <a className="btn decoder-cta" href="#finder">
+              Find my system <ArrowIcon />
             </a>
           </div>
           <p className="decoder-note">

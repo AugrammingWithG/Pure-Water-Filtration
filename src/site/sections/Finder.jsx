@@ -1,16 +1,25 @@
 import { useRef, useState } from 'react'
+import { ArrowIcon, CheckIcon } from '../icons'
 
 const QUESTIONS = [
   {
     title: 'Where do you want better water?',
     choices: [
-      { value: 'whole', label: 'Every tap', note: 'Kitchen, bathroom, shower and appliances.' },
+      {
+        value: 'whole',
+        label: 'Every tap',
+        note: 'Kitchen, bathroom, shower and appliances.',
+      },
       {
         value: 'drink',
         label: 'Kitchen drinking water',
         note: 'Cleaner, better-tasting water at the tap.',
       },
-      { value: 'rain', label: 'Rainwater / tank', note: 'Filtration for homes using stored water.' },
+      {
+        value: 'rain',
+        label: 'Rainwater / tank',
+        note: 'Filtration for homes using stored water.',
+      },
       { value: 'unsure', label: 'I’m not sure', note: 'Help me work it out.' },
     ],
   },
@@ -22,8 +31,16 @@ const QUESTIONS = [
         label: 'Whole-home protection',
         note: 'Cleaner water throughout the house.',
       },
-      { value: 'taste', label: 'Better taste & smell', note: 'Focus on the water you drink.' },
-      { value: 'family', label: 'Family comfort', note: 'Showers, skin, hair and everyday use.' },
+      {
+        value: 'taste',
+        label: 'Better taste & smell',
+        note: 'Focus on the water you drink.',
+      },
+      {
+        value: 'family',
+        label: 'Family comfort',
+        note: 'Showers, skin, hair and everyday use.',
+      },
       {
         value: 'simple',
         label: 'Keep it simple',
@@ -34,14 +51,26 @@ const QUESTIONS = [
   {
     title: 'What kind of home are we looking at?',
     choices: [
-      { value: 'house', label: 'Family home', note: 'Multiple bathrooms and regular daily use.' },
+      {
+        value: 'house',
+        label: 'Family home',
+        note: 'Multiple bathrooms and regular daily use.',
+      },
       {
         value: 'apartment',
         label: 'Apartment / unit',
         note: 'Compact, targeted filtration may suit.',
       },
-      { value: 'tankhome', label: 'Tank-water home', note: 'Rainwater is part of the supply.' },
-      { value: 'other', label: 'Something else', note: 'A specialist can help assess it.' },
+      {
+        value: 'tankhome',
+        label: 'Tank-water home',
+        note: 'Rainwater is part of the supply.',
+      },
+      {
+        value: 'other',
+        label: 'Something else',
+        note: 'A specialist can help assess it.',
+      },
     ],
   },
 ]
@@ -89,7 +118,11 @@ export default function Finder() {
     if (!answers[step - 1]) {
       /* nothing picked yet: nudge the button rather than move on silently */
       nextRef.current?.animate(
-        [{ transform: 'translateX(-4px)' }, { transform: 'translateX(4px)' }, { transform: 'none' }],
+        [
+          { transform: 'translateX(-4px)' },
+          { transform: 'translateX(4px)' },
+          { transform: 'none' },
+        ],
         { duration: 220 },
       )
       return
@@ -101,24 +134,30 @@ export default function Finder() {
   const result = RESULTS[answers[0]] ?? RESULTS.default
 
   return (
-    <section className="section finder" id="finder">
+    <section className="section pale finder" id="finder">
       <div className="container finder-grid">
         <div className="reveal">
           <div className="eyebrow">Not sure what you need?</div>
-          <h2>Find your best-fit filtration system in 30 seconds.</h2>
+          <h2>Find your best‑fit system in 30 seconds.</h2>
           <p>
             Answer three simple questions. We'll point you toward the system that makes the most
-            sense for your home — then you can speak to a specialist for the final recommendation.
+            sense for your home — then a specialist confirms the final recommendation.
           </p>
-          <div className="audience">
-            <span>Easy to understand</span>
-            <span>No technical jargon</span>
-            <span>No obligation</span>
-          </div>
+          <ul className="check-list">
+            <li>
+              <CheckIcon /> No technical jargon
+            </li>
+            <li>
+              <CheckIcon /> No obligation
+            </li>
+            <li>
+              <CheckIcon /> A starting point, not a diagnosis
+            </li>
+          </ul>
         </div>
         <div className="finder-panel reveal delay2">
           <div className="finder-progress">
-            <i style={{ width: `${(step / QUESTIONS.length) * 100}%` }} />
+            <i style={{ transform: `scaleX(${step / QUESTIONS.length})` }} />
           </div>
           {QUESTIONS.map((question, i) => (
             <div
@@ -142,7 +181,7 @@ export default function Finder() {
             </div>
           ))}
           <div className={`finder-result${done ? ' active' : ''}`}>
-            <span className="result-badge">YOUR STARTING POINT</span>
+            <span className="result-badge">Your starting point</span>
             <h3>{result.title}</h3>
             <p>{result.text}</p>
             <ul className="result-list">
@@ -150,23 +189,36 @@ export default function Finder() {
               <li>Cleaner water from multiple taps</li>
               <li>Designed around your local water</li>
             </ul>
-            <a className="btn" href="#contact">
-              Talk to a Specialist →
-            </a>
+            <div className="actions">
+              <a className="btn" href="#contact">
+                Talk to a specialist <ArrowIcon />
+              </a>
+              <button
+                className="link quiet"
+                onClick={() => {
+                  setDone(false)
+                  setStep(1)
+                  setAnswers([])
+                }}
+              >
+                Start again
+              </button>
+            </div>
           </div>
           {!done && (
             <div className="finder-nav">
               <button
+                className="link quiet"
                 style={{ visibility: step > 1 ? 'visible' : 'hidden' }}
                 onClick={() => setStep((s) => Math.max(1, s - 1))}
               >
-                ← Back
+                Back
               </button>
-              <span style={{ fontSize: '10px', color: 'var(--muted)', fontWeight: 700 }}>
-                {step} of {QUESTIONS.length}
+              <span className="finder-count">
+                Question {step} of {QUESTIONS.length}
               </span>
-              <button ref={nextRef} onClick={onNext}>
-                {step === QUESTIONS.length ? 'See my result →' : 'Next →'}
+              <button className="btn small" ref={nextRef} onClick={onNext}>
+                {step === QUESTIONS.length ? 'See my result' : 'Next'} <ArrowIcon />
               </button>
             </div>
           )}

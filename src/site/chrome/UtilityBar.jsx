@@ -1,32 +1,33 @@
-import { useState } from 'react'
-import { useBodyClass } from '../hooks'
+import { MotionIcon, TextSizeIcon } from '../icons'
+import { useSite } from '../SiteContext'
 
 /**
  * Two reading aids, kept deliberately blunt: larger text, and motion turned
- * down. Both are body classes, because what they change is spread across the
- * whole stylesheet rather than owned by any one section.
+ * down. Desktop only; on a phone the same two toggles live in the menu, where
+ * a floating pill would have sat on top of the content it was meant to help
+ * with.
  */
 export default function UtilityBar() {
-  const [easyRead, setEasyRead] = useState(false)
-  const [reducedMotion, setReducedMotion] = useState(false)
-  useBodyClass('easy-read', easyRead)
-  useBodyClass('reduced-motion', reducedMotion)
-
+  const { prefs, setPref } = useSite()
   return (
-    <div className="utility-bar" aria-label="Accessibility options">
-      <span className="utility-label">Easier to read</span>
-      <button onClick={() => setEasyRead(false)} aria-label="Smaller text" aria-pressed={!easyRead}>
-        A−
-      </button>
-      <button onClick={() => setEasyRead(true)} aria-label="Larger text" aria-pressed={easyRead}>
-        A+
+    <div className="utility-bar" aria-label="Reading options">
+      <button
+        className={prefs.easyRead ? 'on' : ''}
+        onClick={() => setPref('easyRead', !prefs.easyRead)}
+        aria-label="Larger text"
+        aria-pressed={prefs.easyRead}
+        title="Larger text"
+      >
+        <TextSizeIcon />
       </button>
       <button
-        onClick={() => setReducedMotion((on) => !on)}
+        className={prefs.reducedMotion ? 'on' : ''}
+        onClick={() => setPref('reducedMotion', !prefs.reducedMotion)}
         aria-label="Reduce motion"
-        aria-pressed={reducedMotion}
+        aria-pressed={prefs.reducedMotion}
+        title="Reduce motion"
       >
-        ◌
+        <MotionIcon />
       </button>
     </div>
   )

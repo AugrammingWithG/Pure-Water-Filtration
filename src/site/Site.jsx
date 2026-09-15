@@ -4,14 +4,13 @@ import MobileActions from './chrome/MobileActions'
 import QuickQuote from './chrome/QuickQuote'
 import ScrollProgress from './chrome/ScrollProgress'
 import UtilityBar from './chrome/UtilityBar'
-import { useBodyClass, useCardTilt, useReveal } from './hooks'
+import { useBodyClass, useReveal } from './hooks'
 import About from './sections/About'
 import Areas from './sections/Areas'
 import Benefits from './sections/Benefits'
 import Compare from './sections/Compare'
 import Decoder from './sections/Decoder'
 import Difference from './sections/Difference'
-import Experience from './sections/Experience'
 import Faq from './sections/Faq'
 import FinalCta from './sections/FinalCta'
 import Finder from './sections/Finder'
@@ -39,6 +38,15 @@ export default function Site() {
   const [viewerOpen, setViewerOpen] = useState(false)
   useBodyClass('menu-open', viewerOpen)
 
+  /**
+   * The two reading aids. Body classes, because what they change is spread
+   * across the whole stylesheet rather than owned by any one section.
+   */
+  const [prefs, setPrefs] = useState({ easyRead: false, reducedMotion: false })
+  const setPref = useCallback((key, on) => setPrefs((p) => ({ ...p, [key]: on })), [])
+  useBodyClass('easy-read', prefs.easyRead)
+  useBodyClass('reduced-motion', prefs.reducedMotion)
+
   const [toast, setToast] = useState(false)
   const toastTimer = useRef(0)
   const showToast = useCallback(() => {
@@ -51,12 +59,11 @@ export default function Site() {
   const openViewer = useCallback(() => setViewerOpen(true), [])
   const closeViewer = useCallback(() => setViewerOpen(false), [])
   const actions = useMemo(
-    () => ({ openViewer, showToast, viewerOpen }),
-    [openViewer, showToast, viewerOpen],
+    () => ({ openViewer, showToast, viewerOpen, prefs, setPref }),
+    [openViewer, showToast, viewerOpen, prefs, setPref],
   )
 
   useReveal()
-  useCardTilt()
 
   return (
     <SiteContext.Provider value={actions}>
@@ -78,7 +85,6 @@ export default function Site() {
         <Services />
         <Finder />
         <Compare />
-        <Experience />
         <Benefits />
         <Steps />
         <Reviews />
@@ -92,7 +98,7 @@ export default function Site() {
 
       {viewerOpen && <ViewerModal onClose={closeViewer} />}
       <div className={`toast${toast ? ' show' : ''}`} role="status">
-        This is a design prototype — connect this button to the real download flow.
+        This is a design prototype — the pricing guide download is not connected yet.
       </div>
 
       <MobileActions />
@@ -101,4 +107,3 @@ export default function Site() {
     </SiteContext.Provider>
   )
 }
-

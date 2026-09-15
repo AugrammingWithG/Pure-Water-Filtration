@@ -1,14 +1,13 @@
 import { Suspense, useRef } from 'react'
 import { Canvas } from '@react-three/fiber'
 import * as THREE from 'three'
-import { DEFAULT_STAGE, DEFAULT_SYSTEM, MVP_FIGURES } from '../data/constants'
+import { DEFAULT_STAGE, DEFAULT_SYSTEM } from '../data/constants'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 import { useQuality } from '../three/quality'
 import Scene from '../three/Scene'
 import { HOME_VIEW } from '../three/systems'
 
 /** The hero has no interface standing on the canvas, so nothing to keep clear of. */
-const NO_INSETS = { top: 0, right: 0, bottom: 0, left: 0 }
 
 /**
  * The home view, from further back. The viewer's framing fills its window
@@ -77,12 +76,6 @@ export default function HeroCanvas({ running, onReady, onPick }) {
           currentStage={DEFAULT_STAGE}
           focused={false}
           paused={false}
-          cardContent={null}
-          showCard={false}
-          figures={MVP_FIGURES[DEFAULT_SYSTEM]}
-          showStats={false}
-          compact={false}
-          insets={NO_INSETS}
           onPick={onPick}
           onReady={onReady}
           rigRef={rigRef}

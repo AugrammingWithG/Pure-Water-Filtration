@@ -192,15 +192,19 @@
 }
 .side-btn{
   display:flex; flex-direction:column; align-items:center; gap:6px;
-  padding:10px 6px; border-radius:12px; width:72px;
-  transition:background 0.2s ease;
+  padding:8px 6px; border-radius:12px; width:72px;
+  background:rgba(255,255,255,0.62); backdrop-filter:blur(8px);
+  border:1px solid rgba(15,28,51,0.06);
+  transition:background 0.2s ease, border-color 0.2s ease;
 }
+.side-btn:hover{background:rgba(255,255,255,0.8);}
+.side-btn.active{border-color:rgba(var(--accent-rgb),0.35);}
 .side-btn .ico{
   width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center;
-  border:1px solid var(--line); background:rgba(255,255,255,0.75); color:var(--ink-dim);
+  border:1px solid var(--line); background:rgba(255,255,255,0.9); color:var(--ink-dim);
   transition:all 0.25s ease;
 }
-.side-btn span{font-size:9.5px; color:var(--ink-dim); font-weight:600; text-align:center; line-height:1.2;}
+.side-btn span{font-size:9.5px; color:var(--ink); font-weight:600; text-align:center; line-height:1.2;}
 .side-btn:hover .ico{border-color:rgba(var(--accent-rgb),0.5); color:var(--accent);}
 .side-btn.active .ico{
   border-color:transparent; background:var(--accent); color:var(--accent-ink);
@@ -272,6 +276,63 @@
   max-height:76%; overflow-y:auto; overscroll-behavior:contain;
   transition:opacity 0.35s ease, transform 0.35s ease;
 }
+/* The right-hand column: the stage card with the figures beneath it. One
+   flex column between the header and the play bar, so the two can never
+   overlap however long the stage copy runs — the stage card gives way and
+   scrolls, the figures keep their height. */
+.card-column{
+  position:absolute; z-index:5;
+  top:calc(var(--ui-top) + 14px); bottom:calc(var(--ui-bottom) + 10px);
+  right:calc(var(--ui-right) + 24px); width:236px;
+  display:flex; flex-direction:column; gap:10px; pointer-events:none;
+}
+.card-column .float-card{position:relative; top:auto; right:auto; bottom:auto; left:auto; width:auto;}
+.card-column .card-detail{flex:0 1 auto; min-height:0; max-height:none;}
+.card-column .card-stats{flex-shrink:0;}
+
+/* The figures, under the stage card in the same column. Three rows of a
+   label and its numbers; the panel is the facts card's, so the four cards
+   on screen read as one set. Hidden where the column has no room for both
+   (see RESPONSIVE); the phone folds it into the sheet. */
+.card-stats{
+  bottom:calc(var(--ui-bottom) + 10px); right:calc(var(--ui-right) + 24px);
+  width:236px;
+}
+.card-stats{pointer-events:auto; padding-top:12px; padding-bottom:12px;}
+.stats-toggle{
+  display:grid; grid-template-columns:1fr auto; column-gap:8px; align-items:center;
+  width:100%; text-align:left; padding:2px 0;
+}
+.stats-toggle .fc-label{margin-bottom:0;}
+.stats-summary{grid-column:1; font-size:11px; color:var(--ink); line-height:1.35; margin-top:5px;}
+.stats-chevron{grid-column:2; grid-row:1 / span 2; color:var(--ink-dim); transition:transform 0.25s ease;}
+.card-stats.open .stats-chevron{transform:rotate(180deg);}
+.card-stats.open .stats-toggle{margin-bottom:8px;}
+.stats-toggle:hover .fc-label, .stats-toggle:hover .stats-chevron{color:var(--accent);}
+.stat-row{padding:8px 0; border-top:1px solid var(--line);}
+.card-stats .stat-row:first-of-type{padding-top:10px;}
+.card-detail .stat-row:first-of-type{border-top:0; padding-top:0;}
+.stat-label{font-size:9.5px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-dim); margin-bottom:5px;}
+.stat-pair, .stat-triplet{display:flex; align-items:flex-end; gap:12px;}
+.stat-triplet{justify-content:space-between; gap:8px;}
+.stat-pair > span, .stat-triplet > span{display:flex; flex-direction:column; min-width:0;}
+.stat-pair b, .stat-triplet b{
+  font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:600; line-height:1.15;
+  color:var(--ink); font-variant-numeric:tabular-nums; white-space:nowrap;
+}
+.stat-triplet b{font-size:13px;}
+.stat-pair small, .stat-triplet small{font-size:9.5px; color:var(--ink-dim); line-height:1.3;}
+.stat-before{color:#c2761c;}
+.stat-after{color:#1f9a63;}
+.stat-saving{
+  margin-left:auto; align-self:center; font-size:10px; font-weight:700; white-space:nowrap;
+  color:var(--accent); background:rgba(var(--accent-rgb),0.12); padding:4px 8px; border-radius:6px;
+}
+.stat-note{font-size:9.5px; color:var(--ink-dim); margin-top:8px; padding-top:8px; border-top:1px solid var(--line);}
+/* inside the phone sheet the rows tighten to the sheet's scale */
+.card-detail .stat-row{padding:6px 0;}
+.card-detail .stat-note{margin-top:4px;}
+
 .card-detail .fc-eyebrow{font-size:10px; color:var(--accent); font-weight:700; margin-bottom:4px; letter-spacing:0.06em;}
 .card-detail h3{font-size:16px; font-weight:600; margin-bottom:8px;}
 .card-detail p{font-size:12px; line-height:1.55; color:var(--ink-dim); margin-bottom:12px;}
@@ -332,7 +393,7 @@
   max-width:100%;
   background:var(--panel); backdrop-filter:blur(14px);
   border:1px solid var(--panel-border);
-  border-radius:999px; padding:8px 12px 8px 8px;
+  border-radius:999px; padding:8px 14px 8px 8px;
   box-shadow:var(--shadow);
 }
 .play-btn{
@@ -387,7 +448,7 @@
    the marker sits at the button's left edge, lifted onto the track line
    (8px slider padding + half the 4px track), and the name is centred in the
    stretch. The live stage is the one the playhead is inside. */
-.progress-stages{position:relative; height:13px; z-index:1;}
+.progress-stages{position:relative; height:14px; z-index:1;}
 .progress-stage{
   position:absolute; top:0; height:100%;
   display:flex; align-items:flex-end; justify-content:center;
@@ -409,7 +470,7 @@
 }
 .progress-label{
   display:block; max-width:100%;
-  font-size:10px; font-weight:600; line-height:1; color:var(--ink-dim);
+  font-size:10px; font-weight:600; line-height:1; color:var(--ink);
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   transition:color 0.25s ease;
 }
@@ -440,7 +501,8 @@
 /* --- cards: one size down --- */
 @media (max-width:1180px){
   .card-facts, .card-why{width:168px; padding:13px 15px;}
-  .card-detail{width:212px; padding:14px 16px;}
+  .card-column{width:212px;}
+  .card-detail, .card-stats{width:212px; padding:14px 16px;}
   .fact-row b{font-size:15px;}
   .card-why .fact-row b{font-size:12.5px;}
   .card-detail h3{font-size:15px;}
@@ -450,14 +512,14 @@
        anchors, which a 900px-tall laptop does not have. Pull each card
        towards its own edge first... --- */
 @media (max-height:900px){
-  .card-facts, .card-detail{top:calc(var(--ui-top) + 8px);}
-  .card-why{bottom:calc(var(--ui-bottom) + 6px);}
+  .card-facts, .card-detail, .card-column{top:calc(var(--ui-top) + 8px);}
+  .card-why, .card-stats, .card-column{bottom:calc(var(--ui-bottom) + 6px);}
 }
 
 /* --- ...and only once even that will not fit, drop the lower one. It is
        the secondary card; facts and detail carry the product. --- */
 @media (max-width:900px), (max-height:780px){
-  .card-why{display:none;}
+  .card-why, .card-stats{display:none;}
   /* the number goes to the header rather than off the page entirely */
   .call-btn{display:inline-flex;}
 }
@@ -481,7 +543,7 @@
     flex:1 1 0; min-width:0; width:auto; max-width:190px;
     flex-direction:row; justify-content:flex-start; align-items:center; gap:8px;
     padding:7px 11px; border-radius:11px;
-    border:1px solid var(--line); background:rgba(255,255,255,0.55);
+    border:1px solid var(--line); background:rgba(255,255,255,0.78);
   }
   .side-btn .ico{width:28px; height:28px; border-radius:9px; flex-shrink:0;}
   .side-btn .ico svg{width:15px; height:15px;}
@@ -489,7 +551,7 @@
     font-size:10.5px; text-align:left; min-width:0;
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
-  .side-btn.active{border-color:rgba(var(--accent-rgb),0.45); background:rgba(var(--accent-rgb),0.10);}
+  .side-btn.active{border-color:rgba(var(--accent-rgb),0.45); background:rgba(255,255,255,0.92);}
   .side-btn.active .ico{box-shadow:0 4px 10px rgba(var(--accent-rgb),0.30);}
 }
 

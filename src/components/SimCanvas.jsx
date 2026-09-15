@@ -22,12 +22,6 @@ export default function SimCanvas({
   focused,
   paused,
   subscribe,
-  cardContent,
-  showCard,
-  figures,
-  showStats,
-  compact,
-  insets,
   onPick,
   rigRef,
 }) {
@@ -75,12 +69,6 @@ export default function SimCanvas({
           focused={focused}
           paused={paused}
           subscribe={subscribe}
-          cardContent={cardContent}
-          showCard={showCard}
-          figures={figures}
-          showStats={showStats}
-          compact={compact}
-          insets={insets}
           onPick={onPick}
           onReady={handleReady}
           rigRef={rigRef}
