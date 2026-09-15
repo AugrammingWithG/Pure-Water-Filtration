@@ -20,6 +20,12 @@ import { useMediaQuery } from './hooks/useMediaQuery'
 import { useUiInsets } from './hooks/useUiInsets'
 import { useWalkthrough } from './hooks/useWalkthrough'
 import { stageView, SYSTEMS } from './three/systems'
+/*
+ * The viewer's stylesheet travels with the viewer rather than with the page:
+ * App is loaded on demand from the Water Lab modal, so its CSS arrives in the
+ * same chunk and a visitor who never opens the lab never downloads either.
+ */
+import './styles/index.css'
 
 const money = (n) => '$' + Math.round(n).toLocaleString('en-AU')
 
