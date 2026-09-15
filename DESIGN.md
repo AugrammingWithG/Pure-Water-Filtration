@@ -223,7 +223,7 @@ Water at three depths: pale, lit surfaces; one clear blue for action; a deep res
 ### Named Rules
 **The Stamped Heading Rule.** Every Manrope heading is weight 800 with negative tracking, in ems so it scales with the size. No light, medium or wide-tracked headings on the page; the eyebrow above it carries the wide tracking.
 
-**The Scoped Heading Rule.** The page's `h1`–`h4` rules are written `:not(.app *)`, and the page's scroll bar is `.scroll-progress`, not `.progress`: the Water Lab has a `.progress` of its own. Nothing in `site.css` may reach into `.app`.
+**The Scoped Heading Rule.** The page's `h1`–`h4` rules are written `:not(.app *)`, and the page's scroll bar is `.scroll-rail`, not `.progress`: the Water Lab has a `.progress` of its own. Nothing in `site.css` may reach into `.app`.
 
 **The Two Faces Rule.** Manrope and DM Sans on the page; Space Grotesk and Inter under `.app`. Do not import a fifth face, and do not let a page section pick up the Lab's fonts or vice versa.
 
@@ -233,7 +233,7 @@ One centred container at min(1180px, 100% - 48px) (100% - 30px under 560px). Sec
 
 The hero is the only section where content leaves the container: the 3D canvas extends 140px past the right column edge so the diorama's plinth is not clipped, and the section's own overflow trims it at the viewport. Copy in the hero stays inside 500px.
 
-Fixed chrome sits at the edges: sticky 82px nav (70px on phones) over a 34px top bar, a 3px scroll-progress bar, a bottom-centre quick-quote pill after 700px of scroll, a bottom-right utility bar, and on phones a three-button action bar pinned to the bottom (the quick-quote and utility bar move up 72 to 76px to clear it).
+Fixed chrome sits at the edges: sticky 82px nav (70px on phones) with no strip above it, a custom scroll rail down the right edge (a frosted track, a draggable gradient thumb, a dot per nav section) that replaces the native scrollbar on pointer devices, a bottom-centre quick-quote pill after 700px of scroll, a bottom-right utility bar, and on phones a three-button action bar pinned to the bottom (the quick-quote and utility bar move up 72 to 76px to clear it).
 
 The Water Lab is one grid cell: the scene fills it and the chrome (header, 84px system rail, floating cards, play bar) is laid over it. Cards position off measured chrome insets (`--ui-top`, `--ui-left`, `--ui-bottom`), not off percentages of the canvas. Inside the modal the viewer is min(1250px, 100%) by min(800px, 90dvh); on phones the modal is the whole screen with no padding and no radius.
 

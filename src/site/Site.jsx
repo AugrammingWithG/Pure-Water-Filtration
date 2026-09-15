@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import CursorGlow from './chrome/CursorGlow'
 import MobileActions from './chrome/MobileActions'
 import QuickQuote from './chrome/QuickQuote'
-import ScrollProgress from './chrome/ScrollProgress'
+import ScrollRail from './chrome/ScrollRail'
 import UtilityBar from './chrome/UtilityBar'
 import { useBodyClass, useReveal } from './hooks'
 import About from './sections/About'
@@ -107,7 +107,7 @@ export default function Site() {
       <a className="skip-link" href="#main-content">
         Skip to main content
       </a>
-      <ScrollProgress />
+      <ScrollRail />
       <CursorGlow />
 
       <SiteHeader />

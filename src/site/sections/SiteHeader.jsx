@@ -2,22 +2,10 @@ import { useEffect, useState } from 'react'
 import logo from '../assets/brand/logo.webp'
 import { useBodyClass } from '../hooks'
 import { ArrowIcon, CloseIcon, MenuIcon, MotionIcon, PhoneIcon, TextSizeIcon } from '../icons'
+import { LINKS } from '../navLinks'
 import { useSite } from '../SiteContext'
 
-/**
- * The nav names the sections in the order they appear, using the same words
- * the sections use for themselves, so a link and the heading it lands on
- * always agree.
- */
-const LINKS = [
-  ['#water-lab', 'Water Lab'],
-  ['#about', 'Why filter'],
-  ['#services', 'Systems'],
-  ['#finder', 'Find my system'],
-  ['#reviews', 'Reviews'],
-]
-
-/** The announcement strip, the sticky nav, and the phone menu behind it. */
+/** The sticky nav and the phone menu behind it. */
 export default function SiteHeader() {
   const { prefs, setPref, openViewer } = useSite()
   const [menuOpen, setMenuOpen] = useState(false)
@@ -41,11 +29,6 @@ export default function SiteHeader() {
 
   return (
     <>
-      <div className="topbar">
-        <span>Australian water filtration specialists · Same-day quote response</span>
-        <a href="tel:1300720031">1300 720 031</a>
-      </div>
-
       <div className="nav-wrap">
         <nav className="nav" aria-label="Main">
           <a className="logo" href="#" aria-label="Pure Water Filtration, back to top">
