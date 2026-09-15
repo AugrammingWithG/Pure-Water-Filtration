@@ -25,6 +25,7 @@ const SYSTEMS = [
   {
     key: 'undersink',
     photo: underSink,
+    position: 'center 32%',
     alt: 'A Pure Water Filtration reverse-osmosis storage tank and cartridges installed under a kitchen sink',
     service: 'Under-sink filtration',
   },
@@ -47,12 +48,12 @@ export default function Services() {
           <p>Three systems, one goal: better water where you need it.</p>
         </div>
         <div className="card-grid three">
-          {SYSTEMS.map(({ key, photo, alt, service }, i) => {
+          {SYSTEMS.map(({ key, photo, position, alt, service }, i) => {
             const system = SYSTEM_DATA[key]
             return (
               <article className={`card service reveal${i ? ` delay${i}` : ''}`} key={key}>
                 <div className="service-art">
-                  <img src={photo} alt={alt} loading="lazy" />
+                  <img src={photo} alt={alt} loading="lazy" style={position ? { objectPosition: position } : undefined} />
                 </div>
                 <div className="service-content">
                   <h3>{system.title}</h3>

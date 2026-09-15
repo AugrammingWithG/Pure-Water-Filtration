@@ -43,7 +43,10 @@ export function formatPhone(value) {
 export function validateField(field, value, answers) {
   const v = (value ?? '').toString().trim()
   if (field.required && !v) {
-    return field.type === 'choice' || field.type === 'select' ? 'Choose one to continue' : `Enter your ${field.label.toLowerCase()}`
+    if (field.type === 'choice' || field.type === 'select') return 'Choose one to continue'
+    if (field.type === 'tel') return 'Enter a phone number we can reach you on'
+    if (field.type === 'email') return 'Enter your email address'
+    return `Enter your ${field.label.toLowerCase()}`
   }
   if (!v) return ''
   if (field.type === 'choice' && field.allowOther && v === 'Other') {

@@ -510,13 +510,16 @@ select.q-input{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www
 .specs-version{margin-left:auto;font-size:11px;color:var(--muted-dark);letter-spacing:.06em;text-transform:uppercase}
 
 /* ---------- INSTALLS: the photo strip ---------- */
-.install-strip{overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scrollbar-width:thin;padding-bottom:12px}
-.install-track{display:flex;gap:16px;width:max-content;padding-inline:max(24px,calc((100vw - 1180px) / 2))}
+/* the strip's inset matches the container's, and snapping honours it:
+   without scroll-padding the first card snaps to the viewport edge */
+.installs{--strip-inset:max(24px,calc((100vw - 1180px) / 2))}
+.install-strip{overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scroll-padding-inline:var(--strip-inset);scrollbar-width:thin;padding-bottom:12px}
+.install-track{display:flex;gap:16px;width:max-content;padding-inline:var(--strip-inset)}
 .install-shot{margin:0;width:340px;flex:none;scroll-snap-align:start;border-radius:var(--r-lg);overflow:hidden;background:var(--section-pale);border:1px solid var(--line);box-shadow:var(--shadow-rest);transition:transform .45s var(--ease),box-shadow .45s}
 .install-shot:hover{transform:translateY(-6px);box-shadow:var(--shadow)}
 .install-shot img{width:100%;height:400px;object-fit:cover}
 .install-shot figcaption{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:14px 18px;font-size:12px}
-.install-shot strong{font-family:var(--font-display);font-weight:800;color:var(--navy);letter-spacing:-.01em}
+.install-shot strong{font-family:var(--font-display);font-weight:800;font-size:13px;color:var(--navy)}
 .install-shot span{color:var(--muted)}
 .install-foot{margin-top:22px}
 
@@ -656,7 +659,7 @@ body.reduced-motion *,body.reduced-motion *:before,body.reduced-motion *:after{a
   .specs-grid{grid-template-columns:1fr}
   .specs-photo{position:static;max-width:520px}
   .specs-assurances{grid-template-columns:1fr 1fr}
-  .install-track{padding-inline:20px}
+  .installs{--strip-inset:20px}
 
   /* on a phone the action bar pins the same things to the same edge */
   .quick-quote,.utility-bar{display:none}
@@ -711,7 +714,7 @@ body.reduced-motion *,body.reduced-motion *:before,body.reduced-motion *:after{a
   .specs-version{margin-left:0;width:100%}
   .install-shot{width:272px}
   .install-shot img{height:320px}
-  .install-track{padding-inline:15px}
+  .installs{--strip-inset:15px}
   .logo img{height:38px}
   .compare-scroll{margin-inline:-15px;padding-inline:15px}
   .compare-scroll:before{content:"Swipe to compare all three systems 92";display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:10px}
@@ -722,7 +725,7 @@ body.reduced-motion *,body.reduced-motion *:before,body.reduced-motion *:after{a
   .guide-card{width:min(340px,100%)}
   .contact-card{padding:10px}
   .contact-row{padding:14px}
-  .contact-row strong{font-size:16px}
+  .contact-row strong{font-size:15px;overflow-wrap:anywhere}
   .footer-grid{grid-template-columns:1fr;gap:28px}
   .footer-bottom{flex-direction:column;gap:8px}
   .section-head p,.section p{max-width:none}

@@ -262,7 +262,7 @@ Ambient lift. Cards float on a soft blue haze rather than sitting on drawn layer
 
 Everything is rounded and nothing is sharp. Buttons, chips, tags, badges and the quick-quote are full pills (999px). Cards are 22 to 30px: 24px is the default (`--radius`), 30px for hero-scale frames (viewer card, Decoder panel, Lab visual), 22px for review and Lab cards, 18px for benefit tiles, 20px for journey and guide cards. Small controls step down: choices 15px, FAQ items 16px, toast 14px, Lab panels 14px, Lab chips and placement callouts 8px, mobile action buttons 10px. Circles are used for icons, step numbers, trust icons, the modal close and the rail icon backgrounds (11 to 12px on a 38px square, not fully round).
 
-Two deliberate exceptions: the placement callout in the Lab is a left-ruled block with radius only on its right side (0 8px 8px 0), and the guide card is rotated -4deg to read as a physical booklet. The logo mark is a drop shape drawn from a rotated rounded square with a clip-path, not an image.
+Two deliberate exceptions: the placement callout in the Lab is a left-ruled block with radius only on its right side (0 8px 8px 0), and the guide mockup is rotated -4deg to read as a physical booklet.
 
 Silhouettes on the page are soft: radial glows are circles cropped by section edges, the hero canvas has no frame, the map is a clip-path polygon with a drop shadow.
 
@@ -301,13 +301,19 @@ Smooth and buoyant. A primary button is a Tap Blue pill that casts a blue glow a
 - **Compare table**: one bordered 22px-radius grid, 17px 15px cells with Waterline rules, `#f4fbff` header cells in Manrope 800 13px navy
 
 ### Inputs / Fields
-No text inputs exist yet. The one input-like control is the finder **choice**: white, 1px Waterline border, 15px radius, 17px padding, min-height 75px, left-aligned with a 13px bold line and a 10px Muted line; hover and selected turn the border #7bcaf2, the fill `#effaff`, and lift 2px. Any future text field should follow it: Waterline border on white, 15px radius, focus ring from the global `:focus-visible` (3px Filtered Cyan, 4px offset), no inset shadow.
+- **Choice** (finder and quote form): white, 1px Waterline border, 15px radius, 17px padding, min-height 75px, left-aligned with a 13px bold line and a 10px Muted line; hover and selected turn the border #7bcaf2, the fill `#effaff`, and lift 2px. In the quote form the tile is a `<label>` over a visually hidden radio, so the group has a name and arrow keys walk it; a focused radio draws the ring on the tile via `:has()`. `.choice-grid.compact` is the 3-up, single-line version for long option lists.
+- **Text field** (`.q-input`): white, 1px Waterline border, 15px radius, 13px 16px padding, 15px DM Sans, placeholder `#a3b6c6`; hover border #7bcaf2, focus border Tap Blue on `#fbfeff`, the global cyan ring on keyboard focus, no inset shadow. Selects share it with an inline chevron; textareas resize vertically.
+- **Label** (`.q-label`): 13.5px 700 Deep Reservoir; "(optional)" appended in Muted at 500. **Hint** 12px Muted under the label. **Error** 12px 700 `#c43a3a` under the field, with the field's border `#d64545`; errors appear on blur or on Next, never on first paint.
+- **Form panel** (`.quote-panel`): the finder panel — white, 30px radius, Waterline border, 30px padding, Float shadow — with the same 5px progress bar and "Step n of m" count above a 24px Manrope step title.
 
 ### Navigation
 - **Top bar**: 34px, Deep Reservoir, `#dcecff` 11px text
 - **Nav**: 82px sticky, white at 90% with blur(16px), Waterline hairline underneath. Links 13px 600 `#38556e` with a 2px Tap Blue underline that slides in from the left on hover (`.35s`). Phone number Deep Reservoir 700. Collapses to a 24px navy menu glyph at 900px.
-- **Logo**: Manrope 800 18px at -0.7px tracking, Deep Reservoir, with a 9px 4px-tracked `#2788d8` sub-line and the drop-shaped mark
+- **Logo**: the client's own lockup as an image, 46px tall in the nav (38px on phones), the white version 44px tall in the footer
 - **Lab rail**: 84px column of 72px buttons, each a 38px icon tile (11px radius, white 75%, hairline) over a 9.5px 600 caption; active fills the tile with the system accent and its glow, and the caption takes the accent
+
+### Photography
+The client's own installs, not stock: the three service cards carry one unit each in a 230px band (`object-fit: cover`, a soft navy gradient over the bottom half, a 1.04 zoom on hover); the Installs strip is 340px cards with a 400px photo and a Manrope caption, snap-scrolling with the container's own inset; the Specs section pins the whole-house unit beside the stage list with the Hero-stage shadow. Every photo has an alt that says what is in it and where.
 
 ### Signature: the Water Lab frame
 A 1250 by 800 frosted frame over a `rgba(2,15,28,.94)` backdrop with blur(18px): 28px radius, 1px `rgba(130,220,255,.25)` border, `linear-gradient(140deg, #0b466e, #031827)` behind the viewer, `0 40px 120px rgba(0,0,0,.45)`. A 42px circular close button (white 8% fill, 25% border) sits top-right and outranks the viewer's own header. On phones the frame becomes the screen. Inside, the viewer's chrome is a scrim, not a bar: the page colour fades from 94% to 0 over the top of the scene so the title stays readable when the camera flies in.

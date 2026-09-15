@@ -36,20 +36,27 @@ The thing a neighbouring installer's site could not truthfully copy: the visitor
 
 - **Stack (existing):** Vite 8, React 19, @react-three/fiber + drei, Three.js; plain CSS in `src/site/styles/site.css` and `src/styles/index.css`; ESLint. No Tailwind, no component library, no router (single page, hash anchors).
 - **Three systems** with a shared four-stage model (`sediment`, `carbon`, `ro`, `tap`) whose labels are overridden per system (whole-house "Polish", rainwater "Multi-stage"/"UV"). Terminology for stages and products lives in `src/data/constants.js` and must stay the client's wording.
-- **Lead capture (confirmed direction):** the on-site quote form is meant to be a *real* form that eventually submits somewhere (email service, Formspree, or the client's CRM). Backend is **undecided**. Design and harden it as a real form; the current toast-only `showToast` behaviour is a stub, not the intent. Until a backend exists, the phone number and the link to `purewaterfiltration.com.au/contact` are the only working conversion paths.
+- **Lead capture:** the on-site quote form (`src/site/quote/`) is real — the client's own Instant Quote questions, with the branching their form has, plus install address / ground-or-wall / preferred day. Backend is **not yet available**: with `VITE_QUOTE_ENDPOINT` unset the form ends by handing the visitor a prefilled email and the phone number, and says so. Setting the variable to any JSON-POST form endpoint switches it to sending. The pricing guide is gated behind the same form, as on the client's site.
 - **Undecided:** service-area coverage claims, warranty/finance offers, and whether the invented cost/savings figures may ever be shown (see Evidence).
 
 ## Brand Commitments
 
-- Name: **Pure Water Filtration** (rendered as "Pure Water" in some eyebrows; the legacy concept file used "PureWater"; the client's own site is the authority on the mark).
+- Name: **Pure Water Filtration** (rendered as "Pure Water" in some eyebrows). The mark is the client's own logo lockup, fetched from their site (`src/site/assets/brand`).
 - Voice: the client's own copy, taken from purewaterfiltration.com.au product pages and blog posts, is used verbatim or trimmed; the codebase treats "in their words" as a rule. Plain, practical, family-and-home oriented Australian English (colour, odour, litres).
 - Per-system accent colours already drive the UI (`data-system` on `.app`); the 3D cards and scene are the incumbent visual authority for the product side.
-- No logo file, brand guide, or typography spec from the client exists in the repo. Do not invent a logo as if it were theirs.
+- No brand guide or typography spec from the client exists; the logo and photography are theirs, fetched by `scripts/fetch-site-assets.mjs`. Do not redraw the mark.
+- **Clean Water Warehouse** is a child brand of the client's. It must not appear anywhere on this site — no name, ABN, pricing or bank details. Its purchase-order form only informed which extra customer fields the quote form asks.
 
 ## Evidence on Hand
 
 **Confirmed by the team as real:**
 - 5.0 Google rating and the three named reviews in `src/site/sections/Reviews.jsx` (Jaxon Jarvis, Adam CJ, Bianca Camuglia).
+
+**From the client's Whole Home Filtration System Technical Datasheet (V1.0, 2025), supplied by the team:**
+- Everything in `src/data/datasheet.js`: the three whole-house stages and what each removes, cartridge specs, model FHWR-3S1-20, dimensions, flow, pressure, 300,000 L, 1 micron, the 12-month (18 max) replacement schedule, AS/NZS 4020 and NSF/ANSI 42, the lifetime workmanship warranty (with care plan) and the 72-hour fix-or-replace guarantee. The whole-house stage copy in `constants.js` now follows this sheet rather than the blog post.
+
+**From the client's site, fetched verbatim:**
+- Logo, product and installation photography (`src/site/assets`), the pricing-guide mockup, the Humm logo, the Instant Quote form's questions and options, contact hours, address and social links.
 
 **Taken from the client's public site, not re-confirmed with the client** (treat as sourced, not verified; keep attributable to the site):
 - Product/stage copy and the per-system facts in `src/data/constants.js` (`SYSTEM_DATA.facts`: "5 micron", "3 stages", "6–12 months", "95%+", "Under 1 hour", "Same day", "UV").
@@ -59,7 +66,7 @@ The thing a neighbouring installer's site could not truthfully copy: the visitor
 **Explicitly invented, must not be presented as fact:**
 - `MVP_FIGURES` in `src/data/constants.js` (annual cost, five-year cost, litres, bottles, waste). They exist for the 3D cards at the team's request and are documented as needing real numbers before any customer-facing use.
 
-**Absent, do not fabricate:** client logo and brand assets, real product photography, case studies, press, certifications, pricing, an actual list of the 50+ service areas, and a working quote backend. The only image asset is `src/site/assets/water-lab.png`; textures under `src/assets/textures` are for the 3D environment.
+**Absent, do not fabricate:** case studies, press, pricing, an actual list of the 50+ service areas, datasheets for the under-sink and rainwater systems, and a working quote backend. Textures under `src/assets/textures` are for the 3D environment.
 
 ## Product Principles
 

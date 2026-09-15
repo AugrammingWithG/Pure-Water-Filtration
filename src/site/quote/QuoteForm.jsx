@@ -79,16 +79,17 @@ export default function QuoteForm({ prefill }) {
   }
 
   const set = useCallback((key, value) => {
-    setAnswers((prev) => {
-      const next = { ...prev, [key]: value }
-      if (key === 'postcode' && stateAuto.current) {
-        const guess = stateForPostcode(value)
-        if (guess) next.state = guess
-      }
-      if (key === 'state') stateAuto.current = !value
+    const guess = key === 'postcode' && stateAuto.current ? stateForPostcode(value) : ''
+    const touched = guess ? [key, 'state'] : [key]
+    if (key === 'state') stateAuto.current = !value
+    setAnswers((prev) => (guess ? { ...prev, [key]: value, state: guess } : { ...prev, [key]: value }))
+    /* an answer clears its own error — and the state's, when the postcode filled it */
+    setErrors((prev) => {
+      if (!touched.some((k) => prev[k])) return prev
+      const next = { ...prev }
+      touched.forEach((k) => delete next[k])
       return next
     })
-    setErrors((prev) => (prev[key] ? { ...prev, [key]: '' } : prev))
   }, [])
 
   const goTo = (index, count = total) => {
@@ -275,10 +276,11 @@ export default function QuoteForm({ prefill }) {
         ) : (
           <div className="quote-fields">
             {fields.map((field) => {
-              const common = { field, value: answers[field.key], error: errors[field.key], key: field.key }
+              const common = { field, value: answers[field.key], error: errors[field.key] }
               if (field.type === 'choice') {
                 return (
                   <ChoiceGroup
+                    key={field.key}
                     {...common}
                     inputRef={refFor(field.key)}
                     otherValue={answers[`${field.key}Other`]}
@@ -289,13 +291,21 @@ export default function QuoteForm({ prefill }) {
                 )
               }
               if (field.type === 'select') {
-                return <SelectField {...common} onChange={(v) => set(field.key, v)} inputRef={refFor(field.key)} />
+                return (
+                  <SelectField
+                    key={field.key}
+                    {...common}
+                    onChange={(v) => set(field.key, v)}
+                    inputRef={refFor(field.key)}
+                  />
+                )
               }
               if (field.type === 'textarea') {
-                return <TextArea {...common} onChange={(v) => set(field.key, v)} />
+                return <TextArea key={field.key} {...common} onChange={(v) => set(field.key, v)} />
               }
               return (
                 <TextField
+                  key={field.key}
                   {...common}
                   inputRef={refFor(field.key)}
                   onChange={(v) => set(field.key, field.type === 'tel' ? formatPhone(v) : v)}

@@ -53,7 +53,7 @@ export function StageBody({ eyebrow, title, desc, placement, action, tone, remov
 export function SheetActions({ learnMore }) {
   return (
     <div className="detail-actions">
-      <a className="primary" href={CTA.quote.href} target="_blank" rel="noopener">
+      <a className="primary" href={CTA.quote.href}>
         {CTA.quote.label}
       </a>
       <a href={learnMore} target="_blank" rel="noopener">

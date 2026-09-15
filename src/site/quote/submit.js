@@ -14,7 +14,8 @@ import { allActiveFields } from './schema'
 const ENDPOINT = import.meta.env.VITE_QUOTE_ENDPOINT
 
 /** The visitor's answers, only the fields that applied, in form order. */
-export function buildPayload(answers, prefill = {}) {
+export function buildPayload(answers, prefill) {
+  const wants = prefill ?? {}
   const fields = allActiveFields(answers)
   const payload = {}
   for (const field of fields) {
@@ -23,21 +24,21 @@ export function buildPayload(answers, prefill = {}) {
     payload[field.key] =
       field.allowOther && value === 'Other' ? `Other: ${answers[`${field.key}Other`] ?? ''}`.trim() : value
   }
-  if (prefill.intent === 'pricing-guide') payload.wants = 'Pricing guide'
+  if (wants.intent === 'pricing-guide') payload.wants = 'Pricing guide'
   payload.source = 'purewaterfiltration.com.au redesign — quote form'
   return payload
 }
 
 /** The same answers as readable lines, for the email body and the clipboard. */
-export function summaryLines(answers, prefill = {}) {
+export function summaryLines(answers, prefill) {
   const lines = []
   for (const field of allActiveFields(answers)) {
     const value = answers[field.key]
     if (value == null || value === '') continue
     const shown = field.allowOther && value === 'Other' ? `Other — ${answers[`${field.key}Other`] ?? ''}` : value
-    lines.push(`${field.label}: ${shown}`)
+    lines.push(`${field.label.replace(/\?$/, '')}: ${shown}`)
   }
-  if (prefill.intent === 'pricing-guide') lines.push('Also: please send the pricing guide')
+  if (prefill?.intent === 'pricing-guide') lines.push('Also: please send the pricing guide')
   return lines
 }
 

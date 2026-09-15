@@ -168,9 +168,39 @@ src/
     PlayBar.jsx            Play/pause and the stage timeline: markers to jump, track to scrub
   styles/
     index.css              Light theme; accent colour switched by data-system on .app
+  data/
+    datasheet.js           The whole-home system's technical datasheet (V1.0 2025), as data
+  site/
+    sections/              The marketing page, one section per file (Specs and Installs are new)
+    quote/                 The quote form: schema, fields, validation, draft autosave, submit
+    assets/brand, photos   The client's logo, product and install photography (see below)
 scripts/
   bake-environment.mjs     Clamps + downsamples the source HDRI into the shipped environment map
+  fetch-site-assets.mjs    Pulls the client's assets off purewaterfiltration.com.au, web-sized
 ```
+
+## The quote form
+
+`src/site/quote/` is the client's own "Instant Quote" questions — the same
+labels, options and branching as the form on purewaterfiltration.com.au —
+plus three fields the specialist would otherwise ring to ask (install
+address, ground or wall, preferred day). Answers autosave to localStorage
+and are offered back on the next visit; the finder, the service cards and
+the pricing-guide button all land on it with the first question answered.
+
+There is no backend yet. With `VITE_QUOTE_ENDPOINT` unset (see
+`.env.example`) the last screen hands the visitor a prefilled email to
+admin@purewaterfiltration.com.au and the phone number, and says so. Set the
+variable to any form-to-email endpoint that takes a JSON POST and the same
+component sends there instead; nothing else changes.
+
+## Assets
+
+Nothing under `src/site/assets/brand` or `photos` is hand-edited:
+`npm run assets:fetch` downloads each file from the client's site and
+re-encodes it (WebP, capped to the size the page shows it at, the installer
+app's job stamp trimmed off the photos that carry one). Re-run it to
+refresh; don't commit the originals.
 
 The UI chrome is plain React and CSS layered over the canvas — none of it is
 drawn inside Three.js.
