@@ -1,40 +1,19 @@
-import { Suspense, useRef } from 'react'
+import { Suspense } from 'react'
 import { Canvas } from '@react-three/fiber'
 import * as THREE from 'three'
-import { DEFAULT_STAGE, DEFAULT_SYSTEM } from '../data/constants'
 import { useMediaQuery } from '../hooks/useMediaQuery'
 import { useQuality } from '../three/quality'
-import Scene from '../three/Scene'
-import { HOME_VIEW } from '../three/systems'
-
-/** The hero has no interface standing on the canvas, so nothing to keep clear of. */
+import HeroProductScene from './HeroProductScene'
 
 /**
- * The home view, from further back. The viewer's framing fills its window
- * with the house and lets the plinth run off the edges; in the hero the
- * diorama is an object on the page, and wants air around it.
+ * The hero canvas: a cinematic product render of the whole-house unit on
+ * a clean interior wall. Fixed camera, no orbit — the canvas is the hero's
+ * backdrop and the section's copy overlays it.
  *
- * Less far back once the page has stacked into one column: the canvas is
- * nearly square there, and the rig already pulls the camera out to hold the
- * plinth's width in a narrow frame (see Scene.jsx). Stacking the two would
- * leave the diorama a small thing in the middle of a tall empty band.
- */
-const HERO_VIEW = { ...HOME_VIEW, radius: 18.5 }
-const HERO_VIEW_STACKED = { ...HOME_VIEW, radius: 15 }
-
-/**
- * The diorama, live in the hero: the same <Scene> the Water Lab renders,
- * at its opening framing with the guided tour and the cards left out. The
- * canvas is transparent, so the house sits straight on the page gradient
- * with nothing framing it.
- *
- * Renderer settings match SimCanvas for the same reasons given there: the
- * scene is fill-rate bound, so the dpr cap matters more than anything else,
- * and three r186 dropped PCFSoftShadowMap.
- *
- * `running` drives the frame loop. Off-screen, or under the open Water Lab,
- * the hero would otherwise keep drawing a scene nobody can see, which on a
- * phone is a battery spent on nothing.
+ * Renderer settings match SimCanvas: the scene is fill-rate bound so the
+ * dpr cap matters more than anything else, and three r186 dropped
+ * PCFSoftShadowMap. `running` drives the frame loop — off-screen or under
+ * the open Water Lab, the canvas draws nothing.
  *
  * The scene's textures and environment map load through suspense, and the
  * boundary that catches them is deliberately *inside* the canvas. Left to
@@ -47,9 +26,8 @@ const HERO_VIEW_STACKED = { ...HOME_VIEW, radius: 15 }
  * load here means the canvas element never suspends and nothing above it
  * ever hides it.
  */
-export default function HeroCanvas({ running, onReady, onPick }) {
+export default function HeroCanvas({ running, onReady }) {
   const { dpr } = useQuality()
-  const rigRef = useRef(null)
   /** Same breakpoint the stylesheet stacks the hero at. */
   const stacked = useMediaQuery('(max-width: 900px)')
   return (
@@ -62,26 +40,16 @@ export default function HeroCanvas({ running, onReady, onPick }) {
         antialias: true,
         alpha: true,
         toneMapping: THREE.NeutralToneMapping,
-        toneMappingExposure: 1.05,
+        toneMappingExposure: 1.1,
       }}
-      camera={{ fov: 40, near: 0.1, far: 120 }}
+      camera={{ fov: 30, near: 0.1, far: 60, position: [0.85, 1.55, 2.35] }}
       onCreated={({ gl }) => {
         gl.setClearColor(0x000000, 0)
         gl.debug.checkShaderErrors = import.meta.env.DEV
       }}
     >
       <Suspense fallback={null}>
-        <Scene
-          currentSystem={DEFAULT_SYSTEM}
-          currentStage={DEFAULT_STAGE}
-          focused={false}
-          paused={false}
-          onPick={onPick}
-          onReady={onReady}
-          rigRef={rigRef}
-          wheelZoom={false}
-          view={stacked ? HERO_VIEW_STACKED : HERO_VIEW}
-        />
+        <HeroProductScene stacked={stacked} onReady={onReady} />
       </Suspense>
     </Canvas>
   )

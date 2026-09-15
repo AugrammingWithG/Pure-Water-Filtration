@@ -2,7 +2,7 @@ import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { useSite } from './SiteContext'
 
 /**
- * Loaded on its own, after the page: three.js and the diorama are the
+ * Loaded on its own, after the page: three.js and the render are the
  * heaviest thing on the site, and the hero copy and the quote button should
  * be on screen before any of it arrives. The scene fades in once its shaders
  * are built (see three/Precompile.jsx) rather than popping in.
@@ -10,17 +10,17 @@ import { useSite } from './SiteContext'
 const HeroCanvas = lazy(() => import('./HeroCanvas.jsx'))
 
 /**
- * The 3D diorama, live in the hero. Drag orbits it; clicking anything in it
- * opens the Water Lab. It only draws while it is on screen and the Water Lab
- * is closed — see HeroCanvas.
+ * The hero's cinematic product render. Fixed camera, no interaction — the
+ * page's own quote button and Water Lab launcher live in the copy overlay.
+ * It only draws while it is on screen and the Water Lab is closed (see
+ * HeroCanvas).
  */
 export default function HeroScene() {
-  const { openViewer, viewerOpen } = useSite()
+  const { viewerOpen } = useSite()
   const hostRef = useRef(null)
   const [inView, setInView] = useState(true)
   const [ready, setReady] = useState(false)
   const handleReady = useCallback(() => setReady(true), [])
-  const handlePick = useCallback(() => openViewer(), [openViewer])
 
   useEffect(() => {
     const host = hostRef.current
@@ -37,11 +37,11 @@ export default function HeroScene() {
     <div
       className={`hero-scene${ready ? ' is-ready' : ''}`}
       ref={hostRef}
-      aria-label="Interactive 3D model of a home with a Pure Water whole-house filtration system. Drag to look around; click to open the Water Lab."
+      aria-label="High-quality 3D render of a Pure Water whole-house filtration unit mounted on an interior wall."
       role="img"
     >
       <Suspense fallback={null}>
-        <HeroCanvas running={inView && !viewerOpen} onReady={handleReady} onPick={handlePick} />
+        <HeroCanvas running={inView && !viewerOpen} onReady={handleReady} />
       </Suspense>
     </div>
   )

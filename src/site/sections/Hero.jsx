@@ -6,6 +6,10 @@ export default function Hero() {
   const { openViewer } = useSite()
   return (
     <section className="hero">
+      <div className="hero-bg" aria-hidden="true">
+        <HeroScene />
+      </div>
+      <div className="hero-scrim" aria-hidden="true" />
       <div className="container hero-grid">
         <div className="hero-copy reveal">
           <div className="eyebrow">Australia's water filtration specialists</div>
@@ -34,10 +38,6 @@ export default function Hero() {
               <dd>50+ service areas</dd>
             </div>
           </dl>
-        </div>
-        <div className="hero-stage reveal delay2">
-          <HeroScene />
-          <p className="hero-hint">Drag to look around · click the home to open the Water Lab</p>
         </div>
       </div>
     </section>
