@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-15T10:30:00Z",
+  "title": "Design System: Pure Water Filtration",
+  "extensions": {
+    "colorMeta": {
+      "deep-reservoir": { "role": "neutral", "displayName": "Deep Reservoir", "canonical": "#06284a", "tonalRamp": ["#03111f", "#06284a", "#0a3c68", "#134f85", "#2a6ba3", "#5b8fbf", "#94b8d8", "#dcecff"] },
+      "reservoir-shallow": { "role": "neutral", "displayName": "Reservoir Shallow", "canonical": "#0a3c68", "tonalRamp": ["#041b30", "#0a3c68", "#0f4f86", "#1a64a4", "#3b7fbb", "#6fa3cf", "#a6c7e3", "#e2eff9"] },
+      "tap-blue": { "role": "primary", "displayName": "Tap Blue", "canonical": "#0879e8", "tonalRamp": ["#032e5c", "#054f99", "#0666c4", "#0879e8", "#2788d8", "#5aa7ef", "#a9d6f4", "#e7f8ff"] },
+      "filtered-cyan": { "role": "primary", "displayName": "Filtered Cyan", "canonical": "#42c9ff", "tonalRamp": ["#0b3f57", "#146b91", "#1f95c8", "#42c9ff", "#59d9ff", "#8de7ff", "#b9edff", "#e9f7ff"] },
+      "still-water": { "role": "neutral", "displayName": "Still Water", "canonical": "#eef9ff", "tonalRamp": ["#4a6b80", "#7a97ab", "#a9c2d1", "#cde8f5", "#dff6ff", "#e8f6ff", "#eef9ff", "#ffffff"] },
+      "waterline": { "role": "neutral", "displayName": "Waterline", "canonical": "#dcebf4", "tonalRamp": ["#405a6b", "#6f8898", "#9db4c2", "#b5dcf3", "#cde8f5", "#dcebf4", "#edf4f8", "#ffffff"] },
+      "ink": { "role": "neutral", "displayName": "Ink", "canonical": "#082b4c", "tonalRamp": ["#041526", "#082b4c", "#38556e", "#587186", "#668097", "#8faabd", "#bfd1de", "#eef4f8"] },
+      "muted": { "role": "neutral", "displayName": "Muted", "canonical": "#668097", "tonalRamp": ["#22303f", "#3d5266", "#506a7f", "#668097", "#7e96aa", "#9db0c0", "#c2ced9", "#eaf0f4"] },
+      "white": { "role": "neutral", "displayName": "White", "canonical": "#ffffff", "tonalRamp": ["#1f2933", "#4a5763", "#7a8793", "#a9b4be", "#d0d8de", "#e9eef1", "#f6f8fa", "#ffffff"] },
+      "reservoir-floor": { "role": "neutral", "displayName": "Reservoir Floor", "canonical": "#041e37", "tonalRamp": ["#020d18", "#041e37", "#06284a", "#0c527c", "#2b6f9a", "#5c93b7", "#a7c3d6", "#e1edf6"] },
+      "lab-night": { "role": "neutral", "displayName": "Lab Night", "canonical": "#061b2e", "tonalRamp": ["#020b14", "#061b2e", "#071f37", "#0b466e", "#1f6389", "#4c87a8", "#9ab7cb", "#dfeaf1"] },
+      "section-pale": { "role": "neutral", "displayName": "Section Pale", "canonical": "#f6fbfe", "tonalRamp": ["#4a6070", "#7a8f9d", "#a9bcc7", "#d4e3ea", "#e8f7ff", "#f0f8fc", "#f6fbfe", "#ffffff"] },
+      "lab-mist": { "role": "neutral", "displayName": "Lab Mist", "canonical": "#eef1f5", "tonalRamp": ["#3f4650", "#6a7280", "#98a0ad", "#c3c9d3", "#dde1e8", "#eef1f5", "#f8f9fb", "#ffffff"] },
+      "lab-mist-light": { "role": "neutral", "displayName": "Lab Mist Light", "canonical": "#f8f9fb", "tonalRamp": ["#454b55", "#717886", "#9ea5b1", "#c8cdd5", "#e0e4ea", "#eef1f5", "#f8f9fb", "#ffffff"] },
+      "lab-navy": { "role": "neutral", "displayName": "Lab Navy", "canonical": "#1c2f7c", "tonalRamp": ["#0b1233", "#1c2f7c", "#2a3f9a", "#3d54b5", "#5d72c9", "#8a9ad9", "#bcc6ea", "#e9ecf8"] },
+      "lab-ink": { "role": "neutral", "displayName": "Lab Ink", "canonical": "#0f1c33", "tonalRamp": ["#070d18", "#0f1c33", "#1e2d4a", "#334364", "#5d6c85", "#8a96aa", "#bcc4d1", "#eaedf2"] },
+      "lab-ink-dim": { "role": "neutral", "displayName": "Lab Ink Dim", "canonical": "#5d6c85", "tonalRamp": ["#1d2230", "#343d50", "#48556c", "#5d6c85", "#7a889e", "#9ca7b8", "#c5ccd6", "#ecf0f4"] },
+      "accent-whole": { "role": "secondary", "displayName": "Accent, Whole House", "canonical": "#2e8fe0", "tonalRamp": ["#0e3556", "#175b93", "#2276bb", "#2e8fe0", "#55a5e7", "#86bfee", "#bcdbf6", "#e9f3fc"] },
+      "accent-undersink": { "role": "secondary", "displayName": "Accent, Under Sink", "canonical": "#17b3c6", "tonalRamp": ["#073f47", "#0d6e7a", "#12919f", "#17b3c6", "#41c3d2", "#78d5df", "#b3e7ed", "#e6f7f9"] },
+      "accent-rain": { "role": "secondary", "displayName": "Accent, Rainwater", "canonical": "#2fb872", "tonalRamp": ["#0e3f27", "#186f45", "#22945b", "#2fb872", "#57c78c", "#88d7ab", "#bce8cf", "#e8f7ef"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "The hero H1 only; may carry the navy-to-blue gradient on one phrase." },
+      "headline": { "displayName": "Headline", "purpose": "Section H2s; feature sections step up to clamp(42px, 5vw, 68px)." },
+      "title": { "displayName": "Title", "purpose": "Card and question H3s, 17 to 25px depending on card scale." },
+      "body": { "displayName": "Body", "purpose": "Section copy in Muted, capped at 520 to 680px." },
+      "label": { "displayName": "Label", "purpose": "Uppercase eyebrows, stage numbers and kickers in Tap Blue." },
+      "lab-title": { "displayName": "Lab Title", "purpose": "Viewer header and card values; Space Grotesk only under .app." },
+      "lab-body": { "displayName": "Lab Body", "purpose": "Viewer copy; Inter only under .app." },
+      "lab-label": { "displayName": "Lab Label", "purpose": "Uppercase float-card labels in Lab Ink Dim." }
+    },
+    "shadows": [
+      { "name": "float", "value": "0 24px 70px rgba(4,45,78,.12)", "purpose": "Default card and panel shadow on the page (--shadow)." },
+      { "name": "float-resting", "value": "0 12px 40px rgba(5,50,80,.06)", "purpose": "Service cards at rest before hover raises them to float." },
+      { "name": "float-raised", "value": "0 25px 65px rgba(4,45,78,.12)", "purpose": "Change cards on hover." },
+      { "name": "button-glow", "value": "0 12px 30px rgba(8,121,232,.22)", "purpose": "Primary button at rest; the button casts its own Tap Blue." },
+      { "name": "button-glow-hover", "value": "0 18px 38px rgba(8,121,232,.3)", "purpose": "Primary button on hover." },
+      { "name": "hero-stage", "value": "0 35px 90px rgba(5,63,101,.24)", "purpose": "Hero-scale frames (viewer card, Lab visual)." },
+      { "name": "modal", "value": "0 40px 120px rgba(0,0,0,.45)", "purpose": "The Water Lab frame." },
+      { "name": "lab-panel", "value": "0 18px 40px rgba(15,28,51,0.12), 0 2px 6px rgba(15,28,51,0.06)", "purpose": "Floating cards inside the viewer (--shadow under .app)." },
+      { "name": "rail-active", "value": "0 8px 18px rgba(var(--accent-rgb),0.35)", "purpose": "The selected system's rail icon glows in its own accent." }
+    ],
+    "motion": [
+      { "name": "reveal", "value": "opacity .8s ease, transform .8s cubic-bezier(.2,.7,.2,1)", "purpose": "Scroll reveal: fade up 35px, staggered 80ms per delay class." },
+      { "name": "hover-lift", "value": ".3s", "purpose": "Buttons; cards use .25 to .45s on the same lift-and-deepen pattern." },
+      { "name": "quick-quote", "value": ".45s cubic-bezier(.2,.8,.2,1)", "purpose": "The bottom quote pill sliding in after 700px of scroll." },
+      { "name": "glow-breathe", "value": "5s to 8s ease-in-out infinite", "purpose": "Ambient radial glows behind the hero and viewer card." },
+      { "name": "pin-ping", "value": "2.2s infinite", "purpose": "Map pin halo." },
+      { "name": "canvas-in", "value": "opacity .9s ease (page) / .6s ease (Lab)", "purpose": "The 3D canvas fades in once its shaders are built." },
+      { "name": "reduced", "value": ".001ms", "purpose": "body.reduced-motion and prefers-reduced-motion collapse every animation and transition." }
+    ],
+    "breakpoints": [
+      { "name": "phone", "value": "560px" },
+      { "name": "modal-fullscreen", "value": "760px" },
+      { "name": "tablet", "value": "900px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Tap Blue pill with a blue glow; rises 3px on hover. The page's one action colour.",
+      "html": "<button class=\"ds-btn-primary\">Get My Free Quote <span>→</span></button>",
+      "css": ".ds-btn-primary { font-family: 'DM Sans', sans-serif; border: 0; border-radius: 999px; padding: 14px 21px; background: #0879e8; color: #fff; font-weight: 700; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; box-shadow: 0 12px 30px rgba(8,121,232,.22); transition: .3s; } .ds-btn-primary:hover { transform: translateY(-3px); box-shadow: 0 18px 38px rgba(8,121,232,.3); } .ds-btn-primary:focus-visible { outline: 3px solid #42c9ff; outline-offset: 4px; }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "The secondary action beside a primary: transparent pill, Tap Blue text, pale-blue hairline, no shadow.",
+      "html": "<button class=\"ds-btn-outline\">Enter the Water Lab <span>↗</span></button>",
+      "css": ".ds-btn-outline { font-family: 'DM Sans', sans-serif; border-radius: 999px; padding: 14px 21px; background: transparent; color: #0879e8; border: 1px solid #a9d6f4; font-weight: 700; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; transition: .3s; } .ds-btn-outline:hover { transform: translateY(-3px); } .ds-btn-outline:focus-visible { outline: 3px solid #42c9ff; outline-offset: 4px; }"
+    },
+    {
+      "name": "Dark Button",
+      "kind": "button",
+      "refersTo": "button-dark",
+      "description": "Deep Reservoir pill for gradient and guide-cover contexts where Tap Blue would sink.",
+      "html": "<button class=\"ds-btn-dark\">Download the guide</button>",
+      "css": ".ds-btn-dark { font-family: 'DM Sans', sans-serif; border: 0; border-radius: 999px; padding: 14px 21px; background: #06284a; color: #fff; font-weight: 700; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; transition: .3s; } .ds-btn-dark:hover { transform: translateY(-3px); } .ds-btn-dark:focus-visible { outline: 3px solid #42c9ff; outline-offset: 4px; }"
+    },
+    {
+      "name": "City Chip",
+      "kind": "chip",
+      "refersTo": "chip-city",
+      "description": "White pill tag with a pale-blue hairline, used for the service-area city list.",
+      "html": "<span class=\"ds-chip\">Perth</span> <span class=\"ds-chip\">Sydney</span> <span class=\"ds-chip\">Melbourne</span>",
+      "css": ".ds-chip { font-family: 'DM Sans', sans-serif; display: inline-block; background: #fff; border: 1px solid #cde8f5; border-radius: 999px; padding: 10px 14px; font-size: 11px; font-weight: 700; color: #082b4c; }"
+    },
+    {
+      "name": "Finder Choice",
+      "kind": "input",
+      "refersTo": "choice",
+      "description": "The only input-like control: a white option card with a Waterline hairline that tints and lifts when selected. Future text fields follow it.",
+      "html": "<button class=\"ds-choice\"><strong>Every tap in the house</strong><small>Showers, laundry, kitchen, the lot</small></button> <button class=\"ds-choice ds-choice--selected\"><strong>Just the kitchen tap</strong><small>Drinking, cooking, coffee and tea</small></button>",
+      "css": ".ds-choice { font-family: 'DM Sans', sans-serif; border: 1px solid #dcebf4; background: #fff; border-radius: 15px; padding: 17px; text-align: left; cursor: pointer; transition: .25s; color: #082b4c; min-height: 75px; width: 220px; display: inline-block; vertical-align: top; margin-right: 10px; } .ds-choice strong { display: block; font-size: 13px; margin-bottom: 4px; } .ds-choice small { font-size: 10px; color: #668097; line-height: 1.4; } .ds-choice:hover, .ds-choice--selected { border-color: #7bcaf2; background: #effaff; transform: translateY(-2px); } .ds-choice:focus-visible { outline: 3px solid #42c9ff; outline-offset: 4px; }"
+    },
+    {
+      "name": "Service Card",
+      "kind": "card",
+      "refersTo": "card-service",
+      "description": "White 24px card with a gradient image band, Waterline hairline and a resting float shadow that deepens as the card lifts and tilts on hover.",
+      "html": "<article class=\"ds-service\"><div class=\"ds-service__image\"></div><div class=\"ds-service__content\"><h3>Whole House Water Filter</h3><p>Treat your water at the point of entry so every tap, shower and appliance in your home delivers filtered water.</p><a class=\"ds-service__link\" href=\"#\">Learn more →</a></div></article>",
+      "css": ".ds-service { font-family: 'DM Sans', sans-serif; width: 300px; border: 1px solid #dcebf4; border-radius: 24px; overflow: hidden; background: #fff; box-shadow: 0 12px 40px rgba(5,50,80,.06); transition: .45s; transform-style: preserve-3d; color: #082b4c; } .ds-service:hover { transform: translateY(-10px) rotateX(2deg); box-shadow: 0 24px 70px rgba(4,45,78,.12); } .ds-service__image { height: 160px; background: linear-gradient(140deg, #dff6ff, #a5d7e8, #507f91); position: relative; } .ds-service__image:after { content: ''; position: absolute; inset: 0; background: linear-gradient(transparent 45%, rgba(0,35,55,.25)); } .ds-service__content { padding: 25px; } .ds-service h3 { font-family: 'Manrope', sans-serif; font-weight: 800; letter-spacing: -1.8px; font-size: 20px; margin: 0 0 9px; } .ds-service p { font-size: 13px; color: #668097; line-height: 1.75; margin: 0 0 18px; } .ds-service__link { color: #0879e8; font-weight: 800; font-size: 12px; text-decoration: none; }"
+    },
+    {
+      "name": "Glass Review Card",
+      "kind": "card",
+      "refersTo": "card-glass-dark",
+      "description": "Frosted white-on-navy card for dark sections: 10% white fill, 16% white hairline, blur, and an 8px lift on hover.",
+      "html": "<div class=\"ds-glass-wrap\"><article class=\"ds-review\"><div class=\"ds-review__stars\">★★★★★</div><p>“The team was professional, knowledgeable and made the whole process so easy. Our water tastes amazing now.”</p><strong>Jaxon Jarvis</strong><small>Google review</small></article></div>",
+      "css": ".ds-glass-wrap { padding: 30px; background: linear-gradient(120deg, #06284a, #0c527c); border-radius: 24px; display: inline-block; } .ds-review { font-family: 'DM Sans', sans-serif; width: 300px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.16); border-radius: 22px; padding: 27px; backdrop-filter: blur(10px); transition: .4s; color: #fff; } .ds-review:hover { transform: translateY(-8px); background: rgba(255,255,255,.14); } .ds-review__stars { color: #59d9ff; letter-spacing: 4px; margin-bottom: 10px; } .ds-review p { color: #e4f4fc; font-size: 13px; line-height: 1.7; margin: 0 0 14px; } .ds-review strong { font-size: 12px; display: block; } .ds-review small { color: #94bed5; font-size: 11px; }"
+    },
+    {
+      "name": "Lab Float Card",
+      "kind": "card",
+      "refersTo": "float-card",
+      "description": "The viewer's frosted panel: 74% white with blur, a faint navy hairline, 14px radius and the two-layer lab shadow. Facts rows use Space Grotesk values over Inter captions.",
+      "html": "<div class=\"ds-lab-wrap\"><div class=\"ds-float\"><div class=\"ds-float__label\">Whole House Water Filter</div><div class=\"ds-fact\"><b>5 micron</b><span>Sediment filter catches rust, sand and grit</span></div><div class=\"ds-fact\"><b>3 stages</b><span>Sediment, carbon block, carbon polish</span></div><div class=\"ds-fact\"><b>6–12 months</b><span>Between filter changes</span></div></div></div>",
+      "css": ".ds-lab-wrap { padding: 28px; border-radius: 20px; display: inline-block; background: radial-gradient(ellipse 400px 260px at 62% 42%, #ffffff 0%, rgba(255,255,255,0) 65%), radial-gradient(ellipse 300px 200px at 88% 8%, rgba(46,143,224,0.16), transparent 62%), linear-gradient(180deg, #f8f9fb, #eef1f5); } .ds-float { font-family: 'Inter', sans-serif; width: 190px; background: rgba(255,255,255,0.74); backdrop-filter: blur(14px); border: 1px solid rgba(15,28,51,0.07); border-radius: 14px; padding: 16px 18px; box-shadow: 0 18px 40px rgba(15,28,51,0.12), 0 2px 6px rgba(15,28,51,0.06); color: #0f1c33; } .ds-float__label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em; color: #5d6c85; font-weight: 700; margin-bottom: 10px; } .ds-fact { margin-bottom: 10px; } .ds-fact:last-child { margin-bottom: 0; } .ds-fact b { font-family: 'Space Grotesk', sans-serif; font-size: 17px; font-weight: 600; display: block; line-height: 1.2; } .ds-fact span { font-size: 10px; line-height: 1.4; color: #5d6c85; display: block; margin-top: 2px; }"
+    },
+    {
+      "name": "Lab System Rail",
+      "kind": "nav",
+      "refersTo": "side-btn-active",
+      "description": "The viewer's left rail: 38px icon tiles over tiny captions. The active system fills its tile with the system accent and glows in it.",
+      "html": "<nav class=\"ds-rail\"><button class=\"ds-side ds-side--active\" style=\"--accent:#2e8fe0;--accent-rgb:46,143,224\"><span class=\"ds-side__ico\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M3 11l9-8 9 8v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"/></svg></span><span>Whole House</span></button><button class=\"ds-side\" style=\"--accent:#17b3c6;--accent-rgb:23,179,198\"><span class=\"ds-side__ico\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"4\" y=\"4\" width=\"16\" height=\"16\" rx=\"2\"/><path d=\"M4 12h16\"/></svg></span><span>Under Sink</span></button><button class=\"ds-side\" style=\"--accent:#2fb872;--accent-rgb:47,184,114\"><span class=\"ds-side__ico\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z\"/></svg></span><span>Rainwater</span></button></nav>",
+      "css": ".ds-rail { font-family: 'Inter', sans-serif; display: inline-flex; flex-direction: column; align-items: center; gap: 8px; padding: 6px 6px 10px; background: linear-gradient(180deg, #f8f9fb, #eef1f5); border-radius: 16px; } .ds-side { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 6px; border-radius: 12px; width: 72px; border: none; background: none; cursor: pointer; transition: background 0.2s ease; } .ds-side__ico { width: 38px; height: 38px; border-radius: 11px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(15,28,51,0.10); background: rgba(255,255,255,0.75); color: #5d6c85; transition: all 0.25s ease; } .ds-side > span:last-child { font-size: 9.5px; color: #5d6c85; font-weight: 600; text-align: center; line-height: 1.2; } .ds-side:hover .ds-side__ico { border-color: rgba(var(--accent-rgb),0.5); color: var(--accent); } .ds-side--active .ds-side__ico { border-color: transparent; background: var(--accent); color: #fff; box-shadow: 0 8px 18px rgba(var(--accent-rgb),0.35); } .ds-side--active > span:last-child { color: var(--accent); } .ds-side:focus-visible { outline: 3px solid #42c9ff; outline-offset: 2px; }"
+    },
+    {
+      "name": "Eyebrow + Headline",
+      "kind": "custom",
+      "refersTo": "headline",
+      "description": "The section opener: a 2px-tracked Tap Blue eyebrow over a stamped Manrope 800 headline with -1.8px tracking.",
+      "html": "<div class=\"ds-opener\"><div class=\"ds-eyebrow\">Our Services</div><h2 class=\"ds-h2\">Filtration for every part of your home.</h2><p class=\"ds-lead\">Water quality varies from city to city. Your filtration should too.</p></div>",
+      "css": ".ds-opener { font-family: 'DM Sans', sans-serif; max-width: 520px; color: #082b4c; } .ds-eyebrow { font-size: 11px; letter-spacing: 2px; color: #0879e8; font-weight: 800; text-transform: uppercase; margin-bottom: 16px; } .ds-h2 { font-family: 'Manrope', sans-serif; font-weight: 800; margin: 0; letter-spacing: -1.8px; font-size: clamp(34px, 4vw, 53px); line-height: 1.02; } .ds-lead { color: #668097; line-height: 1.75; font-size: 15px; margin: 18px 0 0; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Glass Cutaway",
+    "overview": "A house with one wall taken off. The whole system is built around letting the visitor see through things: the 3D diorama x-rays its cartridges, the product cards are frosted glass over the scene, the hero canvas bleeds past its column with no frame, and the dark sections glow from behind like light through water. Nothing is decorated for its own sake; every surface either shows the mechanism or gets out of its way. The mood a homeowner should feel is clean and reassuring first, premium and polished second, and warm and local underneath: an engineered thing explained by someone friendly.\n\nThe brand has two surfaces and one identity. The page is the showroom: white and pale-blue light, Manrope headlines that sit tight and heavy, pill buttons in Tap Blue, sections that alternate between bright and deep-reservoir navy so the scroll has tide. The Water Lab is the instrument: a cooler, more neutral chrome (Inter/Space Grotesk, mist greys) laid over the diorama, with the accent colour handed to whichever system is selected so the interface and the water agree. New work picks the layer it lives on and stays in that layer's vocabulary; the two are not to be blended.\n\nDensity is generous on the page (110px section rhythm, 24 to 30px card radii, copy capped at about 520px) and compact in the Lab (12.5px body, 14px panel radius, cards sized so the scene stays visible). Depth is atmospheric: large, very soft, blue-tinted shadows that make cards feel buoyant, and hover states that lift rather than press.",
+    "keyCharacteristics": [
+      "See-through by default: frosted glass, cutaways, x-ray reveals, no opaque frames around the 3D scene",
+      "Tap Blue is the one action colour on the page; Filtered Cyan is light, not a button",
+      "Manrope at 800 with tight negative tracking for every heading; DM Sans for reading",
+      "Pill buttons, big soft radii, buoyant hover lift",
+      "Alternating bright and deep-navy sections give the page tide",
+      "The Lab's accent follows the selected system: blue (whole house), teal (under sink), green (rainwater)"
+    ],
+    "rules": [
+      { "name": "The One Tap Rule", "body": "Tap Blue is the single action colour on the page. Cyan glows, navy anchors, blue acts. If a new element needs to be clicked, it is Tap Blue or an outline of it; if it is not clickable, it is not Tap Blue.", "section": "colors" },
+      { "name": "The Accent Stays in the Lab Rule", "body": "The per-system accents (--accent, --accent-rgb) exist only under .app. Marketing sections that reference a system use Tap Blue and copy, not the system's colour.", "section": "colors" },
+      { "name": "The Hairline Rule", "body": "Borders on light surfaces are Waterline (#dcebf4) at 1px. On dark surfaces they are white at 10 to 16% alpha. No grey borders, no 2px borders except the left rule on mini-trust and placement callouts.", "section": "colors" },
+      { "name": "The Stamped Heading Rule", "body": "Every Manrope heading is weight 800 with negative tracking. No light, medium or wide-tracked headings on the page; the eyebrow above it carries the wide tracking.", "section": "typography" },
+      { "name": "The Two Faces Rule", "body": "Manrope and DM Sans on the page; Space Grotesk and Inter under .app. Do not import a fifth face, and do not let a page section pick up the Lab's fonts or vice versa.", "section": "typography" },
+      { "name": "The Blue Haze Rule", "body": "Shadows are tinted, never grey or black on light surfaces. Every page shadow uses a navy rgba (4,45,78 / 5,50,80 / 15,28,51) at 6 to 14% alpha, spread 40 to 100px.", "section": "elevation" },
+      { "name": "The Lift, Don't Press Rule", "body": "Hover translates up (-3px buttons, -5 to -10px cards) and deepens the shadow. There is no pressed or inset state anywhere in the system.", "section": "elevation" },
+      { "name": "The Glass Edge Rule", "body": "A frosted panel always has a 1px hairline (Waterline on light, white at 10 to 25% on dark). Blur without an edge is a smudge.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do keep Tap Blue for actions only, and let cyan be light (glows, rings, highlights) rather than fill.",
+      "Do use the Float shadow (0 24px 70px rgba(4,45,78,.12)) or one of its named siblings; do not invent a new shadow value.",
+      "Do give every frosted panel a 1px hairline edge: Waterline on light, white at 10 to 25% on dark.",
+      "Do set every Manrope heading at 800 with negative tracking (-1.8px at section scale, -3.5px at hero scale).",
+      "Do alternate bright and Deep Reservoir or Lab Night sections so the scroll has tide; two dark sections back to back is a wall.",
+      "Do let hover lift (translateY up) and deepen the shadow; keep transitions between .25s and .45s.",
+      "Do keep the 3D scene unframed and let it bleed past the column on the right in the hero.",
+      "Do put Lab-side work under .app and use var(--accent) or rgba(var(--accent-rgb), a) so it follows the selected system.",
+      "Do position Lab cards off --ui-top, --ui-left and --ui-bottom, never off canvas percentages.",
+      "Do respect body.reduced-motion and prefers-reduced-motion for anything that animates."
+    ],
+    "donts": [
+      "Don't use grey or black shadows on light surfaces; every shadow is navy-tinted.",
+      "Don't bring the per-system accents (#2e8fe0, #17b3c6, #2fb872) onto page sections; the page's accent is Tap Blue.",
+      "Don't use Space Grotesk or Inter on the page, or Manrope and DM Sans inside the viewer, and don't add a fifth typeface.",
+      "Don't put a square corner, a 2px+ border, or an inset or pressed state on any control; the system is pills, soft radii, and lift.",
+      "Don't wrap the diorama in a card, frame, overlay label or gradient on the page; it sits straight on the section.",
+      "Don't make cyan (#42c9ff) a button background or body text.",
+      "Don't add shadows, filters or blur to elements over the live canvas beyond what .float-card already carries; the scene is fill-rate bound.",
+      "Don't use 100vh for the modal or any full-height frame; use dvh with the 100vh fallback already in place."
+    ]
+  }
+}

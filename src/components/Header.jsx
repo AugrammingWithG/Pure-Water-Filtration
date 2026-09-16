@@ -21,7 +21,7 @@ export default function Header({ title, subtitle }) {
         easiest thing to act on.
       */}
       <div className="header-actions">
-        <a className="browse-btn" href={CTA.quote.href} target="_blank" rel="noopener">
+        <a className="browse-btn" href={CTA.quote.href}>
           {CTA.quote.label}
         </a>
         <a className="call-btn" href={CTA.phone.href}>

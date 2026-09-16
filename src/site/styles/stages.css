@@ -1,0 +1,532 @@
+/* ============================================================
+   The fourteen stages: how each section between the Water Lab
+   and the final ask arrives, lives, and leaves.
+
+   The page snaps section to section, so every arrival is a slide
+   change, and each section plays one. A Stage (Stage.jsx) holds
+   `is-in` while the reader is on it and sets `--from` to the edge
+   they last left by. Everything here is a transition off the `--in`
+   gate (1 in, 0 out) rather than a keyframe: the exit is the
+   entrance run backwards, shorter and tighter, for free, and
+   reduced motion is one line that pins the gate open.
+
+   Each stage has three layers, in order:
+     1. the curtain — a pane (.tide) that covers the section and
+        leaves in the way the section's meaning suggests;
+     2. the copy — a block whose lines land one after another;
+     3. the piece — the one thing the section is about, animated
+        so it explains itself (grit stopping at the filter, the
+        murky window clearing, the pipe filling past four steps).
+
+   Colour steps off the brand blue where a section asks for it:
+   copper (the pipework in the client's own photographs) for the
+   seals and the guide, kelp-teal for the reviews, UV-violet on the
+   datasheet's scan. Tap Blue stays the one action colour.
+   ============================================================ */
+
+:root{
+  --copper:#c97a45;
+  --copper-soft:#f6e9dc;
+  --uv:#8b6cff;
+  --paper:#fbf5ec;
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  --ease-stamp:cubic-bezier(.2,1.3,.3,1);
+  --ease-pop:cubic-bezier(.34,1.56,.64,1);
+  --ease-glass:cubic-bezier(.76,0,.18,1);
+}
+
+/* ---------- THE GATE ---------- */
+.stage{--in:0;--out:1;--lag:.2s;overflow:clip}
+.stage.is-in{--in:1;--out:0}
+.stage.dark{overflow:clip}
+body.reduced-motion .stage{--in:1;--out:0}
+@media (prefers-reduced-motion:reduce){.stage{--in:1;--out:0}}
+
+/* ---------- THE CURTAINS ----------
+   One pane per stage, above the content and under the pointer's
+   notice. The pane is glass: a pale sheet with one diagonal glare,
+   dark on dark sections. Its base transition is the quick exit; the
+   `is-in` one is the slow, weighted arrival. */
+.tide{
+  position:absolute;inset:0;z-index:4;pointer-events:none;
+  background:linear-gradient(115deg,#f2fbff 0%,#fff 38%,#e4f4fc 72%,#f6fbfe 100%);
+  transition:translate .35s var(--ease),clip-path .35s var(--ease),opacity .3s,scale .35s var(--ease),rotate .35s var(--ease),
+    mask-size .35s var(--ease),-webkit-mask-size .35s var(--ease)
+}
+.tide:before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 28%,rgba(255,255,255,.75) 44%,transparent 60%)}
+.dark .tide{background:linear-gradient(115deg,#0b3a5e 0%,#061b2e 46%,#0a2e4b 100%)}
+.dark .tide:before{background:linear-gradient(115deg,transparent 28%,rgba(126,220,255,.14) 44%,transparent 60%)}
+.is-in .tide{transition-duration:.52s;transition-timing-function:var(--ease-glass);transition-delay:.03s}
+.tide:before,.tide:after{transition:inherit}
+
+/* Decoder: the water level drops, a scalloped waterline along its top. */
+.curtain-drain .tide{translate:0 calc(var(--in) * 103%)}
+.curtain-drain .tide:after{content:"";position:absolute;left:0;right:0;top:-13px;height:14px;background:radial-gradient(14px 14px at 14px 14px,#f2fbff 97%,transparent) 0 0/28px 14px repeat-x}
+
+/* About: the wall comes off, sliding away to the right. */
+.curtain-wall .tide{translate:calc(var(--in) * 103%) 0}
+.curtain-wall .tide:after{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:linear-gradient(180deg,transparent,rgba(66,201,255,.7),transparent)}
+
+/* Difference: a flap hinged at the top lifts away. */
+.curtain-flip{perspective:1200px}
+.curtain-flip .tide{rotate:x calc(var(--in) * 94deg);transform-origin:50% 0;backface-visibility:hidden}
+
+/* Services: a roller shutter goes up on the showroom. */
+.curtain-shutter .tide{translate:0 calc(var(--in) * -103%)}
+.curtain-shutter .tide:after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0 44px,rgba(6,40,74,.045) 44px 46px)}
+
+/* Finder: a lens irises open. (Centred: a percentage position would
+   drift the hole sideways as the mask image grows.) */
+.curtain-iris .tide{
+  -webkit-mask:radial-gradient(circle closest-side,#000 99%,transparent 100%) 50% 50% / calc(var(--in) * 270%) calc(var(--in) * 270%) no-repeat,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;
+  mask:radial-gradient(circle closest-side,#000 99%,transparent 100%) 50% 50% / calc(var(--in) * 270%) calc(var(--in) * 270%) no-repeat,linear-gradient(#000 0 0);
+  mask-composite:exclude
+}
+
+/* Compare: side by side — the top and bottom halves part. */
+.curtain-split .tide{background:none}
+.curtain-split .tide:before,.curtain-split .tide:after{content:"";position:absolute;left:0;right:0;height:50.5%;background:linear-gradient(115deg,#f2fbff,#fff 40%,#e4f4fc)}
+.curtain-split .tide:before{top:0;translate:0 calc(var(--in) * -103%)}
+.curtain-split .tide:after{bottom:0;translate:0 calc(var(--in) * 103%)}
+
+/* Specs: a blueprint grid scans down and off, a UV line at its edge. */
+.curtain-scan .tide{
+  translate:0 calc(var(--in) * 103%);
+  background-image:linear-gradient(rgba(126,220,255,.1) 1px,transparent 1px),linear-gradient(90deg,rgba(126,220,255,.1) 1px,transparent 1px),linear-gradient(115deg,#0b3a5e,#061b2e 46%,#0a2e4b);
+  background-size:44px 44px,44px 44px,auto
+}
+.curtain-scan .tide:after{content:"";position:absolute;left:0;right:0;top:-2px;height:3px;background:linear-gradient(90deg,transparent,var(--uv) 30%,#fff 50%,var(--cyan) 70%,transparent);box-shadow:0 0 26px rgba(139,108,255,.85),0 0 60px rgba(66,201,255,.5)}
+
+/* Benefits: the pane is absorbed to a point in the centre. */
+.curtain-absorb .tide{clip-path:inset(calc(var(--in) * 50%) calc(var(--in) * 50%) calc(var(--in) * 50%) calc(var(--in) * 50%) round calc(var(--in) * 999px))}
+
+/* Steps: a wipe, left to right, the direction the pipe fills. */
+.curtain-wipe .tide{clip-path:inset(0 0 0 calc(var(--in) * 100%))}
+
+/* Reviews: the surface clears. */
+.curtain-veil .tide{opacity:var(--out);scale:calc(1 + var(--in) * .06)}
+
+/* Installs: the film advances, right to left. */
+.curtain-advance .tide{clip-path:inset(0 calc(var(--in) * 100%) 0 0)}
+
+/* Areas: a surveyor's diagonal sweep. */
+.curtain-diagonal .tide{clip-path:polygon(0 0,calc(100% - var(--in) * 100%) 0,calc(100% - var(--in) * 145%) 100%,0 100%)}
+
+/* Guide: a paper cover turns on its spine. */
+.curtain-page{perspective:1600px}
+.curtain-page .tide{rotate:y calc(var(--in) * -112deg);transform-origin:0 50%;backface-visibility:hidden;background:linear-gradient(100deg,#fffdf9,#f6ecdf)}
+.curtain-page .tide:before{background:linear-gradient(90deg,rgba(64,40,10,.14),transparent 8%)}
+
+/* FAQ: doors. */
+.curtain-doors .tide{background:none}
+.curtain-doors .tide:before,.curtain-doors .tide:after{content:"";position:absolute;top:0;bottom:0;width:50.5%;background:linear-gradient(115deg,#f2fbff,#fff 40%,#e4f4fc)}
+.curtain-doors .tide:before{left:0;translate:calc(var(--in) * -103%) 0}
+.curtain-doors .tide:after{right:0;translate:calc(var(--in) * 103%) 0}
+
+/* ---------- THE COPY ----------
+   A block whose lines land one after another out of a soft blur,
+   from the edge the reader came from. `--k` is the line's place. */
+.stage-copy>*{
+  opacity:var(--in);translate:0 calc(var(--out) * var(--from) * 24px);filter:blur(calc(var(--out) * 6px));
+  transition:opacity .3s,translate .35s var(--ease),filter .3s;transition-delay:calc(var(--k,0) * .03s)
+}
+.stage-copy>:nth-child(2){--k:1}.stage-copy>:nth-child(3){--k:2}.stage-copy>:nth-child(4){--k:3}.stage-copy>:nth-child(5){--k:4}.stage-copy>:nth-child(n+6){--k:5}
+.is-in .stage-copy>*{filter:none;transition-duration:.44s,.52s,.39s;transition-timing-function:ease,var(--ease-out),ease;transition-delay:calc(var(--lag) + var(--k,0) * .06s)}
+/* a heading that stamps in word by word instead */
+.stage-copy>.stamped{opacity:1;translate:0 0;filter:none}
+.word{display:inline-block;opacity:var(--in);translate:0 calc(var(--out) * 30px);rotate:calc(var(--out) * -5deg);scale:calc(1 + var(--out) * .35);transition:opacity .25s,translate .3s,rotate .3s,scale .3s;transition-delay:calc(var(--w) * .03s)}
+.is-in .word{transition-duration:.28s,.39s,.39s,.39s;transition-timing-function:ease,var(--ease-stamp),var(--ease-stamp),var(--ease-stamp);transition-delay:calc(var(--lag) + .08s + var(--w) * .1s)}
+/* a check-list ticks itself: the line slides in, then the check draws */
+.stage .check-list li{opacity:var(--in);translate:calc(var(--out) * -12px) 0;transition:opacity .25s,translate .3s var(--ease);transition-delay:calc(var(--i) * .03s)}
+.is-in .check-list li{transition-duration:.3s,.39s;transition-delay:calc(var(--lag) + .25s + var(--i) * .07s)}
+.stage .check-list svg path{stroke-dasharray:1;stroke-dashoffset:var(--out);transition:stroke-dashoffset .25s}
+.is-in .check-list svg path{transition:stroke-dashoffset .28s var(--ease-out) calc(var(--lag) + .36s + var(--i) * .07s)}
+
+/* shared keyframes */
+@keyframes sheen-pass{from{translate:-120% 0}to{translate:120% 0}}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes swap-in{from{opacity:0;translate:0 8px;filter:blur(5px)}}
+
+/* ============================================================
+   1. DECODER — the instrument
+   The panel stands up off the page; the track fills; each stop pops
+   on along it. A tab change re-keys the title, the readout and the
+   fill, so they re-enter, and lights the stops the concern points at.
+   ============================================================ */
+.decoder-panel{
+  opacity:var(--in);translate:0 calc(var(--out) * var(--from) * 50px);rotate:x calc(var(--out) * 12deg);transform-origin:50% 100%;
+  transition:opacity .3s,translate .35s var(--ease),rotate .35s var(--ease)
+}
+.is-in .decoder-panel{transition-duration:.5s,.55s,.55s;transition-timing-function:ease,var(--ease-out),var(--ease-out);transition-delay:.2s}
+.decoder-title,.decoder-state,.decoder-reply{animation:swap-in .28s var(--ease) both}
+.decoder-state{animation-delay:.08s}
+.track-fill{scale:0 1}
+.is-in .track-fill{animation:track-grow .61s var(--ease) .22s both}
+@keyframes track-grow{from{scale:0 1}to{scale:1 1}}
+/* light moving along the filled track */
+.track-fill:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.75),transparent);translate:-100% 0}
+.is-in .track-fill:after{animation:sheen-pass 2.6s ease-in-out 1.6s infinite}
+.water-dot{opacity:var(--in);scale:calc(1 - var(--out) * .6);transition:background .5s,color .5s,box-shadow .5s,opacity .25s,scale .3s var(--ease);transition-delay:0s,0s,0s,calc(var(--i) * .03s),calc(var(--i) * .03s)}
+.is-in .water-dot{transition:background .25s,color .25s,box-shadow .35s,opacity .2s ease calc(.3s + var(--i) * .12s),scale .33s var(--ease-pop) calc(.3s + var(--i) * .12s)}
+.water-labels>div{opacity:var(--in);translate:0 calc(var(--out) * 10px);transition:opacity .25s,translate .3s var(--ease),color .4s;transition-delay:calc(var(--i) * .03s),calc(var(--i) * .03s),0s}
+.is-in .water-labels>div{transition-duration:.28s,.33s,.22s;transition-delay:calc(.36s + var(--i) * .12s),calc(.36s + var(--i) * .12s),0s}
+/* the lit stops breathe */
+.is-in .water-dot.lit{animation:dot-breathe 3.2s ease-in-out 1.8s infinite}
+@keyframes dot-breathe{0%,100%{box-shadow:0 0 0 7px rgba(66,201,255,.3),0 0 26px rgba(66,201,255,.85)}50%{box-shadow:0 0 0 11px rgba(66,201,255,.16),0 0 36px rgba(66,201,255,1)}}
+
+/* ============================================================
+   2. ABOUT — the house draws itself
+   Ground, walls, roof, rooms, then the pipes, in that order; the
+   fixtures and the unit come on; the water starts to move; the
+   grit in the raw main gets as far as the unit and stops.
+   ============================================================ */
+.about-grid .figure{opacity:var(--in);transition:opacity .3s}
+.is-in .about-grid .figure{transition-duration:.33s;transition-delay:.11s}
+.cw-draw{stroke-dasharray:1;stroke-dashoffset:var(--out);transition:stroke-dashoffset .3s}
+.is-in .cw-draw{transition:stroke-dashoffset .61s var(--ease-out) calc(.2s + var(--d) * .11s)}
+/* the interior walls keep their dashes (in path-length units now) and simply come on */
+.cw-inner.cw-draw{stroke-dasharray:.0072 .009;stroke-dashoffset:0;opacity:var(--in);transition:opacity .3s}
+.is-in .cw-inner.cw-draw{transition:opacity .44s ease .52s}
+.cw-shell{opacity:var(--in);transition:opacity .3s}
+.is-in .cw-shell{transition:opacity .55s ease .5s}
+.cw-fixtures,.cw-flows,.cw-flow-raw{opacity:var(--in);transition:opacity .3s}
+.is-in .cw-fixtures{transition:opacity .39s ease .69s}
+.is-in .cw-flows{transition:opacity .44s ease 1.02s}
+.is-in .cw-flow-raw{transition:opacity .44s ease .88s}
+.cw-unit-group{opacity:var(--in);scale:calc(1 - var(--out) * .5);transform-box:fill-box;transform-origin:center;transition:opacity .25s,scale .3s}
+.is-in .cw-unit-group{transition:opacity .22s ease .8s,scale .33s var(--ease-pop) .8s}
+.cw-label text{opacity:var(--in);translate:0 calc(var(--out) * 6px);transition:opacity .25s,translate .3s}
+.is-in .cw-label text{transition:opacity .28s ease calc(.94s + var(--i) * .06s),translate .33s var(--ease-out) calc(.94s + var(--i) * .06s)}
+.cw-grit circle{fill:#8ea7b9;opacity:0}
+.is-in .cw-grit circle{animation:grit 2.6s linear calc(1.9s + var(--g) * .55s) infinite}
+@keyframes grit{0%{translate:0 0;opacity:0}9%{opacity:1}86%{translate:130px 0;opacity:1}100%{translate:135px 0;opacity:0}}
+/* what is in the water: three pills under the paragraph that names them */
+.water-ills{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.water-ills li{display:inline-flex;align-items:center;gap:8px;padding:8px 13px 8px 10px;border-radius:999px;background:#fff;border:1px solid var(--line);font-size:12px;font-weight:700;color:var(--navy);opacity:var(--in);translate:calc(var(--out) * -14px) 0;transition:opacity .25s,translate .3s;transition-delay:calc(var(--i) * .03s)}
+.is-in .water-ills li{transition-duration:.28s,.33s;transition-timing-function:ease,var(--ease-out);transition-delay:calc(.41s + var(--i) * .06s)}
+.water-ills svg{color:#8ea7b9}
+.is-in .water-ills svg{animation:ill-drift 4.5s ease-in-out calc(var(--i) * .8s) infinite}
+@keyframes ill-drift{0%,100%{translate:0 0;rotate:0deg}50%{translate:0 -2px;rotate:-6deg}}
+
+/* ============================================================
+   3. DIFFERENCE — the water clears
+   The cards tip up into place; the window on each starts murky and
+   clears out to the icon behind it; the word "everyday" is
+   underlined by hand.
+   ============================================================ */
+.change-grid{perspective:1100px}
+.change{
+  opacity:var(--in);rotate:x calc(var(--out) * -24deg);translate:0 calc(var(--out) * 34px);transform-origin:50% 0;
+  transition:opacity .3s,rotate .35s var(--ease),translate .35s var(--ease),transform .35s var(--ease),box-shadow .35s;
+  transition-delay:calc(var(--i) * .03s),calc(var(--i) * .03s),calc(var(--i) * .03s),0s,0s
+}
+.is-in .change{transition-duration:.33s,.5s,.5s,.35s,.35s;transition-timing-function:ease,var(--ease-out),var(--ease-out),var(--ease),ease;transition-delay:calc(.22s + var(--i) * .07s),calc(.22s + var(--i) * .07s),calc(.22s + var(--i) * .07s),0s,0s}
+.change-window{position:relative;width:54px;height:54px;border-radius:50%;background:#e8f8ff;border:1px solid #cfe9f8;color:var(--blue);display:grid;place-items:center;overflow:hidden}
+.change-window svg{position:relative;z-index:1;opacity:var(--in);scale:calc(1 - var(--out) * .4);transition:opacity .25s,scale .3s}
+.is-in .change-window svg{transition:opacity .33s ease calc(.61s + var(--i) * .08s),scale .44s var(--ease-pop) calc(.61s + var(--i) * .08s)}
+.murk{position:absolute;inset:-6px;border-radius:50%;background:radial-gradient(circle at 40% 40%,#7d8f9c,#b9c7d0 58%,#d7e1e7);opacity:var(--out);scale:calc(.15 + var(--out) * .85);filter:blur(calc(var(--in) * 6px));transition:opacity .3s,scale .3s,filter .3s}
+.is-in .murk{transition:opacity .72s ease calc(.47s + var(--i) * .08s),scale .77s var(--ease-out) calc(.47s + var(--i) * .08s),filter .72s ease calc(.47s + var(--i) * .08s)}
+.card.change:hover .change-window{background:#dcf4ff}
+.scribbled{position:relative;display:inline-block}
+.scribble{position:absolute;left:-2%;bottom:-.34em;width:104%;height:.3em;overflow:visible}
+.scribble path{fill:none;stroke:var(--copper);stroke-width:3;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:var(--out);transition:stroke-dashoffset .3s}
+.is-in .scribble path{transition:stroke-dashoffset .44s var(--ease-out) .61s}
+
+/* ============================================================
+   4. SERVICES — the photographs develop
+   Each card surfaces; its photo comes up from grey and soft to
+   sharp and in colour, one pass of light crosses it, and the
+   system's tag lands in the corner.
+   ============================================================ */
+.service{
+  opacity:var(--in);translate:0 calc(var(--out) * var(--from) * 70px);
+  transition:opacity .3s,translate .35s var(--ease),transform .45s var(--ease),box-shadow .45s;
+  transition-delay:calc(var(--i) * .04s),calc(var(--i) * .04s),0s,0s
+}
+.is-in .service{transition-duration:.39s,.55s,.45s,.45s;transition-timing-function:ease,var(--ease-out),var(--ease),ease;transition-delay:calc(.2s + var(--i) * .08s),calc(.2s + var(--i) * .08s),0s,0s}
+.service-art img{filter:grayscale(var(--out)) blur(calc(var(--out) * 10px));scale:calc(1 + var(--out) * .12);transition:filter .3s,scale .35s,transform .8s var(--ease)}
+.is-in .service-art img{filter:none;transition:filter .66s ease calc(.33s + var(--i) * .08s),scale .83s var(--ease-out) calc(.33s + var(--i) * .08s),transform .35s var(--ease)}
+.service-art:before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.6) 50%,transparent 65%);translate:-120% 0}
+.is-in .service-art:before{animation:sheen-pass .72s ease calc(.66s + var(--i) * .08s) both}
+.service-tag{
+  position:absolute;left:14px;top:14px;z-index:2;display:inline-flex;align-items:center;gap:7px;padding:7px 11px 7px 9px;border-radius:999px;
+  background:rgba(6,27,46,.62);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.18);color:#fff;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+  opacity:var(--in);translate:calc(var(--out) * -12px) 0;transition:opacity .25s,translate .3s
+}
+.service-tag svg{color:var(--cyan)}
+.is-in .service-tag{transition:opacity .28s ease calc(.74s + var(--i) * .08s),translate .33s var(--ease-out) calc(.74s + var(--i) * .08s)}
+.service-links .link{opacity:var(--in);translate:0 calc(var(--out) * 8px);transition:opacity .25s,translate .3s,gap .2s,color .2s}
+.service-links .link:nth-child(2){--k:1}.service-links .link:nth-child(3){--k:2}
+.is-in .service-links .link{transition:opacity .28s ease calc(.55s + var(--i) * .08s + var(--k,0) * .04s),translate .33s var(--ease-out) calc(.55s + var(--i) * .08s + var(--k,0) * .04s),gap .2s,color .25s}
+
+/* ============================================================
+   5. FINDER — the panel is handed over
+   It tips in on a diagonal axis and settles; the progress bar
+   fills; the choices are dealt. A new question slides in from the
+   side the reader is heading, and a chosen tile's icon fills like a
+   glass. The result draws a ring round its badge and ticks its list.
+   ============================================================ */
+.finder-grid{perspective:1400px}
+.finder-panel{
+  opacity:var(--in);translate:calc(var(--out) * 40px) calc(var(--out) * var(--from) * 50px);rotate:1 .4 0 calc(var(--out) * 18deg);transform-origin:50% 100%;
+  transition:opacity .3s,translate .35s var(--ease),rotate .35s var(--ease)
+}
+.is-in .finder-panel{transition-duration:.44s,.61s,.61s;transition-timing-function:ease,var(--ease-out),var(--ease-out);transition-delay:.2s}
+.finder-progress{scale:var(--in) 1;transform-origin:left;transition:scale .3s}
+.is-in .finder-progress{transition:scale .5s var(--ease-out) .36s}
+.question{animation:q-in .28s var(--ease-out) both}
+@keyframes q-in{from{opacity:0;translate:calc(var(--dir) * 44px) 0;filter:blur(4px)}}
+.choice{opacity:var(--in);translate:0 calc(var(--out) * 22px);animation:deal .3s var(--ease-out) backwards;animation-delay:calc(.04s + var(--i) * .04s)}
+.is-in .choice{transition:border-color .25s,background .25s,transform .35s var(--ease),box-shadow .35s,opacity .28s ease calc(.41s + var(--i) * .05s),translate .33s var(--ease-out) calc(.41s + var(--i) * .05s)}
+@keyframes deal{from{opacity:0;translate:0 22px;rotate:-1.5deg}}
+.choice-icon{position:relative;flex:none;width:38px;height:38px;border-radius:12px;background:#eef8fd;color:var(--blue);display:grid;place-items:center;overflow:hidden;transition:color .35s,background .3s}
+.choice-icon svg{position:relative;z-index:1}
+.choice-icon:after{content:"";position:absolute;inset:0 -10%;background:var(--blue);border-top-left-radius:50% 7px;border-top-right-radius:50% 7px;translate:0 102%;transition:translate .5s var(--ease-out)}
+.choice:hover .choice-icon{background:#e2f3fc}
+.choice.selected .choice-icon{color:#fff}
+.choice.selected .choice-icon:after{translate:0 0}
+.finder-result{animation:result-in .39s var(--ease-out) both}
+@keyframes result-in{from{opacity:0;scale:.96;translate:0 12px}}
+.result-ring{position:absolute;inset:-4px;width:calc(100% + 8px);height:calc(100% + 8px);overflow:visible;pointer-events:none}
+.result-ring rect{width:calc(100% - 2px);height:calc(100% - 2px);fill:none;stroke:var(--blue);stroke-width:1.5;stroke-dasharray:1;stroke-dashoffset:1;animation:draw .55s var(--ease-out) .2s forwards}
+.result-list li{animation:rise-in .28s var(--ease-out) both;animation-delay:calc(.2s + var(--i) * .06s)}
+.result-list svg path{stroke-dasharray:1;stroke-dashoffset:1;animation:draw .28s var(--ease-out) both;animation-delay:calc(.33s + var(--i) * .06s)}
+@keyframes rise-in{from{opacity:0;translate:0 10px}}
+
+/* ============================================================
+   6. COMPARE — the scan
+   A line runs down the table and the rows fill in behind it, the
+   ticks and dashes drawing as it passes.
+   ============================================================ */
+.compare-table{opacity:var(--in);translate:0 calc(var(--out) * var(--from) * 30px);transition:opacity .3s,translate .35s var(--ease)}
+.is-in .compare-table{transition-duration:.33s,.5s;transition-timing-function:ease,var(--ease-out);transition-delay:.14s}
+.compare-table .row>div{opacity:var(--in);translate:0 calc(var(--out) * 8px);transition:opacity .25s,translate .3s var(--ease),background .25s}
+.is-in .compare-table .row>div{transition:opacity .28s ease calc(.25s + var(--r) * .09s),translate .33s var(--ease-out) calc(.25s + var(--r) * .09s),background .25s}
+.compare-table .cell svg path{stroke-dasharray:1;stroke-dashoffset:var(--out);transition:stroke-dashoffset .25s}
+.is-in .compare-table .cell svg path{transition:stroke-dashoffset .28s var(--ease-out) calc(.36s + var(--r) * .09s)}
+.compare-table .depends svg{color:#9fb4c4}
+.scan{position:absolute;left:0;right:0;top:0;height:2px;z-index:2;pointer-events:none;opacity:0;background:linear-gradient(90deg,transparent,var(--cyan) 30%,#fff 50%,var(--cyan) 70%,transparent);box-shadow:0 0 18px rgba(66,201,255,.8)}
+.is-in .scan{animation:scan-down .74s cubic-bezier(.4,0,.2,1) .2s both}
+@keyframes scan-down{0%{top:0;opacity:0}8%{opacity:1}92%{opacity:1}100%{top:100%;opacity:0}}
+
+/* ============================================================
+   7. SPECS — the inspection
+   A UV line scans the photograph as it uncovers; the three stages
+   come on down a line that fills the way water runs through them,
+   with a drop travelling it; the tables type themselves in; the
+   assurances land; the model number is picked out by a highlight.
+   ============================================================ */
+.specs{background-image:linear-gradient(rgba(126,220,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(126,220,255,.045) 1px,transparent 1px);background-size:44px 44px}
+.specs-photo{clip-path:inset(0 0 calc(var(--out) * 100%) 0);transition:clip-path .35s var(--ease)}
+.is-in .specs-photo{transition:clip-path .72s cubic-bezier(.4,0,.2,1) .22s}
+.specs-scan{position:absolute;left:0;right:0;top:0;height:3px;z-index:2;opacity:0;pointer-events:none;background:linear-gradient(90deg,transparent,var(--uv) 25%,#fff 50%,var(--cyan) 75%,transparent);box-shadow:0 0 22px rgba(139,108,255,.95),0 0 50px rgba(66,201,255,.5)}
+.is-in .specs-scan{animation:scan-down .72s cubic-bezier(.4,0,.2,1) .22s both}
+.specs-model{background:linear-gradient(90deg,transparent 40%,rgba(139,108,255,.45) 50%,transparent 60%) no-repeat;background-size:250% 100%;background-position:100% 0;border-radius:4px;padding:0 3px;margin:0 -3px}
+.is-in .specs-model{animation:model-sweep .77s ease .55s both}
+@keyframes model-sweep{from{background-position:100% 0}to{background-position:-100% 0}}
+.specs-stages{position:relative;padding-left:30px}
+.specs-stages:before{content:"";position:absolute;left:8px;top:32px;bottom:32px;width:2px;border-radius:2px;background:linear-gradient(180deg,#8ea7b9,var(--cyan) 55%,#fff);scale:1 var(--in);transform-origin:top;transition:scale .3s}
+.is-in .specs-stages:before{transition:scale .94s var(--ease-out) .3s}
+.specs-drop{position:absolute;left:5px;top:32px;width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 12px var(--cyan),0 0 4px #fff;opacity:0;z-index:1}
+.is-in .specs-drop{animation:drop-run 3s cubic-bezier(.45,0,.55,1) 2.3s infinite}
+@keyframes drop-run{0%{top:32px;opacity:0}8%{opacity:1}90%{opacity:1}100%{top:calc(100% - 36px);opacity:0}}
+.specs-stage{position:relative;opacity:var(--in);translate:calc(var(--out) * 40px) 0;transition:opacity .3s,translate .35s var(--ease),background .3s,border-color .3s;transition-delay:calc(var(--i) * .03s),calc(var(--i) * .03s),0s,0s}
+.is-in .specs-stage{transition-duration:.33s,.5s,.3s,.3s;transition-timing-function:ease,var(--ease-out),ease,ease;transition-delay:calc(.36s + var(--i) * .23s),calc(.36s + var(--i) * .23s),0s,0s}
+.specs-stage:before{content:"";position:absolute;left:-27px;top:34px;width:12px;height:12px;border-radius:50%;background:var(--night);border:2px solid var(--cyan);box-shadow:0 0 0 4px rgba(66,201,255,.15);scale:var(--in);transition:scale .3s}
+.is-in .specs-stage:before{transition:scale .28s var(--ease-pop) calc(.47s + var(--i) * .23s)}
+.stage-icon{flex:none;width:44px;height:44px;border-radius:12px;background:rgba(66,201,255,.1);border:1px solid rgba(66,201,255,.25);color:var(--cyan);display:grid;place-items:center;scale:calc(1 - var(--out) * .5);opacity:var(--in);transition:opacity .25s,scale .3s}
+.is-in .stage-icon{transition:opacity .22s ease calc(.5s + var(--i) * .23s),scale .33s var(--ease-pop) calc(.5s + var(--i) * .23s)}
+.specs-chips li{opacity:var(--in);scale:calc(1 - var(--out) * .4);transition:opacity .25s,scale .3s}
+.is-in .specs-chips li{transition:opacity .22s ease calc(.55s + var(--i) * .23s + var(--k) * .03s),scale .28s var(--ease-pop) calc(.55s + var(--i) * .23s + var(--k) * .03s)}
+.specs-table{opacity:var(--in);translate:0 calc(var(--out) * 30px);transition:opacity .3s,translate .35s var(--ease),background .3s,border-color .3s}
+.is-in .specs-table{transition:opacity .33s ease calc(.66s + var(--i) * .08s),translate .5s var(--ease-out) calc(.66s + var(--i) * .08s),background .25s,border-color .25s}
+.specs-table dl div{opacity:var(--in);translate:calc(var(--out) * -8px) 0;transition:opacity .25s,translate .3s}
+.is-in .specs-table dl div{transition:opacity .25s ease calc(.77s + var(--i) * .08s + var(--k) * .03s),translate .28s var(--ease-out) calc(.77s + var(--i) * .08s + var(--k) * .03s)}
+.specs-assurances li{opacity:var(--in);scale:calc(1 - var(--out) * .15);translate:0 calc(var(--out) * 14px);transition:opacity .3s,scale .3s,translate .3s,background .3s,border-color .3s}
+.is-in .specs-assurances li{transition:opacity .28s ease calc(.83s + var(--i) * .06s),scale .39s var(--ease-out) calc(.83s + var(--i) * .06s),translate .39s var(--ease-out) calc(.83s + var(--i) * .06s),background .25s,border-color .25s}
+.assurance-icon{flex:none;width:36px;height:36px;border-radius:10px;background:rgba(66,201,255,.14);color:var(--cyan);display:grid;place-items:center}
+.specs-actions>*{opacity:var(--in);translate:0 calc(var(--out) * 10px);transition:opacity .3s,translate .3s,transform .3s var(--ease),box-shadow .3s,background .2s,border-color .2s}
+.is-in .specs-actions>*{transition:opacity .28s ease .94s,translate .33s var(--ease-out) .94s,transform .35s var(--ease),box-shadow .35s,background .25s,border-color .25s}
+
+/* ============================================================
+   8. BENEFITS — five seals
+   Copper rings, one per promise, stamp down with a ring of impact;
+   the three words of the heading land one at a time; the dividers
+   come on between them.
+   ============================================================ */
+.benefits .eyebrow{color:var(--copper)}
+.seal{
+  position:relative;display:grid;place-items:center;width:52px;height:52px;border-radius:50%;background:#fff;border:1.5px solid var(--copper);color:var(--copper);
+  box-shadow:0 8px 20px rgba(201,122,69,.18);opacity:var(--in);scale:calc(1 + var(--out) * .9);rotate:calc(var(--out) * -18deg);
+  transition:opacity .25s,scale .3s,rotate .3s
+}
+.seal:before{content:"";position:absolute;inset:4px;border-radius:50%;border:1px dashed rgba(201,122,69,.55)}
+.seal:after{content:"";position:absolute;inset:-2px;border-radius:50%;border:2px solid var(--copper);opacity:0}
+.is-in .seal{transition-duration:.2s,.3s,.3s;transition-timing-function:ease,var(--ease-stamp),var(--ease-stamp);transition-delay:calc(.28s + var(--i) * .08s)}
+.is-in .seal:after{animation:thud .39s ease-out calc(.4s + var(--i) * .08s) both}
+@keyframes thud{0%{opacity:.8;scale:.9}100%{opacity:0;scale:1.8}}
+.benefit:hover .seal:before{animation:seal-turn 9s linear infinite}
+@keyframes seal-turn{to{rotate:360deg}}
+.benefit{border-left-color:transparent;transition:border-color .3s}
+.is-in .benefit{border-left-color:var(--line);transition:border-color .44s ease calc(.22s + var(--i) * .08s)}
+.benefit h3,.benefit p,.benefit-partner{opacity:var(--in);translate:0 calc(var(--out) * 12px);transition:opacity .25s,translate .3s}
+.benefit p{--k:1}.benefit-partner{--k:2}
+.is-in :is(.benefit h3,.benefit p,.benefit-partner){transition:opacity .28s ease calc(.41s + var(--i) * .08s + var(--k,0) * .04s),translate .33s var(--ease-out) calc(.41s + var(--i) * .08s + var(--k,0) * .04s)}
+
+/* ============================================================
+   9. STEPS — one pipe, four stops
+   The pipe behind the row fills from the left; each step's icon
+   lights as the water reaches it, and its words follow.
+   ============================================================ */
+.steps:before,.steps:after{content:"";position:absolute;left:0;right:0;top:19px;height:6px;border-radius:3px;z-index:0}
+.steps:before{background:var(--line)}
+.steps:after{background:linear-gradient(90deg,#a9edff,var(--cyan),var(--blue));box-shadow:0 0 16px rgba(66,201,255,.55);scale:var(--in) 1;transform-origin:left;transition:scale .3s var(--ease)}
+.is-in .steps:after{transition:scale .94s cubic-bezier(.4,0,.2,1) .28s}
+.step{z-index:1;border-left-color:transparent;transition:border-color .3s}
+.is-in .step{border-left-color:var(--line);transition:border-color .33s ease calc(.33s + var(--i) * .23s)}
+.step-num{
+  z-index:1;opacity:var(--in);scale:calc(1 - var(--out) * .5);
+  transition:opacity .25s,scale .3s,background .45s,color .45s,border-color .45s,box-shadow .45s
+}
+.is-in .step-num{
+  background:var(--blue);color:#fff;border-color:var(--blue);box-shadow:0 10px 24px rgba(8,121,232,.35);
+  transition:opacity .4s ease calc(.4s + var(--i) * .42s),scale .6s var(--ease-pop) calc(.4s + var(--i) * .42s),
+    background .45s ease calc(.72s + var(--i) * .42s),color .45s ease calc(.72s + var(--i) * .42s),border-color .45s ease calc(.72s + var(--i) * .42s),box-shadow .45s ease calc(.72s + var(--i) * .42s)
+}
+.is-in .step-num b{background:var(--navy)}
+.step h3,.step p{opacity:var(--in);translate:0 calc(var(--out) * 14px);transition:opacity .25s,translate .3s}
+.step p{--k:1}
+.is-in :is(.step h3,.step p){transition:opacity .28s ease calc(.47s + var(--i) * .23s + var(--k,0) * .04s),translate .33s var(--ease-out) calc(.47s + var(--i) * .23s + var(--k,0) * .04s)}
+
+/* ============================================================
+   10. REVIEWS — surfacing
+   Bubbles rise behind; the quotes come up at their own pace and
+   settle level; the rating counts up and its stars pop on; a pass
+   of light crosses each glass.
+   ============================================================ */
+.bubbles{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1}
+.bubbles i{position:absolute;left:var(--x);bottom:-30px;width:var(--size);height:var(--size);border-radius:50%;border:1px solid rgba(255,255,255,.38);background:radial-gradient(circle at 35% 35%,rgba(255,255,255,.42),rgba(255,255,255,.04) 60%);opacity:0}
+.is-in .bubbles i{animation:bubble var(--d) linear calc(var(--i) * -1.4s) infinite}
+@keyframes bubble{0%{translate:0 0;opacity:0}8%{opacity:.75}50%{translate:var(--sway) -460px}92%{opacity:.55}100%{translate:0 -920px;opacity:0}}
+.stage .stars svg{opacity:var(--in);scale:calc(1 - var(--out) * .7);--sd:calc(var(--sb,.35s) + var(--s,0) * .05s);transition:opacity .2s,scale .25s;transition-delay:calc(var(--s,0) * .02s)}
+.stage .stars svg:nth-child(2){--s:1}.stage .stars svg:nth-child(3){--s:2}.stage .stars svg:nth-child(4){--s:3}.stage .stars svg:nth-child(5){--s:4}
+.is-in .stars svg{transition:opacity .2s ease var(--sd),scale .28s var(--ease-pop) var(--sd)}
+.rating .stars{--sb:.4s}
+.review .stars{--sb:calc(.55s + var(--i) * .09s)}
+.is-in .rating .stars svg{animation:glint 4.8s ease-in-out calc(2s + var(--s,0) * .14s) infinite}
+.review{
+  position:relative;overflow:hidden;opacity:var(--in);translate:0 calc(var(--out) * var(--from) * 100px);rotate:calc(var(--out) * (var(--i) - 1) * 3deg);
+  transition:opacity .3s,translate .35s var(--ease),rotate .35s var(--ease),transform .35s var(--ease),background .25s;
+  transition-delay:calc(var(--i) * .04s),calc(var(--i) * .04s),calc(var(--i) * .04s),0s,0s
+}
+.is-in .review{transition-duration:.44s,.66s,.66s,.35s,.25s;transition-timing-function:ease,var(--ease-out),var(--ease-out),var(--ease),ease;transition-delay:calc(.2s + var(--i) * .09s),calc(.2s + var(--i) * .09s),calc(.2s + var(--i) * .09s),0s,0s}
+.review:before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.14) 48%,transparent 62%);translate:-120% 0}
+.is-in .review:before{animation:sheen-pass .88s ease calc(.69s + var(--i) * .09s) both}
+.review-mark{position:absolute;right:18px;top:12px;color:rgba(255,255,255,.14);opacity:var(--in);scale:calc(1 - var(--out) * .5);rotate:calc(var(--out) * -10deg);transition:opacity .25s,scale .3s,rotate .3s}
+.is-in .review-mark{transition:opacity .28s ease calc(.55s + var(--i) * .09s),scale .39s var(--ease-pop) calc(.55s + var(--i) * .09s),rotate .39s var(--ease-pop) calc(.55s + var(--i) * .09s)}
+.review footer svg{color:#59d9ff}
+
+/* ============================================================
+   11. INSTALLS — the contact sheet
+   Sprocket holes above and below the strip; the prints are dealt
+   onto it one after another, each landing from a slight angle and
+   coming up from muted to full colour.
+   ============================================================ */
+.install-track{
+  padding-block:16px;
+  background:radial-gradient(circle,var(--line) 0 2.5px,transparent 3px) 0 2px/22px 10px repeat-x,radial-gradient(circle,var(--line) 0 2.5px,transparent 3px) 0 calc(100% - 2px)/22px 10px repeat-x
+}
+.install-track>li{
+  opacity:var(--in);translate:calc(var(--out) * 90px) calc(var(--out) * 26px);rotate:calc(var(--out) * 5deg);transform-origin:0 100%;
+  transition:opacity .3s,translate .35s var(--ease),rotate .35s var(--ease);transition-delay:calc(var(--i) * .03s)
+}
+.is-in .install-track>li{transition-duration:.39s,.58s,.58s;transition-timing-function:ease,var(--ease-out),var(--ease-out);transition-delay:calc(.2s + var(--i) * .06s)}
+.install-shot img{filter:saturate(calc(1 - var(--out) * .8));transition:filter .3s,transform .8s var(--ease)}
+.is-in .install-shot img{filter:none;transition:filter .72s ease calc(.39s + var(--i) * .06s),transform .35s var(--ease)}
+.install-shot figcaption{transition:background .3s}
+.install-shot:hover figcaption{background:#fff}
+
+/* ============================================================
+   12. AREAS — the survey
+   A grid comes up behind the map; the coastline is drawn in blue,
+   then the land fills and the line settles pale; the pins drop
+   west to east. A city chip under the pointer lights its pin.
+   ============================================================ */
+.map:before{
+  content:"";position:absolute;inset:-6% -4%;pointer-events:none;
+  background:linear-gradient(rgba(8,121,232,.09) 1px,transparent 1px) 0 0/40px 40px,linear-gradient(90deg,rgba(8,121,232,.09) 1px,transparent 1px) 0 0/40px 40px;
+  -webkit-mask:radial-gradient(ellipse at center,#000 35%,transparent 72%);mask:radial-gradient(ellipse at center,#000 35%,transparent 72%);
+  opacity:var(--in);transition:opacity .3s
+}
+.is-in .map:before{transition:opacity .66s ease .2s}
+.aus-land{stroke-dasharray:1;stroke-dashoffset:var(--out);fill-opacity:var(--in);stroke:var(--blue);stroke-width:.6;transition:stroke-dashoffset .3s,fill-opacity .3s,stroke .3s}
+.is-in .aus-land{stroke:#9fd3ef;transition:stroke-dashoffset 1.04s cubic-bezier(.4,0,.2,1) calc(.2s + var(--d,0) * .5s),fill-opacity .55s ease calc(.83s + var(--d,0) * .33s),stroke .66s ease 1.21s}
+.aus-city{opacity:var(--in);translate:0 calc(var(--out) * -8px);transition:opacity .2s,translate .3s}
+.is-in .aus-city{transition:opacity .2s ease calc(1.1s + var(--i) * .07s),translate .28s var(--ease-pop) calc(1.1s + var(--i) * .07s)}
+.aus-ping{animation-play-state:paused}
+.is-in .aus-ping{animation-play-state:running}
+.aus-pin{transform-box:fill-box;transform-origin:center;transition:scale .35s var(--ease-pop)}
+.aus-name{transition:fill .25s}
+.areas[data-city] .aus-city{transition:opacity .25s}
+.areas[data-city] .aus-city{opacity:.4}
+.areas[data-city="perth"] [data-city="perth"],.areas[data-city="adelaide"] [data-city="adelaide"],.areas[data-city="melbourne"] [data-city="melbourne"],
+.areas[data-city="sydney"] [data-city="sydney"],.areas[data-city="brisbane"] [data-city="brisbane"],.areas[data-city="gold-coast"] [data-city="gold-coast"]{opacity:1}
+.areas[data-city="perth"] [data-city="perth"] .aus-pin,.areas[data-city="adelaide"] [data-city="adelaide"] .aus-pin,.areas[data-city="melbourne"] [data-city="melbourne"] .aus-pin,
+.areas[data-city="sydney"] [data-city="sydney"] .aus-pin,.areas[data-city="brisbane"] [data-city="brisbane"] .aus-pin,.areas[data-city="gold-coast"] [data-city="gold-coast"] .aus-pin{scale:1.9}
+.areas[data-city="perth"] [data-city="perth"] .aus-name,.areas[data-city="adelaide"] [data-city="adelaide"] .aus-name,.areas[data-city="melbourne"] [data-city="melbourne"] .aus-name,
+.areas[data-city="sydney"] [data-city="sydney"] .aus-name,.areas[data-city="brisbane"] [data-city="brisbane"] .aus-name,.areas[data-city="gold-coast"] [data-city="gold-coast"] .aus-name{fill:var(--blue)}
+.city-tags .chip{gap:6px;cursor:default;opacity:var(--in);translate:0 calc(var(--out) * 10px);scale:calc(1 - var(--out) * .2);transition:opacity .25s,translate .3s,scale .3s,border-color .25s,color .25s,transform .25s var(--ease)}
+.city-tags .chip svg{color:var(--blue)}
+.is-in .city-tags .chip{transition:opacity .22s ease calc(.41s + var(--i) * .04s),translate .28s var(--ease-out) calc(.41s + var(--i) * .04s),scale .28s var(--ease-pop) calc(.41s + var(--i) * .04s),border-color .25s,color .25s,transform .35s var(--ease)}
+
+/* ============================================================
+   13. GUIDE — handed across
+   The booklet turns in on its spine and settles at its tilt; the
+   "Free guide" tag stamps on; the checks tick down the list. The
+   section's accents are copper on paper.
+   ============================================================ */
+.guide-grid{perspective:1600px}
+.guide .eyebrow{color:var(--copper)}
+.guide .check-list svg{color:var(--copper);background:var(--copper-soft)}
+.guide-card{
+  opacity:var(--in);rotate:y calc(var(--out) * -40deg);translate:calc(var(--out) * -40px) 0;transform-origin:0 50%;
+  transition:opacity .3s,rotate .35s var(--ease),translate .35s var(--ease),transform .5s var(--ease)
+}
+.is-in .guide-card{transition-duration:.39s,.61s,.61s,.5s;transition-timing-function:ease,var(--ease-out),var(--ease-out),var(--ease);transition-delay:.2s,.2s,.2s,0s}
+.guide-tag{
+  position:absolute;left:-14px;top:22px;display:inline-flex;align-items:center;gap:6px;padding:8px 13px 8px 10px;border-radius:999px;
+  background:var(--copper);color:#fff;font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;box-shadow:0 10px 24px rgba(201,122,69,.35);
+  opacity:var(--in);scale:calc(1 + var(--out) * .8);rotate:calc(var(--out) * -15deg);transition:opacity .25s,scale .3s,rotate .3s
+}
+.is-in .guide-tag{transition:opacity .2s ease .69s,scale .3s var(--ease-stamp) .69s,rotate .3s var(--ease-stamp) .69s}
+
+/* ============================================================
+   14. FAQ — the doors
+   Each question swings down from a hinge at the top, one after
+   another; the open one's icon is lit, and its answer settles in
+   under it.
+   ============================================================ */
+.faq-list{perspective:1000px}
+.faq-item{
+  opacity:var(--in);rotate:x calc(var(--out) * -55deg);translate:0 calc(var(--out) * -8px);transform-origin:50% 0;
+  transition:opacity .3s,rotate .35s var(--ease),translate .35s var(--ease),box-shadow .3s,border-color .3s;
+  transition-delay:calc(var(--i) * .03s),calc(var(--i) * .03s),calc(var(--i) * .03s),0s,0s
+}
+.is-in .faq-item{transition-duration:.3s,.5s,.5s,.3s,.3s;transition-timing-function:ease,var(--ease-out),var(--ease-out),ease,ease;transition-delay:calc(.22s + var(--i) * .06s),calc(.22s + var(--i) * .06s),calc(.22s + var(--i) * .06s),0s,0s}
+.faq-icon{flex:none;width:38px;height:38px;border-radius:12px;background:#e7f8ff;color:var(--blue);display:grid;place-items:center;transition:background .3s,color .3s,rotate .45s var(--ease-pop)}
+.faq-item.open .faq-icon{background:var(--blue);color:#fff;rotate:-6deg}
+.faq-a>div>p{opacity:0;translate:0 -6px;transition:opacity .3s,translate .3s var(--ease)}
+.faq-item.open .faq-a>div>p{opacity:1;translate:0 0;transition-delay:.12s}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width:900px){
+  .steps:before,.steps:after{display:none}
+  .install-track{padding-block:12px}
+}
+@media (max-width:560px){
+  .guide-tag{left:-6px;top:14px}
+  .specs-stages{padding-left:24px}
+  .specs-stage:before{left:-21px}
+  .change-window{width:46px;height:46px}
+}

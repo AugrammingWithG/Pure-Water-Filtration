@@ -57,8 +57,18 @@ function useShellGeometry() {
  * Whole-house point-of-entry filter on the front wall. Mains arrives from the
  * street meter, rises up the copper riser through the ball valve into the
  * top of the cabinet, and leaves out the bottom into the house.
+ *
+ * `showMeter` lets the hero product shot render just the cabinet on the wall,
+ * without the street pit that only makes sense in the whole-diorama view.
  */
-export default function WholeHouseUnit({ active, revealed, selectedStage, accent, onPick }) {
+export default function WholeHouseUnit({
+  active,
+  revealed,
+  selectedStage,
+  accent,
+  onPick,
+  showMeter = true,
+}) {
   const shell = useShellGeometry()
   const label = useBrandLabel({ plate: true })
   const topY = center.y + 0.3
@@ -169,24 +179,26 @@ export default function WholeHouseUnit({ active, revealed, selectedStage, accent
       </FadeGroup>
 
       {/* street meter pit, where the mains comes in from */}
-      <group position={STREET_METER}>
-        <mesh position={[0, 0, 0]} receiveShadow>
-          <boxGeometry args={[0.5, 0.06, 0.34]} />
-          <meshStandardMaterial {...PIT} />
-        </mesh>
-        <mesh position={[0, 0.035, 0]}>
-          <boxGeometry args={[0.42, 0.02, 0.26]} />
-          <meshStandardMaterial color={0x6f767d} roughness={0.8} />
-        </mesh>
-        <mesh position={[0, 0.09, 0]}>
-          <sphereGeometry args={[0.06, 14, 14]} />
-          <meshStandardMaterial
-            color={accent}
-            emissive={accent}
-            emissiveIntensity={active ? 0.8 : 0.25}
-          />
-        </mesh>
-      </group>
+      {showMeter && (
+        <group position={STREET_METER}>
+          <mesh position={[0, 0, 0]} receiveShadow>
+            <boxGeometry args={[0.5, 0.06, 0.34]} />
+            <meshStandardMaterial {...PIT} />
+          </mesh>
+          <mesh position={[0, 0.035, 0]}>
+            <boxGeometry args={[0.42, 0.02, 0.26]} />
+            <meshStandardMaterial color={0x6f767d} roughness={0.8} />
+          </mesh>
+          <mesh position={[0, 0.09, 0]}>
+            <sphereGeometry args={[0.06, 14, 14]} />
+            <meshStandardMaterial
+              color={accent}
+              emissive={accent}
+              emissiveIntensity={active ? 0.8 : 0.25}
+            />
+          </mesh>
+        </group>
+      )}
     </group>
   )
 }

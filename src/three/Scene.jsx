@@ -9,8 +9,6 @@ import Lighting from './Lighting'
 import Precompile from './Precompile'
 import QualityGovernor from './QualityGovernor'
 import SceneEnvironment from './SceneEnvironment'
-import StageCard from './StageCard'
-import StatCards from './StatCards'
 import StageMarkers from './StageMarkers'
 import Trees from './Trees'
 import WaterFlow from './WaterFlow'
@@ -20,11 +18,9 @@ import WholeHouseEffects from './effects/WholeHouseEffects'
 import RainwaterUnit from './products/RainwaterUnit'
 import UnderSinkUnit from './products/UnderSinkUnit'
 import WholeHouseUnit from './products/WholeHouseUnit'
-import { HOUSE_OCCLUDER, OCCLUDERS } from './parts/useAnchorVisible'
 import { HOME_VIEW, SYSTEMS } from './systems'
 
 const ORBIT_OPTIONS = {
-  ...HOME_VIEW,
   minRadius: 1.1,
   maxRadius: 20,
   autoRotateSpeed: 0.04,
@@ -107,29 +103,32 @@ export default function Scene({
   focused,
   paused,
   subscribe,
-  cardContent,
-  showCard,
-  figures,
-  showStats,
-  compact,
-  insets,
   onPick,
   onReady,
   rigRef,
+  /** Off for the hero, where the wheel belongs to the page. See useOrbitRig. */
+  wheelZoom = true,
+  /**
+   * The opening framing, and where Reset view returns to. The viewer takes
+   * the home view; the hero, with less room and nothing to click, sits
+   * further back so the whole plinth is in frame.
+   */
+  view = HOME_VIEW,
+  /** Where the camera starts before flying to `view`; see useOrbitRig. */
+  start = null,
 }) {
   const { width, height } = useThree((s) => s.size)
-  const distanceScale = Math.min(
-    MAX_PULLBACK,
-    Math.max(1, FRAME_ASPECT / (width / height)),
-  )
+  const distanceScale = Math.min(MAX_PULLBACK, Math.max(1, FRAME_ASPECT / (width / height)))
 
-  const rig = useOrbitRig({ ...ORBIT_OPTIONS, distanceScale })
-  const system = SYSTEMS[currentSystem]
-  const cutaway = useNearHouse(
-    rig,
-    focused && currentSystem === 'undersink',
+  const rig = useOrbitRig({
+    ...ORBIT_OPTIONS,
+    ...view,
+    start,
     distanceScale,
-  )
+    wheelZoom,
+  })
+  const system = SYSTEMS[currentSystem]
+  const cutaway = useNearHouse(rig, focused && currentSystem === 'undersink', distanceScale)
 
   useEffect(() => {
     rigRef.current = rig
@@ -165,19 +164,8 @@ export default function Scene({
 
       <Ground accent={system.accentColor} />
       <Grass accent={system.accentColor} />
-{/*
-        Named so the cards can ask whether the thing they are about is behind
-        any of it. Only the scenery goes in: a product must not be counted as
-        hiding its own card, and the ground and grass are never between the
-        camera and a unit. The house is named separately because a view that
-        opens it up stops it counting. See parts/useAnchorVisible.
-      */}
-      <group name={OCCLUDERS}>
-        <Trees />
-      </group>
-      <group name={HOUSE_OCCLUDER}>
-        <House cutaway={cutaway} />
-      </group>
+      <Trees />
+      <House cutaway={cutaway} />
       <Kitchen accent={SYSTEMS.undersink.accent} />
 
       <WholeHouseUnit {...unitProps('whole')} />
@@ -191,29 +179,7 @@ export default function Scene({
         paused={paused}
         subscribe={subscribe}
       />
-      <StageMarkers
-        system={system}
-        currentStage={currentStage}
-        onPick={pickFor(currentSystem)}
-      />
-      {showCard && cardContent && (
-        <StageCard
-          system={system}
-          currentStage={currentStage}
-          content={cardContent}
-          viewScale={distanceScale}
-          houseOpen={cutaway}
-        />
-      )}
-      <StatCards
-        system={system}
-        figures={figures}
-        visible={showStats}
-        compact={compact}
-        insets={insets}
-        viewScale={distanceScale}
-        houseOpen={cutaway}
-      />
+      <StageMarkers system={system} currentStage={currentStage} onPick={pickFor(currentSystem)} />
       {currentSystem === 'whole' && <WholeHouseEffects system={system} />}
       {currentSystem === 'undersink' && <UnderSinkEffects system={system} />}
       {currentSystem === 'rain' && <RainwaterEffects system={system} />}

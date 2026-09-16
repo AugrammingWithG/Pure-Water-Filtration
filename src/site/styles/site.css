@@ -1,0 +1,1067 @@
+/* ============================================================
+   Pure Water Filtration — the marketing page.
+
+   One system, in the order a reader meets it: tokens, type, the
+   controls every section shares, the header, the section grammar,
+   then each section's own few rules, the fixed chrome, the Water
+   Lab modal, and the breakpoints last. See DESIGN.md for the
+   vocabulary; the values here are the source of truth for it.
+   ============================================================ */
+
+/* ---------- TOKENS ---------- */
+:root{
+  --navy:#06284a;
+  --navy2:#0a3c68;
+  --floor:#041e37;
+  --night:#061b2e;
+  --blue:#0879e8;
+  --blue-deep:#0660bd;
+  --cyan:#42c9ff;
+  --cyan-text:#7fdcff;        /* the eyebrow and link colour on dark */
+  --pale:#eef9ff;
+  --section-pale:#f6fbfe;
+  --line:#dcebf4;
+  --ink:#082b4c;
+  --muted:#5f7891;
+  --muted-dark:#a8c5db;       /* body copy on dark */
+  --white:#fff;
+
+  --shadow:0 24px 70px rgba(4,45,78,.12);
+  --shadow-rest:0 12px 40px rgba(5,50,80,.06);
+  --shadow-btn:0 12px 30px rgba(8,121,232,.22);
+  --shadow-btn-hover:0 18px 38px rgba(8,121,232,.3);
+  --shadow-stage:0 35px 90px rgba(5,63,101,.24);
+
+  --r-sm:12px;
+  --r-md:16px;
+  --r-lg:24px;
+  --r-xl:30px;
+
+  --font-display:"Manrope",sans-serif;
+  --font-body:"DM Sans",sans-serif;
+
+  --ease:cubic-bezier(.2,.7,.2,1);
+  --section:110px;
+  --nav-h:64px;
+}
+
+/* ---------- BASE ---------- */
+*{box-sizing:border-box}
+/* The page snaps section to section: one flick lands on the next section's
+   top, sat just under the sticky nav (scroll-padding). `mandatory` is what
+   gives the settled, one-gesture feel; a section taller than the screen is
+   still scrolled through freely, because the browser only snaps once its
+   edges come into play. Swap to `y proximity` for a softer pull that only
+   catches when a boundary is already close. */
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scroll-snap-type:y mandatory;scroll-padding-top:var(--nav-h)}
+body{margin:0;font-family:var(--font-body);font-size:15px;line-height:1.7;color:var(--ink);background:#fff;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body.menu-open{overflow:hidden}
+a{text-decoration:none;color:inherit}
+button{font:inherit;color:inherit;cursor:pointer}
+ul,ol{margin:0;padding:0;list-style:none}
+p{margin:0}
+img{display:block;max-width:100%}
+svg:not(.app *){display:block;max-width:100%}
+::selection{background:rgba(66,201,255,.35);color:var(--navy)}
+:focus-visible{outline:3px solid var(--cyan);outline-offset:4px;border-radius:6px}
+.container{width:min(1180px,calc(100% - 48px));margin-inline:auto}
+
+/* ---------- TYPE ----------
+   Every Manrope heading is 800 with negative tracking, but the tracking
+   is in ems so it scales with the size: -1.8px on a 16px card title was
+   what fused "GetinTouch". */
+/* Scoped out of .app: the Water Lab dresses its own headings, and a page
+   rule reaching into the modal is how its stage titles once picked up
+   -1.8px of tracking. */
+:where(h1,h2,h3,h4):not(.app *){font-family:var(--font-display);font-weight:800;margin:0;color:var(--navy);text-wrap:balance}
+h1:not(.app *){font-size:clamp(46px,5.6vw,76px);line-height:.95;letter-spacing:-.035em}
+h2:not(.app *){font-size:clamp(32px,3.6vw,48px);line-height:1.04;letter-spacing:-.03em}
+h3:not(.app *){font-size:20px;line-height:1.2;letter-spacing:-.02em}
+h1 em,h2 em{font-style:normal;color:var(--blue)}
+.section p{color:var(--muted);max-width:62ch}
+.section h2+p,.section .lead{margin-top:18px}
+.section p+p{margin-top:12px}
+.lead{font-size:17px;line-height:1.65}
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:var(--blue);margin-bottom:16px}
+.kicker{font:800 11px/1 var(--font-display);letter-spacing:.16em;text-transform:uppercase;color:var(--blue)}
+
+/* ---------- CONTROLS ---------- */
+.btn{
+  border:0;border-radius:999px;padding:14px 22px;background:var(--blue);color:#fff;
+  font-weight:700;font-size:13px;line-height:1;display:inline-flex;align-items:center;gap:9px;
+  box-shadow:var(--shadow-btn);transition:transform .3s var(--ease),box-shadow .3s,background .2s;white-space:nowrap
+}
+.btn:hover{transform:translateY(-3px);box-shadow:var(--shadow-btn-hover);background:var(--blue-deep)}
+.btn.light{background:#fff;color:var(--blue);box-shadow:none}.btn.light:hover{background:var(--pale)}
+.btn.outline{background:transparent;color:var(--blue);border:1px solid #a9d6f4;box-shadow:none}.btn.outline:hover{background:var(--pale);border-color:var(--blue)}
+.btn.dark{background:var(--navy)}.btn.dark:hover{background:var(--navy2)}
+.btn.small{padding:11px 16px;font-size:12px}
+.dark .btn.outline{color:#fff;border-color:rgba(255,255,255,.3)}.dark .btn.outline:hover{background:rgba(255,255,255,.08);border-color:#fff}
+.link{display:inline-flex;align-items:center;gap:6px;border:0;background:none;padding:0;color:var(--blue);font-weight:800;font-size:13px;transition:gap .2s}
+.link:hover{gap:9px}
+.link.quiet{color:var(--muted);font-weight:700}.link.quiet:hover{color:var(--navy)}
+.actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:28px}
+.section .btn,.section .link{margin-top:28px}
+.actions .btn,.actions .link,.section .actions .btn{margin-top:0}
+.chip{display:inline-flex;align-items:center;background:#fff;border:1px solid #cde8f5;border-radius:999px;padding:9px 14px;font-size:12px;font-weight:700;color:var(--navy)}
+.check-list{display:grid;gap:10px;margin-top:22px;font-size:14px;color:var(--ink)}
+.check-list li{display:flex;align-items:center;gap:10px}
+.check-list svg{color:var(--blue);flex-shrink:0;width:18px;height:18px;padding:2px;border-radius:50%;background:var(--pale)}
+
+/* ---------- HEADER ---------- */
+/* the page top is a stop of its own: from here one flick lands on the Lab */
+.nav-wrap{position:sticky;top:0;z-index:50}
+.nav{height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;gap:24px;padding:0 28px;background:rgba(255,255,255,.9);backdrop-filter:blur(16px);border-bottom:1px solid rgba(220,235,244,.7)}
+/* the client's own mark: a 550×200 lockup, so height alone sizes it */
+.logo{display:flex;align-items:center;flex-shrink:0}
+.logo img{height:36px;width:auto}
+.navlinks{display:flex;gap:32px;font-size:13px;font-weight:600;color:#38556e}
+.navlinks a{position:relative;padding:6px 0}
+.navlinks a:after{content:"";position:absolute;left:0;right:100%;bottom:0;height:2px;background:var(--blue);transition:right .35s var(--ease)}
+.navlinks a:hover:after{right:0}
+.nav-actions{display:flex;align-items:center;gap:20px;font-size:13px;font-weight:700}
+.nav-actions .btn{padding:11px 18px;font-size:12.5px}
+.phone{display:inline-flex;align-items:center;gap:7px;color:var(--navy)}
+.menu-btn{display:none;border:0;background:none;color:var(--navy);width:44px;height:44px;border-radius:50%;place-items:center;margin-right:-10px}
+.menu-btn:hover{background:var(--pale)}
+
+/* the phone drawer, hung under the nav */
+.menu{position:absolute;top:100%;left:0;right:0;background:#fff;border-bottom:1px solid var(--line);box-shadow:var(--shadow);padding:10px 20px 22px;max-height:calc(100dvh - var(--nav-h));overflow-y:auto}
+.menu-links a{display:flex;justify-content:space-between;align-items:center;padding:15px 4px;border-bottom:1px solid var(--line);font-family:var(--font-display);font-weight:800;font-size:18px;letter-spacing:-.02em;color:var(--navy)}
+.menu-links a svg{color:var(--blue)}
+.menu-actions{display:grid;gap:10px;margin-top:18px}
+.menu-actions .btn{justify-content:center;width:100%}
+.menu-prefs{display:flex;gap:8px;margin-top:18px}
+.menu-prefs button{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:11px;font-size:12px;font-weight:700;color:var(--navy)}
+.menu-prefs button.on{background:var(--navy);border-color:var(--navy);color:#fff}
+
+/* ---------- SECTION GRAMMAR ----------
+   Every section is .section; .pale and .dark set the tide; .feature is the
+   one that steps its heading up. The head, the split, the card grid and
+   the figure are the four layouts, and every section is one of them. */
+.section{padding:var(--section) 0;position:relative;scroll-snap-align:start}
+.section.pale{background:var(--section-pale)}
+.section.dark{background:var(--night);color:#fff;overflow:hidden}
+.section.dark:before{content:"";position:absolute;width:900px;height:900px;border-radius:50%;right:-300px;top:-400px;background:radial-gradient(circle,rgba(66,201,255,.2),transparent 65%);pointer-events:none}
+.section.dark h1,.section.dark h2,.section.dark h3{color:#fff}
+.section.dark h2 em{color:var(--cyan)}
+.section.dark p{color:var(--muted-dark)}
+.section.dark .eyebrow,.section.dark .kicker{color:var(--cyan-text)}
+.section.feature{padding:125px 0}
+.section.feature h2{font-size:clamp(38px,4.6vw,62px);line-height:.98}
+.section .container{position:relative;z-index:2}
+
+.section-head{max-width:640px;margin-bottom:48px}
+.section-head p{max-width:56ch}
+.split-head{max-width:none;display:flex;justify-content:space-between;align-items:flex-end;gap:48px}
+.split-head>div:first-child{max-width:720px}
+.split-head>p{max-width:380px;font-size:14px;margin:0 0 6px}
+
+.split{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}
+.split-wide{grid-template-columns:.8fr 1.2fr}
+.split-narrow{grid-template-columns:38fr 62fr;align-items:start}
+
+.card-grid{display:grid;gap:16px}
+.card-grid.two{grid-template-columns:1fr 1fr}
+.card-grid.three{grid-template-columns:repeat(3,1fr)}
+.section-head+.card-grid{margin-top:0}
+
+.card{
+  background:#fff;border:1px solid var(--line);border-radius:var(--r-lg);padding:28px;
+  box-shadow:var(--shadow-rest);transition:transform .35s var(--ease),box-shadow .35s;
+  display:flex;flex-direction:column;gap:10px
+}
+.card:hover{transform:translateY(-6px);box-shadow:var(--shadow)}
+.card h3{margin-top:14px}
+.card p{font-size:13px;line-height:1.6;margin:0}
+.card .kicker+h3{margin-top:22px}
+.card.glass{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.16);backdrop-filter:blur(10px);box-shadow:none}
+.card.glass:hover{background:rgba(255,255,255,.12);box-shadow:none}
+
+.figure{position:relative}
+.figure svg{width:100%;height:auto}
+
+/* ---------- HERO ----------
+   Full-bleed cinematic product render, with the copy overlaid on the left.
+   The canvas fills the whole section; a soft scrim brightens the left third
+   so the h1 keeps its contrast against whatever passes behind it in-frame.
+   The section itself keeps the pale gradient it always had — the canvas is
+   transparent, so where the room ends the page's own gradient shows through
+   and the render blends into the surrounding page.
+*/
+/* the hero is the page's first snap point: without one, a mandatory-snap
+   page pulls itself down to the first section on load */
+.hero{scroll-snap-align:start;min-height:760px;position:relative;display:flex;align-items:center;overflow:hidden;background:radial-gradient(circle at 78% 42%,rgba(66,201,255,.18),transparent 34%),linear-gradient(125deg,#f8fcff 0%,#fff 48%,#eaf7ff 100%)}
+.hero:before{content:"";position:absolute;width:800px;height:800px;border-radius:50%;right:-260px;top:-250px;background:radial-gradient(circle,rgba(68,201,255,.22),transparent 65%);animation:pulse 8s ease-in-out infinite;z-index:0}
+.hero-bg{position:absolute;inset:0;z-index:1;pointer-events:none}
+.hero-scrim{position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(100deg,rgba(248,252,255,.92) 0%,rgba(248,252,255,.78) 22%,rgba(248,252,255,.35) 42%,rgba(248,252,255,0) 58%)}
+.hero-grid{display:grid;grid-template-columns:minmax(0,560px);align-items:center;position:relative;z-index:3;padding:96px 0 120px;gap:35px}
+.hero-copy .eyebrow{letter-spacing:.22em}
+.hero-copy h1{max-width:14ch}
+.hero-copy .lead{max-width:44ch;margin-top:24px;color:var(--muted)}
+.mini-trust{display:flex;gap:24px;margin:34px 0 0}
+.mini-trust div{padding-left:15px;border-left:1px solid #bfe2f6}
+.mini-trust dt{font-size:13px;font-weight:700;color:var(--navy)}
+.mini-trust dd{margin:2px 0 0;font-size:11px;color:var(--muted)}
+/*
+ * The scene sits behind everything: transparent canvas, no frame, no card.
+ * It fades in from invisible once its shaders are built (see HeroScene) so
+ * there is no dark flash before the environment map lights the room. Fixed
+ * camera — no drag, no wheel — so `touch-action: auto` and the reader can
+ * scroll past the section straight through the canvas.
+ */
+.hero-scene{position:absolute;inset:0;width:100%;height:100%}
+.hero-scene canvas{width:100%!important;height:100%!important;touch-action:auto;opacity:0;transition:opacity 1.1s ease}
+.hero-scene.is-ready canvas{opacity:1}
+
+/* ---------- TRUST STRIP ----------
+   A proof band, not a feature row: each cell leads with its figure in the
+   display face (the Reviews rating's treatment, stepped down), with the
+   label and its note beneath. Cells are parted by hairlines that fade at
+   both ends rather than hard full-height rules, and the band's own edges
+   are the same fading hairline, so it sits between the hero's pale wash
+   and the Lab's dark tide without a boxed-in look. */
+.trust-strip{background:#fff;position:relative;z-index:5;overflow:hidden;--from:1}
+.trust-strip:before,.trust-strip:after{content:"";position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--line) 12%,var(--line) 88%,transparent)}
+.trust-strip:before{top:0}.trust-strip:after{bottom:0}
+.trust-grid{display:grid;grid-template-columns:repeat(4,1fr);padding:40px 0;position:relative}
+.trust{position:relative;display:flex;flex-direction:column;gap:4px;padding:6px 36px}
+.trust:first-child{padding-left:0}
+.trust+.trust:before{content:"";position:absolute;left:0;top:0;bottom:0;width:1px;background:linear-gradient(180deg,transparent,var(--line) 25%,var(--line) 75%,transparent)}
+.trust-figure{display:flex;align-items:baseline;gap:10px;min-height:38px}
+.trust-num{font:800 clamp(28px,2.6vw,36px)/1 var(--font-display);letter-spacing:-.04em;color:var(--navy);font-variant-numeric:tabular-nums}
+.trust .stars{gap:1px;color:var(--cyan);align-self:center}
+.trust strong{display:block;margin-top:8px;font:700 14px/1.3 var(--font-body);color:var(--navy)}
+.trust-note{font-size:12px;line-height:1.5;color:var(--muted)}
+
+/* The strip's own choreography, in three layers. Everything is a
+   transition from a hidden base state, so the exit is the entrance run
+   backwards (shorter, and tighter on the stagger) rather than a second
+   set of keyframes; `--from` is the edge the reader left by, so the
+   pieces drift out that way and come back in from it.
+   1. Arrival: the band's hairlines draw out from the centre, the dividers
+      draw down, each figure rises in out of a blur (counting as it does,
+      see TrustStrip.jsx), its label and note a beat behind, and the
+      rating's stars pop on one at a time. */
+.trust-strip:before,.trust-strip:after{scale:0 1;transition:scale .5s var(--ease)}
+.trust-strip.is-in:before,.trust-strip.is-in:after{scale:1 1;transition-duration:1.1s;transition-delay:.05s}
+.trust+.trust:before{scale:1 0;transform-origin:top;transition:scale .4s var(--ease) calc(var(--i) * .04s)}
+.trust-strip.is-in .trust+.trust:before{scale:1 1;transition-duration:.8s;transition-delay:calc(.25s + var(--i) * .1s)}
+.trust-num,.trust strong,.trust-note{
+  --k:0;opacity:0;translate:0 calc(var(--from) * 18px);filter:blur(7px);
+  transition:opacity .4s var(--ease),translate .5s var(--ease),filter .4s var(--ease);
+  transition-delay:calc(var(--i) * .04s + var(--k) * .03s)
+}
+.trust strong{--k:1}.trust-note{--k:2}
+.trust-strip.is-in :is(.trust-num,.trust strong,.trust-note){
+  opacity:1;translate:0 0;filter:blur(0);
+  transition-duration:.9s;transition-delay:calc(.1s + var(--i) * .09s + var(--k) * .08s)
+}
+.trust .stars svg{opacity:0;scale:.3;transition:opacity .3s,scale .3s var(--ease);transition-delay:calc(var(--s) * .03s)}
+.trust .stars svg:nth-child(1){--s:0}.trust .stars svg:nth-child(2){--s:1}.trust .stars svg:nth-child(3){--s:2}.trust .stars svg:nth-child(4){--s:3}.trust .stars svg:nth-child(5){--s:4}
+.trust-strip.is-in .stars svg{opacity:1;scale:1;transition:opacity .35s,scale .5s cubic-bezier(.34,1.56,.64,1);transition-delay:calc(.55s + var(--s) * .09s)}
+/* 2. Idle, once arrived: a slow sheen of light crosses the band, the
+      figures float a hair on their own periods, and the stars glint in
+      turn. The sheen and glint animate properties nothing transitions
+      (background position, filter), the float sits on the figure's wrapper
+      rather than the figure, so none of them fight the entrance. */
+.trust-sheen{position:absolute;inset:0;pointer-events:none;background:linear-gradient(105deg,transparent 42%,rgba(66,201,255,.09) 50%,transparent 58%) no-repeat;background-size:60% 100%;background-position:-60% 0;opacity:0;transition:opacity .6s}
+.trust-strip.is-in .trust-sheen{opacity:1;animation:sheen 9s var(--ease) 1.6s infinite}
+.trust-strip.is-in .trust-figure{animation:trust-float 6.5s ease-in-out calc(1.4s + var(--i) * .55s) infinite}
+.trust-strip.is-in .stars svg{animation:glint 4.8s ease-in-out calc(2s + var(--s) * .14s) infinite}
+/* 3. Exit is the base state again: hover only tints the figure. */
+.trust-num{transition-property:opacity,translate,filter,color}
+@keyframes sheen{0%{background-position:-60% 0}60%,100%{background-position:170% 0}}
+@keyframes trust-float{0%,100%{translate:0 0}50%{translate:0 -3px}}
+@keyframes glint{0%,84%,100%{filter:none}91%{filter:drop-shadow(0 0 5px rgba(66,201,255,.95)) brightness(1.4)}}
+
+/* ---------- WATER LAB ----------
+   The Lab itself, live in the page. Tighter corners than the rest of the
+   page — 14px on the frame and the cards, 8px on the controls, 6px on the
+   chips — so it reads as an instrument rather than another card. States
+   the frame carries, as data attributes so the reveal observer's own
+   class survives React's re-renders: [data-ready] once the scene's
+   shaders are built (the poster gives way to the live canvas),
+   [data-focused] once the camera has flown to something (the readout
+   replaces the hint, Reset view appears), [data-touched] once the reader
+   has taken hold of it (the hint has done its job). Everything is a
+   transition from its base state so those compose with the arrival. */
+.water-lab{--lab-r:14px;--lab-line:rgba(159,222,246,.16);--lab-line-hi:rgba(102,220,255,.4);--lab-glass:rgba(6,27,46,.68)}
+.lab-stage{display:grid;grid-template-columns:1.55fr .75fr;gap:18px;align-items:stretch}
+
+/* the frame: a pale ground for the diorama, as the Lab's own poster had.
+   A set height, not the cards' — the canvas is measured from it, and a
+   card's copy changing length must not resize the scene */
+.lab-visual{
+  position:relative;height:600px;border:1px solid var(--lab-line);border-radius:var(--lab-r);overflow:hidden;isolation:isolate;
+  background:radial-gradient(90% 70% at 50% 42%,#f8fcff,#dbe9f2);box-shadow:0 35px 100px rgba(0,0,0,.3);transition:border-color .4s
+}
+.lab-visual:hover{border-color:rgba(159,222,246,.32)}
+/* the still the section used to show, until the live scene is built — then it blurs away under it */
+.lab-poster{position:absolute;left:50%;top:50%;height:150%;width:auto;max-width:none;transform:translate(-54%,-51%);transition:opacity 1.2s var(--ease),filter 1.2s var(--ease),transform 1.2s var(--ease)}
+.lab-visual[data-ready] .lab-poster{opacity:0;filter:blur(14px);transform:translate(-54%,-51%) scale(1.06)}
+/* pan-y: a finger dragged sideways orbits, dragged up or down scrolls the page — the frame never traps the reader */
+.lab-scene{position:absolute;inset:0;cursor:grab;touch-action:pan-y}
+.lab-scene canvas{display:block;width:100%!important;height:100%!important;touch-action:pan-y;opacity:0;transition:opacity 1s ease}
+.lab-visual[data-ready] .lab-scene canvas{opacity:1}
+.lab-scene canvas.dragging{cursor:grabbing}
+/* a soft scrim along the bottom so the readout and the button sit on something */
+.lab-visual:after{content:"";position:absolute;inset:0;z-index:2;background:linear-gradient(180deg,rgba(3,26,43,0) 64%,rgba(3,26,43,.48));pointer-events:none}
+
+/* light sweeps once round the frame's edge as the section arrives: a
+   conic gradient on a spinning square, masked down to the 1.5px rim */
+.lab-sweep{
+  position:absolute;inset:0;z-index:4;border-radius:inherit;padding:1.5px;overflow:hidden;pointer-events:none;opacity:0;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude
+}
+.lab-sweep:before{content:"";position:absolute;left:50%;top:50%;width:200%;aspect-ratio:1;translate:-50% -50%;background:conic-gradient(from 0deg,transparent 0 60%,rgba(126,220,255,.9) 78%,#fff 82%,transparent 90%)}
+.in-view .lab-sweep{animation:lab-sweep-fade 2.8s ease .55s both}
+.in-view .lab-sweep:before{animation:lab-sweep-turn 2.8s cubic-bezier(.45,0,.2,1) .55s both}
+@keyframes lab-sweep-turn{to{rotate:360deg}}
+@keyframes lab-sweep-fade{0%{opacity:0}12%,78%{opacity:1}100%{opacity:0}}
+
+/* the frame's chrome: glass tags in the corners, 8px corners throughout */
+.lab-tag,.lab-reset,.lab-readout{background:var(--lab-glass);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12);color:#fff;border-radius:8px}
+.lab-tag{position:absolute;left:18px;top:18px;z-index:3;display:inline-flex;align-items:center;gap:8px;padding:8px 12px;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.lab-tag i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.55);animation:pulse 1.4s ease-in-out infinite;transition:background .5s,box-shadow .5s}
+.lab-visual[data-ready] .lab-tag i{background:var(--cyan);box-shadow:0 0 12px var(--cyan);animation-duration:2.4s}
+.lab-reset{
+  position:absolute;right:18px;top:18px;z-index:3;display:inline-flex;align-items:center;height:34px;padding:0 14px;
+  font-size:12px;font-weight:700;transition:opacity .35s var(--ease),translate .35s var(--ease),background .25s,border-color .25s
+}
+.lab-reset:hover{background:rgba(6,27,46,.85);border-color:rgba(255,255,255,.3)}
+.lab-reset[hidden]{display:inline-flex;opacity:0;translate:0 -6px;visibility:hidden;pointer-events:none;transition:opacity .3s var(--ease),translate .3s var(--ease),visibility 0s .3s}
+
+/* bottom-left: the hint until the reader has the scene in hand, then the stage readout */
+.lab-hud{position:absolute;left:18px;bottom:20px;z-index:3;display:grid;max-width:min(62%,380px)}
+.lab-hud>*{grid-area:1/1;align-self:end}
+.lab-hint{display:flex;align-items:center;gap:9px;margin:0 0 6px;color:#fff;font-size:13px;font-weight:600;text-shadow:0 1px 14px rgba(3,26,43,.7);transition:opacity .45s var(--ease),translate .45s var(--ease)}
+.lab-hint-dot{color:rgba(255,255,255,.5)}
+.lab-hint-drag{position:relative;flex:none;width:24px;height:15px;border:1.5px solid rgba(255,255,255,.8);border-radius:8px}
+.lab-hint-drag:after{content:"";position:absolute;top:50%;left:4px;width:5px;height:5px;margin-top:-2.5px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan);animation:lab-drag 2.2s ease-in-out infinite}
+@keyframes lab-drag{0%,100%{left:4px}50%{left:12px}}
+.lab-visual:not([data-ready]) .lab-hint,.lab-visual[data-focused] .lab-hint,.lab-visual[data-touched] .lab-hint{opacity:0;translate:0 6px;pointer-events:none}
+.lab-readout{display:flex;flex-direction:column;gap:3px;padding:12px 16px;opacity:0;translate:0 8px;transition:opacity .4s var(--ease),translate .4s var(--ease)}
+.lab-readout small{font:800 10px/1 var(--font-display);letter-spacing:.16em;text-transform:uppercase;color:var(--cyan-text)}
+.lab-readout strong{font:800 15px/1.2 var(--font-display);letter-spacing:-.01em;text-wrap:balance}
+.lab-visual[data-focused] .lab-readout{opacity:1;translate:0 0;animation:rise .5s var(--ease)}
+
+/* bottom-right: the way into the full Lab */
+.section .lab-open{position:absolute;right:18px;bottom:18px;z-index:3;margin:0;border-radius:10px;padding:13px 18px;font-size:12.5px}
+.lab-open svg{transition:transform .3s var(--ease)}
+.lab-open:hover svg{transform:translate(2px,-2px)}
+
+/* the cards: the Lab's three moves as the controls that make them */
+.lab-info{display:flex;flex-direction:column;gap:12px}
+.lab-card{
+  position:relative;flex:1;display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--lab-line);border-radius:var(--lab-r);padding:20px 22px;
+  background:linear-gradient(160deg,rgba(255,255,255,.065),rgba(255,255,255,.03));
+  transition:background .3s,border-color .3s,translate .4s var(--ease),box-shadow .4s
+}
+.lab-card:hover{border-color:var(--lab-line-hi);translate:0 -3px;box-shadow:0 18px 44px rgba(0,0,0,.26)}
+/* a thread of light along the top edge, brighter under the pointer */
+.lab-card:before{content:"";position:absolute;left:10%;right:10%;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(126,220,255,.6),transparent);opacity:.45;transition:opacity .3s}
+.lab-card:hover:before{opacity:1}
+.lab-card-head{display:flex;align-items:baseline;gap:12px}
+.lab-card h3{font-size:17px;margin:0}
+.lab-card p{font-size:12.5px;line-height:1.55;color:#a4bfd2}
+
+/* 01 — the three systems, and where the chosen one is installed */
+.lab-systems{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:14px}
+.lab-sys{
+  display:flex;flex-direction:column;align-items:center;gap:6px;padding:11px 6px 9px;border:1px solid rgba(255,255,255,.12);border-radius:8px;
+  background:rgba(255,255,255,.04);color:#dcefff;font-size:11px;font-weight:700;letter-spacing:.01em;
+  transition:background .25s,border-color .25s,color .25s,translate .25s var(--ease),box-shadow .3s
+}
+.lab-sys svg{width:18px;height:18px;transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+.lab-sys:hover{background:rgba(255,255,255,.09);border-color:rgba(255,255,255,.28);translate:0 -2px}
+.lab-sys:hover svg{transform:scale(1.12)}
+.lab-sys.active{background:#fff;border-color:#fff;color:var(--navy);box-shadow:0 8px 24px rgba(66,201,255,.28)}
+.lab-sys.active svg{color:var(--blue)}
+.lab-placement{margin-top:12px;min-height:58px;animation:fade .5s ease}
+
+/* 02 — play, and the four stages on a track painted in the water's own colours */
+.lab-transport{display:flex;align-items:flex-start;gap:14px;margin-top:16px}
+.lab-play{
+  position:relative;flex:none;width:46px;height:46px;border:0;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;
+  box-shadow:0 10px 26px rgba(8,121,232,.4);transition:transform .3s var(--ease),box-shadow .3s,background .3s
+}
+.lab-play svg{margin-left:2px;transition:transform .2s var(--ease)}
+.lab-card-water[data-status="playing"] .lab-play svg{margin-left:0}
+.lab-play:hover{transform:scale(1.06);background:var(--blue-deep);box-shadow:0 14px 32px rgba(8,121,232,.5)}
+.lab-play:active svg{transform:scale(.85)}
+/* a ring of light turns round the button while the water is running */
+.lab-play:before{
+  content:"";position:absolute;inset:-6px;border-radius:50%;padding:2px;opacity:0;transition:opacity .3s;
+  background:conic-gradient(from 0deg,transparent 0 55%,rgba(126,220,255,.95) 85%,transparent);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude
+}
+.lab-card-water[data-status="playing"] .lab-play:before{opacity:1;animation:lab-turn 1.6s linear infinite}
+@keyframes lab-turn{to{rotate:360deg}}
+.lab-timeline{position:relative;flex:1;height:34px;margin-top:2px;--p:0%}
+.lab-track{position:absolute;left:0;right:0;top:3px;height:4px;border-radius:2px;background:rgba(255,255,255,.12);overflow:hidden;transform-origin:left}
+.lab-fill{position:absolute;inset:0;background:var(--water);clip-path:inset(0 calc(100% - var(--p)) 0 0);box-shadow:0 0 12px rgba(66,201,255,.6)}
+.lab-stops{position:absolute;inset:0;display:grid;grid-template-columns:repeat(4,1fr)}
+.lab-stop{display:flex;flex-direction:column;align-items:flex-start;gap:9px;padding:0 6px 0 0;border:0;background:none;color:#8fb0c8;font-size:10px;font-weight:700;letter-spacing:.04em;text-align:left;transition:color .25s}
+.lab-marker{width:10px;height:10px;box-sizing:border-box;border-radius:50%;background:#0a2a44;border:2px solid rgba(255,255,255,.35);transition:border-color .25s,background .25s,transform .35s cubic-bezier(.34,1.56,.64,1),box-shadow .3s}
+.lab-stop:hover{color:#fff}
+.lab-stop:hover .lab-marker{border-color:#fff}
+.lab-stop.passed .lab-marker{border-color:rgba(126,220,255,.75)}
+.lab-stop.active{color:#fff}
+.lab-stop.active .lab-marker{background:var(--cyan);border-color:#fff;transform:scale(1.3);box-shadow:0 0 14px rgba(66,201,255,.85)}
+.lab-status{margin-top:12px;min-height:1.6em}
+.lab-status b{color:#fff;font-weight:800}
+
+/* 03 — the stage on screen, and what it takes out; re-enters on every stage change */
+.lab-removes{margin-top:14px}
+.lab-stage-name{display:flex;align-items:baseline;gap:10px;color:#fff;font-size:13px;font-weight:700;animation:slide-in .45s var(--ease)}
+.lab-stage-name b{flex:none;font:800 10px/1 var(--font-display);letter-spacing:.14em;text-transform:uppercase;color:var(--cyan-text)}
+.lab-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.lab-action,.lab-chip{padding:6px 10px;border-radius:6px;font-size:12px;animation:pop .45s cubic-bezier(.34,1.56,.64,1) backwards}
+.lab-action{background:var(--blue);color:#fff;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.lab-chip{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);color:#e3f3ff;font-weight:600;animation-delay:calc(.08s + var(--i) * .06s);transition:background .25s,border-color .25s}
+.lab-chip:hover{background:rgba(66,201,255,.14);border-color:rgba(102,220,255,.4)}
+
+/* ---------- DECODER ----------
+   The panel is an instrument, not a card: Lab Night behind glass, the
+   water track lit on it, so the section's answer reads as a readout. */
+.decoder-grid{display:grid;grid-template-columns:42% 58%;gap:64px;align-items:center;perspective:1400px}
+.decoder-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:26px}
+.decoder-tab{display:inline-flex;align-items:center;gap:8px;border:1px solid #cde8f5;background:#fff;color:var(--navy);border-radius:999px;padding:9px 14px 9px 11px;font-size:12px;font-weight:700;transition:border-color .25s,color .25s,background .25s,translate .25s var(--ease)}
+.decoder-tab svg{color:var(--blue);transition:color .25s}
+.decoder-tab:hover{border-color:var(--blue);color:var(--blue);translate:0 -2px}
+.decoder-tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.decoder-tab.active svg{color:var(--cyan)}
+.decoder-panel{
+  position:relative;color:#fff;border:1px solid rgba(126,220,255,.22);border-radius:var(--r-xl);padding:30px;
+  background:radial-gradient(120% 90% at 100% 0%,rgba(66,201,255,.16),transparent 55%),linear-gradient(160deg,#0b3356,#061b2e 70%);
+  box-shadow:0 35px 90px rgba(4,30,55,.35)
+}
+/* a thread of light along the top edge */
+.decoder-panel:before{content:"";position:absolute;left:12%;right:12%;top:0;height:1px;background:linear-gradient(90deg,transparent,rgba(126,220,255,.7),transparent)}
+.decoder-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:24px}
+.decoder-top small{display:block;color:var(--cyan-text);font-size:10px;letter-spacing:.14em;font-weight:800;text-transform:uppercase;margin-bottom:6px}
+.decoder-top h3{font-size:24px;color:#fff}
+.decoder-state{font-size:10px;font-weight:800;letter-spacing:.08em;color:#8de7ff;border:1px solid rgba(141,231,255,.3);padding:8px 11px;border-radius:999px;white-space:nowrap}
+.water-track{height:110px;position:relative;margin:4px 0 8px}
+.water-track:before{content:"";position:absolute;left:8%;right:8%;top:50%;height:5px;background:rgba(255,255,255,.11);border-radius:99px}
+.water-track .track-fill{position:absolute;left:8%;top:50%;width:84%;height:5px;background:linear-gradient(90deg,#a9edff,var(--cyan),#fff);border-radius:99px;box-shadow:0 0 20px rgba(66,201,255,.7);transform-origin:left;overflow:hidden}
+.water-dot{position:absolute;top:calc(50% - 15px);width:30px;height:30px;border-radius:50%;background:#fff;color:var(--navy);box-shadow:0 0 0 7px rgba(66,201,255,.18);display:grid;place-items:center;transition:background .5s,color .5s,box-shadow .5s,scale .5s var(--ease),opacity .3s}
+.water-dot:nth-child(2){left:8%}.water-dot:nth-child(3){left:35%}.water-dot:nth-child(4){left:62%}.water-dot:nth-child(5){right:8%}
+.water-dot.lit{background:var(--cyan);color:var(--night);box-shadow:0 0 0 7px rgba(66,201,255,.3),0 0 26px rgba(66,201,255,.85)}
+.water-labels{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.section .water-labels div{font-size:11px;color:var(--muted-dark);line-height:1.4;transition:color .4s}
+.water-labels strong{display:block;color:#fff;font-size:12px;margin-bottom:2px;transition:color .4s}
+.water-labels div.lit strong{color:var(--cyan)}
+.section .water-labels div.lit{color:#dcefff}
+.decoder-answer{border-top:1px solid rgba(255,255,255,.12);margin-top:22px;padding-top:20px;display:flex;justify-content:space-between;gap:20px;align-items:center}
+.section .decoder-answer p{margin:0;font-size:13.5px;line-height:1.6;max-width:none;color:#cfe4f2}
+.decoder-answer strong{color:#fff}
+.decoder-cta{white-space:nowrap;margin-top:0!important}
+.section .decoder-note{font-size:11px!important;color:#7f9fb8!important;margin-top:14px!important}
+
+/* ---------- ABOUT: the cutaway ---------- */
+.cutaway{background:linear-gradient(160deg,#f4fbff,#e6f5fd);border:1px solid var(--line);border-radius:var(--r-xl);box-shadow:var(--shadow);padding:16px}
+.cw-line{stroke:var(--navy);stroke-width:1.75;stroke-linejoin:round;stroke-linecap:round;fill:none}
+.cw-shell{fill:url(#cw-wall);stroke:none}
+.cw-roof{fill:none;stroke:var(--navy);stroke-width:9;stroke-linejoin:round;stroke-linecap:round}
+.cw-ground{stroke:#b6d2e4;stroke-width:1.5;stroke-linecap:round}
+.cw-inner{stroke:#c3d9e7;stroke-width:1.25;stroke-dasharray:4 5}
+.cw-fixture{fill:#fff;stroke:#7f9bb1;stroke-width:1.5;stroke-linejoin:round}
+.cw-tap{fill:none;stroke:var(--navy);stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
+.cw-unit{fill:var(--navy)}
+.cw-unit-lines{stroke:var(--cyan);stroke-width:1.5;stroke-linecap:round}
+.cw-pipe{fill:none;stroke:#bfe0f7;stroke-width:5;stroke-linecap:round;stroke-linejoin:round}
+.cw-pipe-raw{stroke:#dbe4ea}
+.cw-flow{fill:none;stroke:var(--blue);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:7 13;animation:flow-dash 1.4s linear infinite}
+.cw-flow-raw{stroke:#8ea7b9;animation-duration:2s}
+.cw-flow-2{animation-delay:-.5s}
+.cw-flow-3{animation-delay:-.9s}
+.cw-label text{font:700 12.5px var(--font-body);fill:var(--muted);letter-spacing:.02em}
+@keyframes flow-dash{to{stroke-dashoffset:-40}}
+
+/* ---------- SERVICES: the three units, photographed ---------- */
+.card.service{padding:0;overflow:hidden}
+.service-art{height:230px;position:relative;background:linear-gradient(150deg,#e9f7ff,#c9e9fa);overflow:hidden}
+.service-art img{width:100%;height:100%;object-fit:cover;object-position:center 60%;transition:transform .8s var(--ease)}
+.card.service:hover .service-art img{transform:scale(1.04)}
+.service-art:after{content:"";position:absolute;inset:auto 0 0;height:50%;background:linear-gradient(transparent,rgba(6,40,74,.12));pointer-events:none}
+.sg-flow{fill:none;stroke:var(--cyan);stroke-width:2.5;stroke-linecap:round;stroke-dasharray:5 11;animation:flow-dash 1.6s linear infinite}
+.sg-flow-drip{fill:none;stroke:var(--cyan);stroke-width:2.5;stroke-linecap:round;stroke-dasharray:3 6;animation:flow-dash 1.2s linear infinite}
+.sg-uv{fill:none;stroke:#8b6cff;stroke-width:3;stroke-linecap:round}
+.sg-uv-glow{fill:none;stroke:#b39cff;stroke-width:9;stroke-linecap:round;opacity:.35;animation:pulse 2.4s ease-in-out infinite}
+.sg-rain{fill:none;stroke:var(--cyan);stroke-width:2;stroke-linecap:round;animation:rain-fall 1.3s linear infinite}
+@keyframes rain-fall{from{transform:translateY(-6px);opacity:0}30%{opacity:1}to{transform:translateY(8px);opacity:0}}
+.service-content{padding:24px 26px 26px}
+.service-content h3{margin-top:0}
+.service-content p{margin-top:8px}
+.service-links{display:flex;gap:8px 18px;flex-wrap:wrap;margin-top:18px}
+.service-links .link{margin-top:0;font-size:12px}
+
+/* ---------- FINDER ---------- */
+.finder{border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.finder-grid{display:grid;grid-template-columns:40% 60%;gap:56px;align-items:center}
+.finder-panel{background:#fff;border:1px solid var(--line);border-radius:var(--r-xl);padding:30px;box-shadow:var(--shadow)}
+.finder-progress{height:5px;background:#e7f1f6;border-radius:99px;overflow:hidden;margin-bottom:26px}
+.finder-progress i{display:block;height:100%;width:100%;transform-origin:left;background:linear-gradient(90deg,var(--blue),var(--cyan));transition:transform .4s var(--ease)}
+.question h3{font-size:23px;margin-bottom:20px}
+.choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.choice{display:flex;align-items:flex-start;gap:12px;border:1px solid var(--line);background:#fff;border-radius:var(--r-md);padding:14px 15px;text-align:left;transition:border-color .25s,background .25s,transform .25s var(--ease),box-shadow .25s;color:var(--ink);min-height:76px}
+.choice>span:last-child{min-width:0}
+.choice:hover{border-color:#7bcaf2;background:#f5fcff;transform:translateY(-2px)}
+.choice.selected{border-color:var(--blue);background:#effaff;box-shadow:inset 0 0 0 1px var(--blue)}
+.choice strong{display:block;font-size:13.5px;margin-bottom:3px;color:var(--navy)}
+.choice small{font-size:11px;color:var(--muted);line-height:1.4}
+.finder-nav{display:flex;justify-content:space-between;align-items:center;margin-top:22px}
+.finder-nav .btn,.finder-nav .link{margin-top:0}
+.finder-count{font-size:11px;color:var(--muted);font-weight:700}
+.finder-result h3{font-size:26px}
+.finder-result p{margin-top:10px;max-width:none}
+.result-badge{position:relative;display:inline-block;background:#e7f8ff;color:var(--blue);padding:7px 12px;border-radius:999px;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px}
+.result-list{margin:18px 0 4px}
+.result-list li{font-size:13px;color:#506a7f;padding:9px 0;border-bottom:1px solid #edf4f8;display:flex;gap:10px;align-items:center}
+.result-list li svg{color:var(--blue);flex-shrink:0}
+
+/* ---------- COMPARE ---------- */
+.compare-scroll{overflow-x:auto;margin-top:-4px;padding-bottom:4px}
+.compare-table{position:relative;display:grid;grid-template-columns:1.3fr repeat(3,1fr);min-width:640px;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:#fff;box-shadow:var(--shadow)}
+.compare-table .row{display:contents}
+.compare-table .row>div{padding:17px 18px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);font-size:13px;display:flex;align-items:center;gap:7px;transition:background .25s}
+.compare-table .row>div:last-child{border-right:0}
+.compare-table .row:last-of-type>div{border-bottom:0}
+.compare-table .row:not(:first-child):hover>div{background:#f6fcff}
+.compare-table .head{background:#f4fbff;font-family:var(--font-display);font-weight:800;font-size:13px;color:var(--navy);letter-spacing:-.01em}
+.compare-table .head svg{color:var(--blue)}
+.compare-table .label{font-weight:700;color:var(--navy)}
+.compare-table .yes{color:var(--blue);font-weight:800}
+.compare-table .yes svg{background:#e7f8ff;border-radius:50%;padding:2px;width:17px;height:17px}
+.compare-table .yes sup{font-size:9px;margin-left:1px}
+.compare-table .no{color:#b3c4d1}
+.compare-table .depends{color:var(--muted);font-weight:700}
+.compare-note{font-size:11px;color:var(--muted);margin-top:14px}
+
+/* ---------- BENEFITS & STEPS ---------- */
+.benefit-row{display:grid;grid-template-columns:repeat(5,1fr)}
+.benefit{padding:4px 26px 4px;border-left:1px solid var(--line);position:relative}
+.benefit:first-child{padding-left:0;border-left:0}
+.benefit h3{font-size:16px;margin-top:16px}
+.benefit p{font-size:12.5px;line-height:1.55;margin-top:8px}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);position:relative}
+.step{padding:0 28px;border-left:1px solid var(--line);position:relative}
+.step:first-child{border-left:0;padding-left:0}
+.step-num{position:relative;width:40px;height:40px;border-radius:50%;background:#fff;color:var(--blue);border:1.5px solid var(--line);display:grid;place-items:center;margin-bottom:18px;transition:background .45s,color .45s,border-color .45s,box-shadow .45s}
+.step-num b{position:absolute;right:-6px;top:-6px;width:18px;height:18px;border-radius:50%;background:var(--navy);color:#fff;font:800 9.5px/18px var(--font-display);text-align:center;transition:background .45s}
+.step h3{font-size:17px}
+.step p{font-size:13px;margin-top:8px}
+
+/* ---------- REVIEWS ---------- */
+.reviews{background:linear-gradient(118deg,#052a45 0%,#0a5266 58%,#0d6e66 100%)}
+.rating{text-align:right;flex-shrink:0}
+.rating-num{font:800 56px/1 var(--font-display);letter-spacing:-.04em;color:#fff}
+.rating .stars{justify-content:flex-end;margin:8px 0 6px}
+.rating small{font-size:12px;color:var(--muted-dark)}
+.stars{display:flex;gap:2px;color:#59d9ff}
+.card.glass{gap:0}
+.card.glass p{color:#e4f4fc;font-size:14px;line-height:1.7;margin:16px 0 18px}
+.card.glass footer{display:flex;gap:8px;align-items:baseline;font-size:12px;margin-top:auto}
+.card.glass footer strong{color:#fff}
+.card.glass footer span{color:#94bed5;display:inline-flex;align-items:center;gap:5px}
+
+/* ---------- AREAS: the map ---------- */
+.map{padding:10px 0}
+.aus-map{width:100%;max-width:520px;margin:auto;filter:drop-shadow(0 20px 24px rgba(18,104,150,.14));overflow:visible}
+.aus-land{fill:#cfe9f8;stroke:#9fd3ef;stroke-width:.5;stroke-linejoin:round}
+.aus-pin{fill:var(--blue)}
+.aus-ping{fill:var(--blue);opacity:.18;transform-box:fill-box;transform-origin:center;animation:ping-svg 2.4s ease-out infinite}
+.aus-city:nth-child(odd) .aus-ping{animation-delay:-1.2s}
+.aus-name{font:700 3.6px var(--font-body);fill:var(--navy)}
+@keyframes ping-svg{0%{transform:scale(.6);opacity:.35}100%{transform:scale(1.6);opacity:0}}
+.city-tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}
+
+/* ---------- GUIDE ---------- */
+.guide{background:linear-gradient(100deg,#fff 20%,#fbf5ec)}
+.guide-card{position:relative;width:min(440px,100%);margin:auto;transform:rotate(-4deg);transition:transform .5s var(--ease);filter:drop-shadow(0 30px 40px rgba(64,40,10,.2))}
+.guide-card:hover{transform:rotate(-2deg) translateY(-6px)}
+.guide-card img{width:100%;height:auto}
+.guide-note{font-size:12px!important;margin-top:14px!important}
+
+/* ---------- FAQ ---------- */
+.faq-list{display:grid;gap:10px}
+.faq-item{border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;background:#fff;transition:box-shadow .3s}
+.faq-item.open{box-shadow:var(--shadow-rest)}
+.faq-q{width:100%;background:#fff;border:0;padding:15px 16px 15px 14px;text-align:left;display:flex;align-items:center;gap:14px;font-weight:800;font-size:15px;color:var(--navy);transition:background .25s}
+.faq-text{flex:1;min-width:0}
+.faq-q:hover{background:var(--section-pale)}
+.faq-toggle{width:28px;height:28px;border-radius:50%;background:#e7f8ff;color:var(--blue);display:grid;place-items:center;flex-shrink:0;transition:transform .3s var(--ease)}
+.faq-item.open .faq-toggle{transform:rotate(45deg)}
+/* opens to its own height via the grid-row trick: no measuring, no max-height guess */
+.faq-a{display:grid;grid-template-rows:0fr;transition:grid-template-rows .35s var(--ease)}
+.faq-item.open .faq-a{grid-template-rows:1fr}
+.faq-a>div{min-height:0;overflow:hidden}
+.faq-a p{padding:0 20px 20px 66px;margin:0;font-size:13.5px;max-width:none}
+
+/* ---------- FINAL CTA ---------- */
+.final-cta{background:linear-gradient(100deg,#dff6ff,#9edfff);overflow:hidden}
+.final-cta:after{content:"";position:absolute;width:500px;height:500px;border-radius:50%;right:-160px;top:-180px;border:80px solid rgba(255,255,255,.2);pointer-events:none}
+.final-cta .split-narrow{grid-template-columns:38fr 62fr;gap:56px;align-items:start}
+.contact-card{background:#fff;border-radius:var(--r-lg);padding:14px;box-shadow:var(--shadow);display:grid;gap:6px;margin-top:28px}
+.contact-row{display:flex;align-items:center;gap:16px;padding:16px 18px;border-radius:var(--r-md);transition:background .25s}
+.contact-row:hover{background:var(--pale)}
+.contact-row>span:nth-child(2){flex:1;min-width:0}
+.contact-row strong{display:block;font-family:var(--font-display);font-weight:800;font-size:18px;letter-spacing:-.02em;color:var(--navy)}
+.contact-row small{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.contact-row>svg{color:var(--muted);flex-shrink:0}
+.contact-icon{width:46px;height:46px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;flex-shrink:0;box-shadow:var(--shadow-btn)}
+.contact-note{font-size:11px;color:var(--muted);padding:6px 18px 8px;max-width:none}
+.contact-note a{color:var(--blue);font-weight:700}
+
+/* ---------- QUOTE FORM ----------
+   The panel is the finder's (same white, radius, shadow, progress bar,
+   choice tiles); the text fields follow DESIGN.md's rule for them: a
+   Waterline border on white, 15px radius, the global focus ring, no
+   inset shadow. */
+.quote-panel{background:#fff;border:1px solid var(--line);border-radius:var(--r-xl);padding:30px;box-shadow:var(--shadow);position:relative}
+.quote-panel .finder-progress{margin-bottom:10px}
+.quote-panel .finder-count{display:block;margin-bottom:22px}
+.quote-title{font-size:24px;margin-bottom:22px}
+.quote-title:focus-visible{outline:none}
+.quote-step{animation:quote-in .35s var(--ease)}
+@keyframes quote-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+body.reduced-motion .quote-step{animation:none}
+.quote-fields{display:grid;grid-template-columns:1fr 1fr;gap:18px 14px}
+.q-field{display:grid;gap:7px;grid-column:1/-1;border:0;padding:0;margin:0;min-width:0}
+.q-field.inline{grid-column:auto}
+.q-field legend{padding:0;margin-bottom:7px;float:left;width:100%}
+.q-field legend+*{clear:both}
+.q-label{font-size:13.5px;font-weight:700;color:var(--navy)}
+.q-optional{font-weight:500;color:var(--muted)}
+.q-hint{font-size:12px;color:var(--muted);line-height:1.5;margin-top:-3px}
+.q-input{width:100%;border:1px solid var(--line);background:#fff;border-radius:15px;padding:13px 16px;font:inherit;font-size:15px;color:var(--ink);transition:border-color .2s,background .2s;-webkit-appearance:none;appearance:none}
+.q-input::placeholder{color:#a3b6c6}
+.q-input:hover{border-color:#7bcaf2}
+.q-input:focus{border-color:var(--blue);background:#fbfeff;outline:none}
+.q-input:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+textarea.q-input{resize:vertical;min-height:88px;line-height:1.5}
+select.q-input{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23668097' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;padding-right:40px}
+.has-error .q-input{border-color:#d64545}
+.q-error{font-size:12px;font-weight:700;color:#c43a3a;line-height:1.4}
+.q-error-block{margin:0 0 14px}
+.q-honey{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+/* the tiles are the finder's choices, with the radio hidden inside the label */
+.q-field .choice{position:relative;display:block;cursor:pointer;margin:0}
+.q-field .choice input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
+.q-field .choice:has(input:focus-visible){outline:3px solid var(--cyan);outline-offset:3px}
+.q-field .choice strong{display:block;font-size:13.5px;margin-bottom:3px;color:var(--navy)}
+.q-field .choice small{font-size:11px;color:var(--muted);line-height:1.4;display:block}
+.choice-grid.compact{grid-template-columns:repeat(3,1fr);gap:8px}
+.choice-grid.compact .choice{min-height:0;padding:13px 14px}
+.choice-grid.compact .choice strong{margin:0;font-size:13px}
+.q-field .choice-grid+.q-input{margin-top:4px}
+.quote-resume{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;background:var(--pale);border:1px solid #cde8f5;border-radius:var(--r-md);padding:14px 16px;margin-bottom:22px;font-size:13px;font-weight:600;color:var(--navy)}
+.quote-resume>div{display:flex;align-items:center;gap:14px}
+.quote-resume .btn,.quote-resume .link{margin-top:0}
+/* the review screen */
+.quote-review{display:grid;gap:14px}
+.quote-review-group{border:1px solid var(--line);border-radius:var(--r-md);padding:16px 18px}
+.quote-review-group header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.quote-review-group h4{font-size:13px;letter-spacing:-.01em}
+.quote-review-group .link{margin-top:0;font-size:12px}
+.quote-review dl,.quote-summary{margin:0;display:grid;gap:6px;font-size:13px}
+.quote-review dl div{display:grid;grid-template-columns:minmax(120px,38%) 1fr;gap:10px}
+.quote-review dt{color:var(--muted)}
+.quote-review dd{margin:0;color:var(--ink);font-weight:600;overflow-wrap:anywhere}
+.quote-review .contact-note{padding:4px 2px 0}
+/* the finished states */
+.quote-done h3{font-size:24px;margin-top:14px}
+.quote-done p{margin-top:12px;max-width:none}
+.quote-done .actions{margin-top:22px}
+.quote-summary{background:var(--section-pale);border:1px solid var(--line);border-radius:var(--r-md);padding:16px 18px;margin-top:18px;color:var(--ink)}
+.quote-done .contact-note{padding:14px 0 0}
+
+/* ---------- SPECS: the datasheet ---------- */
+.specs .split-head>p strong{color:#fff}
+.specs-model{font-family:var(--font-display);letter-spacing:.04em}
+.specs-grid{display:grid;grid-template-columns:.9fr 1.4fr;gap:40px;align-items:start;position:relative}
+.specs-photo{margin:0;position:sticky;top:calc(var(--nav-h) + 24px)}
+.specs-photo img{width:100%;height:auto;border-radius:var(--r-lg);border:1px solid rgba(130,220,255,.2);box-shadow:0 35px 90px rgba(0,0,0,.3)}
+.specs-photo figcaption{font-size:11.5px;color:var(--muted-dark);margin-top:12px;text-align:center}
+.specs-stages{display:grid;gap:14px}
+.specs-stage{background:rgba(255,255,255,.045);border:1px solid rgba(159,222,246,.15);border-radius:22px;padding:24px 26px}
+.specs-stage-head{display:flex;gap:14px;align-items:flex-start}
+.specs-stage h3{font-size:19px;margin-top:6px}
+.specs-stage dl{margin:16px 0 0;display:grid;gap:9px}
+.specs-stage dl div{display:grid;grid-template-columns:86px 1fr;gap:12px;font-size:13px;line-height:1.5}
+.specs-stage dt{color:var(--cyan-text);font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding-top:2px}
+.specs-stage dd{margin:0;color:#e4f4fc}
+.specs-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+.specs-chips li{font-size:11px;font-weight:700;color:#dcefff;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:6px 11px}
+.specs-chips li span{color:var(--muted-dark);font-weight:600}
+.specs-tables{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:40px}
+.specs-table{background:rgba(255,255,255,.045);border:1px solid rgba(159,222,246,.15);border-radius:22px;padding:24px 26px}
+.specs-table h3{font-size:16px;margin-bottom:14px}
+.specs-table dl{margin:0;display:grid}
+.specs-table dl div{display:grid;grid-template-columns:minmax(120px,36%) 1fr;gap:12px;padding:9px 0;border-top:1px solid rgba(255,255,255,.08);font-size:13px;line-height:1.5}
+.specs-table dt{color:var(--muted-dark)}
+.specs-table dd{margin:0;color:#e4f4fc;font-weight:600}
+.specs-assurances{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+.specs-assurances li{display:flex;gap:12px;align-items:flex-start;padding:16px 18px;border-radius:var(--r-md);background:rgba(66,201,255,.08);border:1px solid rgba(66,201,255,.22)}
+.specs-assurances li>div{display:flex;flex-direction:column;gap:3px}
+.specs-assurances strong{color:#fff;font-size:13.5px;letter-spacing:-.01em}
+.specs-assurances span{color:var(--muted-dark);font-size:11.5px}
+.specs-actions{align-items:center}
+.specs-version{margin-left:auto;font-size:11px;color:var(--muted-dark);letter-spacing:.06em;text-transform:uppercase}
+
+/* ---------- INSTALLS: the photo strip ---------- */
+/* the strip's inset matches the container's, and snapping honours it:
+   without scroll-padding the first card snaps to the viewport edge */
+.installs{--strip-inset:max(24px,calc((100vw - 1180px) / 2))}
+.install-strip{overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scroll-padding-inline:var(--strip-inset);scrollbar-width:thin;padding-bottom:12px}
+.install-track{display:flex;gap:16px;width:max-content;padding-inline:var(--strip-inset)}
+.install-shot{margin:0;width:340px;flex:none;scroll-snap-align:start;border-radius:var(--r-lg);overflow:hidden;background:var(--section-pale);border:1px solid var(--line);box-shadow:var(--shadow-rest);transition:transform .45s var(--ease),box-shadow .45s}
+.install-shot:hover{transform:translateY(-6px);box-shadow:var(--shadow)}
+.install-shot img{width:100%;height:400px;object-fit:cover}
+.install-shot figcaption{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:14px 18px;font-size:12px}
+.install-shot strong{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-display);font-weight:800;font-size:13px;color:var(--navy)}
+.install-shot strong svg{color:var(--blue)}
+.install-shot span{display:inline-flex;align-items:center;gap:4px;color:var(--muted)}
+.install-foot{margin-top:22px}
+
+/* ---------- BENEFITS: the partner mark ---------- */
+.benefit-partner{display:inline-flex;align-items:center;gap:8px;margin-top:12px;font-size:11px;font-weight:700;color:var(--muted)}
+.benefit-partner img{height:18px;width:auto;opacity:.85;transition:opacity .2s}
+.benefit-partner:hover img{opacity:1}
+
+/* ---------- FOOTER ---------- */
+.footer{background:var(--floor);color:#fff;padding:70px 0 25px;scroll-snap-align:end}
+.footer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:40px}
+.footer .logo img{height:44px}
+.footer-tagline{margin-top:22px}
+.footer-socials{display:flex;gap:16px}
+.footer-socials a{display:inline;margin:0;font-weight:700}
+.footer h4{font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin:0 0 16px;color:#72d8ff}
+.footer a,.footer p{display:block;font-size:12px;color:#a7c3d6;margin:9px 0;line-height:1.6}
+.footer a:hover{color:#fff}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.12);margin-top:45px;padding-top:20px;display:flex;justify-content:space-between;gap:12px;font-size:11px;color:#7897ac}
+
+/* ---------- MOTION ----------
+   Two hooks, both set once by the page's observer (hooks.js). `.reveal`
+   gets `.visible`: the entrance an element makes on its own. Every
+   section gets `.in-view`: the cue for the pieces inside it to arrive in
+   order, without each needing a class. (The fourteen staged sections use
+   `.is-in` and stages.css instead.) All of it is keyframes with a
+   `backwards` fill rather than transitions, and moves `translate`/`scale`
+   rather than `transform` — so an element's own hover transition and its
+   own transform (the card's lift, the guide's tilt) are left alone, and
+   once the entrance is over the stylesheet's ordinary values simply
+   apply. */
+@keyframes rise{from{opacity:0;translate:0 28px}}
+@keyframes rise-left{from{opacity:0;translate:-44px 0}}
+@keyframes rise-right{from{opacity:0;translate:44px 0}}
+@keyframes zoom-in{from{opacity:0;scale:.94}}
+@keyframes pop{from{opacity:0;scale:.4}}
+@keyframes fade{from{opacity:0}}
+@keyframes grow-x{from{scale:0 1}}
+@keyframes slide-in{from{opacity:0;translate:-14px 0}}
+
+.reveal{opacity:0}
+.reveal.visible{opacity:1;animation:rise .8s var(--ease) var(--delay,0s) backwards}
+.reveal.from-left.visible{animation-name:rise-left}
+.reveal.from-right.visible{animation-name:rise-right}
+.reveal.zoom.visible{animation-name:zoom-in;animation-duration:1s}
+/* a property rather than animation-delay, which the shorthand above would reset */
+.delay1{--delay:.08s}.delay2{--delay:.16s}.delay3{--delay:.24s}.delay4{--delay:.32s}.delay5{--delay:.4s}
+
+/* a block that stays put while its lines arrive one after another:
+   eyebrow, then heading, then the paragraph, then the button */
+.reveal-stagger>*{opacity:0}
+.reveal-stagger.visible>*{opacity:1;animation:rise .7s var(--ease) backwards}
+.reveal-stagger.visible>:nth-child(2){animation-delay:.09s}
+.reveal-stagger.visible>:nth-child(3){animation-delay:.18s}
+.reveal-stagger.visible>:nth-child(4){animation-delay:.27s}
+.reveal-stagger.visible>:nth-child(5){animation-delay:.36s}
+.reveal-stagger.visible>:nth-child(n+6){animation-delay:.45s}
+
+/* Per-section choreography. `--arrived` is the gate: each piece is
+   invisible while its section is still below the fold, and animates from
+   its `from` state to its ordinary one once the section is in view. */
+.section,.hero{--arrived:0}
+.in-view{--arrived:1}
+
+/* the contact card's rows arrive in order. (The fourteen sections between
+   the Lab and the final ask are staged instead: see stages.css.) */
+.contact-row{opacity:var(--arrived)}
+.in-view .contact-row{animation:slide-in .55s var(--ease) .4s backwards}
+.in-view .contact-row:nth-child(2){animation-delay:.52s}
+
+/* the Lab: the frame settles in (.reveal.zoom) and its cards rise; inside
+   them the numbers pop, the system buttons rise one after another, the
+   track draws out and its four stops pop on along it */
+.water-lab .lab-card .kicker,.water-lab .lab-sys,.water-lab .lab-track,.water-lab .lab-stop{opacity:var(--arrived)}
+.in-view .lab-card .kicker{animation:pop .5s cubic-bezier(.34,1.56,.64,1) .3s backwards}
+.in-view .lab-card:nth-child(2) .kicker{animation-delay:.4s}
+.in-view .lab-card:nth-child(3) .kicker{animation-delay:.5s}
+.in-view .lab-sys{animation:rise .5s var(--ease) .45s backwards}
+.in-view .lab-sys:nth-child(2){animation-delay:.53s}
+.in-view .lab-sys:nth-child(3){animation-delay:.61s}
+.in-view .lab-track{animation:grow-x 1s var(--ease) .6s backwards}
+.in-view .lab-stop{animation:pop .45s cubic-bezier(.34,1.56,.64,1) .75s backwards}
+.in-view .lab-stop:nth-child(2){animation-delay:.85s}
+.in-view .lab-stop:nth-child(3){animation-delay:.95s}
+.in-view .lab-stop:nth-child(4){animation-delay:1.05s}
+
+/* the dark sections' glow breathes the way the hero's does */
+.section.dark:before{animation:pulse 10s ease-in-out infinite}
+
+/* ---------- MICRO-INTERACTIONS ---------- */
+.btn svg,.link svg{transition:transform .3s var(--ease)}
+.btn:hover svg,.link:hover svg{transform:translateX(3px)}
+.chip{transition:border-color .25s,color .25s,transform .25s var(--ease)}
+.chip:hover{border-color:var(--blue);color:var(--blue);transform:translateY(-2px)}
+.contact-icon{transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+.contact-row:hover .contact-icon{transform:scale(1.08)}
+.install-shot img{transition:transform .8s var(--ease)}
+.install-shot:hover img{transform:scale(1.04)}
+.faq-item:hover{border-color:#bfe0f7}
+.specs-stage:hover,.specs-table:hover{background:rgba(255,255,255,.07);border-color:rgba(159,222,246,.3)}
+.specs-assurances li:hover{background:rgba(66,201,255,.13);border-color:rgba(66,201,255,.4)}
+
+/* ---------- FIXED CHROME ----------
+   (.scroll-rail, not .progress: the Water Lab has a .progress of its own,
+   the stage timeline, and a page rule for the same name reached into the
+   modal and pulled the stage names out of the play bar.) */
+.cursor-glow{position:fixed;width:240px;height:240px;border-radius:50%;pointer-events:none;background:radial-gradient(circle,rgba(66,201,255,.1),transparent 68%);transform:translate(-50%,-50%);z-index:0;mix-blend-mode:multiply}
+/* The scrollbar. A frosted rail hugging the right edge, so it reads on the
+   dark sections as well as the white ones; the thumb is the brand gradient
+   with a soft glow that deepens under the pointer, and a dot marks every
+   section the nav names. The whole rail rests at low opacity once the page
+   has been still for a moment and comes back on scroll or hover. Only on
+   pointer devices: phones keep their own scrollbar, which suits a thumb. */
+.scroll-rail{position:fixed;top:0;right:0;bottom:0;width:26px;z-index:90;display:none;justify-content:center;padding:14px 0;transition:opacity .5s var(--ease)}
+.scroll-rail.idle{opacity:.28}
+.scroll-rail:hover,.scroll-rail.dragging,.scroll-rail:focus-within{opacity:1}
+.scroll-rail-track{position:relative;width:6px;height:100%;border-radius:999px;background:rgba(255,255,255,.55);border:1px solid rgba(6,40,74,.1);backdrop-filter:blur(10px);box-shadow:0 4px 18px rgba(4,45,78,.1);cursor:pointer;transition:width .28s var(--ease),background .28s}
+.scroll-rail:hover .scroll-rail-track,.scroll-rail.dragging .scroll-rail-track,.scroll-rail:focus-within .scroll-rail-track{width:10px;background:rgba(255,255,255,.72)}
+.scroll-rail-thumb{position:absolute;left:0;right:0;top:0;border-radius:999px;background:linear-gradient(180deg,var(--blue),var(--cyan));box-shadow:0 0 0 1px rgba(255,255,255,.7),0 6px 16px rgba(8,121,232,.28);cursor:grab;will-change:transform;transition:box-shadow .28s var(--ease)}
+.scroll-rail-thumb:hover,.scroll-rail.dragging .scroll-rail-thumb{box-shadow:0 0 0 1px rgba(255,255,255,.8),0 0 0 4px rgba(66,201,255,.22),0 8px 22px rgba(8,121,232,.42)}
+.scroll-rail.dragging .scroll-rail-thumb{cursor:grabbing}
+.scroll-rail.dragging,.scroll-rail.dragging *{user-select:none}
+.scroll-rail-stop{position:absolute;left:50%;width:18px;height:18px;transform:translate(-50%,-50%);border:0;padding:0;background:transparent;display:grid;place-items:center;z-index:1}
+.scroll-rail-stop:before{content:"";width:3px;height:3px;border-radius:50%;background:var(--navy);opacity:.45;transition:transform .25s var(--ease),opacity .25s,background .25s}
+.scroll-rail-stop:hover:before,.scroll-rail-stop:focus-visible:before{opacity:1;transform:scale(1.8);background:var(--navy)}
+.scroll-rail-stop.on:before{opacity:1;transform:scale(1.6);background:#fff;box-shadow:0 0 0 1.5px var(--blue)}
+.scroll-rail-stop:focus-visible{outline:none}
+.scroll-rail-stop span{position:absolute;right:22px;top:50%;transform:translate(6px,-50%);opacity:0;background:var(--navy);color:#fff;font-size:11px;font-weight:700;letter-spacing:.02em;line-height:1;padding:7px 11px;border-radius:8px;white-space:nowrap;pointer-events:none;box-shadow:0 10px 26px rgba(4,45,78,.22);transition:opacity .22s var(--ease),transform .22s var(--ease)}
+.scroll-rail-stop span:after{content:"";position:absolute;left:100%;top:50%;border:5px solid transparent;border-left-color:var(--navy);transform:translateY(-50%)}
+.scroll-rail-stop:hover span,.scroll-rail-stop:focus-visible span{opacity:1;transform:translate(0,-50%)}
+/* while the thumb is being dragged the page follows the pointer directly:
+   no easing, no snapping to pull it back */
+html:has(body.rail-drag){scroll-behavior:auto;scroll-snap-type:none}
+body.menu-open .scroll-rail{opacity:0;pointer-events:none}
+@media (min-width:901px) and (hover:hover){
+  html{scrollbar-width:none}
+  html::-webkit-scrollbar{display:none}
+  .scroll-rail{display:flex}
+}
+.skip-link{position:fixed;left:15px;top:10px;transform:translateY(-150%);background:#fff;color:var(--navy);padding:12px 16px;border-radius:10px;z-index:500;font-weight:800;font-size:12px;box-shadow:var(--shadow);transition:.2s}
+.skip-link:focus{transform:none}
+.utility-bar{position:fixed;left:18px;bottom:18px;z-index:80;display:flex;gap:4px;background:rgba(255,255,255,.92);border:1px solid var(--line);padding:5px;border-radius:999px;box-shadow:0 15px 45px rgba(4,45,78,.14);backdrop-filter:blur(14px)}
+.utility-bar button{border:0;background:transparent;color:var(--navy);width:38px;height:38px;border-radius:50%;display:grid;place-items:center;transition:background .2s}
+.utility-bar button:hover{background:var(--pale)}
+.utility-bar button.on{background:var(--navy);color:#fff}
+.quick-quote{position:fixed;left:50%;bottom:18px;transform:translate(-50%,140%);z-index:70;background:var(--navy);color:#fff;border-radius:999px;padding:7px 8px 7px 18px;display:flex;align-items:center;gap:14px;box-shadow:0 18px 55px rgba(0,30,55,.3);transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.quick-quote.visible{transform:translate(-50%,0)}
+.quick-quote span{font-size:12px;white-space:nowrap}
+.mobile-actions{display:none}
+
+/* reading aids */
+body.easy-read{font-size:17px}
+body.easy-read p{font-size:17px!important;line-height:1.8!important}
+body.easy-read .card p,body.easy-read .benefit p,body.easy-read .step p{font-size:15px!important}
+body.easy-read .navlinks{font-size:15px}
+body.reduced-motion *,body.reduced-motion *:before,body.reduced-motion *:after{animation-duration:.001ms!important;animation-delay:0s!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.001ms!important}
+/* snapping is motion too: a page that pulls itself into place is not a
+   still one, so both reduced-motion switches turn it off */
+html:has(body.reduced-motion){scroll-snap-type:none}
+@media (prefers-reduced-motion:reduce){
+  *,*:before,*:after{animation-duration:.001ms!important;animation-delay:0s!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+  html{scroll-behavior:auto;scroll-snap-type:none}
+  .reveal,.reveal-stagger>*{opacity:1}
+  .section,.hero{--arrived:1}
+}
+
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.75}50%{transform:scale(1.1);opacity:1}}
+@keyframes glow{0%,100%{opacity:.7;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}}
+@keyframes flow{0%{transform:translateY(-30px);opacity:0}30%{opacity:1}100%{transform:translateY(70px);opacity:0}}
+
+/* ============================================================
+   The Water Lab screen. Not a dialog over the page but a page
+   of its own: it covers the viewport edge to edge, arrives the
+   way a route change would, and is left by going Back. The
+   viewer measures itself against whatever hosts it, so its
+   chrome, cards and play bar lay themselves out inside.
+   ============================================================ */
+.viewer-modal{position:fixed;inset:0;z-index:200;background:linear-gradient(140deg,#0b466e,#031827);animation:lab-enter .42s cubic-bezier(.2,.7,.2,1) both}
+.modal-inner{position:absolute;inset:0;overflow:hidden}
+/* The Back control has to beat the viewer's chrome, not just the backdrop. */
+.modal-close{position:absolute;right:16px;top:16px;z-index:5;display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(15,28,51,.12);background:rgba(255,255,255,.85);backdrop-filter:blur(8px);color:var(--navy);border-radius:999px;height:42px;padding:0 18px 0 14px;font-size:13px;font-weight:700;letter-spacing:.01em;line-height:1;box-shadow:0 6px 18px rgba(15,28,51,.14);transition:background .2s,transform .2s}
+.modal-close span{font-size:16px;line-height:1;transition:transform .2s}
+.modal-close:hover{background:#fff;transform:translateY(-1px)}
+.modal-close:hover span{transform:translateX(-3px)}
+.viewer-host{position:absolute;inset:0;z-index:1;overflow:hidden}
+/* ...and the viewer's own header has to keep out from under it. */
+.viewer-host .app header{padding-right:170px}
+/* no scale: r3f sizes the canvas from getBoundingClientRect, which a scaled ancestor would shrink */
+@keyframes lab-enter{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+
+/* the loading state: the concept's pipes-and-canisters animation, doing an honest job */
+.viewer-loading{position:absolute;inset:0}
+.modal-title{position:absolute;left:28px;top:25px;color:white}
+.modal-title small{display:block;color:#5edcff;letter-spacing:.2em;font-size:9px;margin-bottom:8px}
+.modal-title h3{color:#fff}
+.modal-hint{position:absolute;bottom:25px;left:28px;color:#9ec4d9;font-size:11px}
+.filter-machine{position:absolute;width:350px;height:285px;left:50%;top:50%;transform:translate(-50%,-50%) scale(1.3);display:flex;gap:10px;align-items:flex-end;filter:drop-shadow(0 25px 25px rgba(0,30,55,.22))}
+.pipe{position:absolute;border:7px solid #b9edff;border-radius:20px;box-shadow:0 0 14px rgba(90,220,255,.8),inset 0 0 10px rgba(255,255,255,.8)}
+.pipe.top{width:310px;height:100px;left:20px;top:24px;border-bottom:0}.pipe.left{width:55px;height:125px;left:-6px;top:80px;border-right:0}.pipe.right{width:55px;height:125px;right:-6px;top:80px;border-left:0}
+.canister{width:78px;height:220px;border-radius:18px 18px 25px 25px;background:linear-gradient(90deg,rgba(255,255,255,.9),rgba(192,236,255,.3),rgba(255,255,255,.9));border:2px solid rgba(255,255,255,.8);box-shadow:inset 0 0 25px rgba(70,185,238,.3),0 10px 25px rgba(0,45,80,.2);position:relative;z-index:2;overflow:hidden}
+.canister:before{content:"";position:absolute;left:8px;right:8px;bottom:15px;height:62%;border-radius:9px;background:linear-gradient(#4b6777,#1b2e39);opacity:.85}
+.canister:nth-child(2):before{background:linear-gradient(#172f3e,#081a25)}.canister:nth-child(3):before{background:linear-gradient(#bcecff,#35aeea)}.canister:nth-child(4):before{background:linear-gradient(#e8faff,#5fc9f4)}
+.canister:after{content:"";position:absolute;left:10px;right:10px;top:8px;height:15px;border-radius:8px;background:rgba(255,255,255,.9)}
+.flow{position:absolute;width:8px;height:180px;background:linear-gradient(transparent,#54ddff,transparent);filter:blur(1px);animation:flow 2s linear infinite;opacity:.8;z-index:3}.flow.f1{left:79px;top:70px}.flow.f2{left:166px;top:70px;animation-delay:.5s}.flow.f3{left:252px;top:70px;animation-delay:1s}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width:1100px){
+  .benefit-row{grid-template-columns:repeat(3,1fr);row-gap:36px}
+  .benefit:nth-child(4){border-left:0;padding-left:0}
+  .lab-stage{grid-template-columns:1.3fr .9fr}
+}
+
+@media (max-width:900px){
+  :root{--section:84px;--nav-h:58px}
+  .navlinks,.nav-actions{display:none}
+  .menu-btn{display:grid}
+  .nav{padding:0 20px}
+
+  .hero{min-height:auto}
+  .hero-grid{grid-template-columns:minmax(0,1fr);padding:60px 0 460px;gap:20px}
+  .hero-copy h1{max-width:none}
+  /* stack the scrim vertically so the copy at the top stays legible and the
+     product below reads clean */
+  .hero-scrim{background:linear-gradient(180deg,rgba(248,252,255,.94) 0%,rgba(248,252,255,.7) 32%,rgba(248,252,255,.2) 55%,rgba(248,252,255,0) 70%)}
+
+  .split,.split-wide,.split-narrow,.decoder-grid,.finder-grid{grid-template-columns:1fr;gap:44px}
+  .split-head{flex-direction:column;align-items:flex-start;gap:16px}
+  .split-head>p{margin:0}
+  .section-head{margin-bottom:36px}
+
+  .trust-grid{grid-template-columns:1fr 1fr;padding:28px 0;row-gap:24px}
+  .trust{padding:4px 28px}
+  .trust:nth-child(odd){padding-left:0}
+  .trust:nth-child(odd):before{display:none}
+
+  .lab-stage{grid-template-columns:1fr}
+  .lab-visual{height:auto;min-height:440px}
+  .card-grid.three{grid-template-columns:1fr}
+  .benefit-row{grid-template-columns:1fr 1fr}
+  .benefit:nth-child(odd){border-left:0;padding-left:0}
+  .benefit:nth-child(4){border-left:1px solid var(--line);padding-left:26px}
+  .steps{grid-template-columns:1fr 1fr;gap:36px 0}
+  .step:nth-child(3){border-left:0;padding-left:0}
+  .rating{text-align:left}
+  .rating .stars{justify-content:flex-start}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .final-cta .split-narrow{grid-template-columns:1fr}
+  .specs-grid{grid-template-columns:1fr}
+  .specs-photo{position:static;max-width:520px}
+  .specs-assurances{grid-template-columns:1fr 1fr}
+  .installs{--strip-inset:20px}
+
+  /* on a phone the action bar pins the same things to the same edge */
+  .quick-quote,.utility-bar{display:none}
+  .mobile-actions{
+    display:grid;grid-template-columns:1fr 1fr 1.2fr;position:fixed;bottom:0;left:0;right:0;z-index:90;
+    background:rgba(255,255,255,.96);backdrop-filter:blur(15px);border-top:1px solid var(--line);
+    padding:8px 8px calc(8px + env(safe-area-inset-bottom));gap:6px
+  }
+  .mobile-actions a,.mobile-actions button{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;border-radius:var(--r-sm);
+    padding:12px 6px;font-size:12px;font-weight:800;color:var(--navy);background:#eef8fd
+  }
+  .mobile-actions .primary{background:var(--blue);color:#fff}
+  body{padding-bottom:64px}
+}
+
+@media (max-width:560px){
+  :root{--section:72px}
+  .container{width:min(100% - 30px,1180px)}
+  h1:not(.app *){font-size:clamp(40px,11.5vw,52px);letter-spacing:-.03em}
+  h2:not(.app *){font-size:clamp(30px,8.6vw,38px)}
+  .section.feature h2{font-size:clamp(34px,9.6vw,44px)}
+  .lead{font-size:16px}
+  .actions .btn{width:100%;justify-content:center}
+  .mini-trust{gap:12px}
+  .hero-grid{padding:44px 0 380px}
+  .trust-grid{padding:24px 0;row-gap:22px}
+  .trust{padding:2px 18px}
+  .trust-num{font-size:26px}
+  .trust-figure{min-height:30px}
+  .lab-visual{min-height:360px}
+  .lab-tag{left:12px;top:12px}
+  .lab-reset{right:12px;top:12px}
+  .lab-hud{left:12px;bottom:14px;max-width:calc(100% - 24px)}
+  .lab-readout{padding:9px 12px}
+  .lab-readout strong{font-size:13px}
+  .section .lab-open{right:12px;bottom:14px;padding:11px 14px;font-size:12px}
+  .lab-open svg{display:none}
+  .lab-card{padding:18px}
+  .lab-stop-label{font-size:9px}
+  .card-grid.two{grid-template-columns:1fr}
+  .card{padding:22px}
+  .decoder-panel{padding:20px;border-radius:22px}
+  .decoder-top h3{font-size:20px}
+  .decoder-state{display:none}
+  .water-track{height:90px}
+  .water-labels div{font-size:10px}
+  .decoder-answer{display:block}
+  .decoder-cta{margin-top:14px!important;width:100%;justify-content:center}
+  .choice-grid{grid-template-columns:1fr}
+  .choice-grid.compact{grid-template-columns:1fr 1fr}
+  .finder-panel,.quote-panel{padding:22px}
+  .quote-fields{grid-template-columns:1fr}
+  .q-field.inline{grid-column:1/-1}
+  .quote-title{font-size:21px}
+  .quote-review dl div{grid-template-columns:1fr}
+  .specs-tables{grid-template-columns:1fr}
+  .specs-assurances{grid-template-columns:1fr}
+  .specs-stage dl div{grid-template-columns:1fr;gap:2px}
+  .specs-version{margin-left:0;width:100%}
+  .install-shot{width:272px}
+  .install-shot img{height:320px}
+  .installs{--strip-inset:15px}
+  .logo img{height:38px}
+  .compare-scroll{margin-inline:-15px;padding-inline:15px}
+  .compare-scroll:before{content:"Swipe to compare all three systems \2192";display:block;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:10px}
+  .benefit-row{grid-template-columns:1fr;row-gap:26px}
+  .benefit,.benefit:nth-child(4){border-left:0;padding-left:0;padding-top:0}
+  .faq-a p{padding-left:16px}
+  .steps{grid-template-columns:1fr;gap:28px}
+  .step{border-left:0;padding-left:0}
+  .guide-card{width:min(340px,100%)}
+  .contact-card{padding:10px}
+  .contact-row{padding:14px}
+  .contact-row strong{font-size:15px;overflow-wrap:anywhere}
+  .footer-grid{grid-template-columns:1fr;gap:28px}
+  .footer-bottom{flex-direction:column;gap:8px}
+  .section-head p,.section p{max-width:none}
+}
+
+/* On a phone the Back control drops its label; the arrow alone is the
+   convention there, and the viewer's header needs the width. */
+@media (max-width:760px){
+  .modal-close{right:12px;top:12px;height:38px;width:38px;padding:0;justify-content:center;font-size:0;gap:0}
+  .modal-close span{font-size:18px}
+  .viewer-host .app header{padding-right:60px}
+}

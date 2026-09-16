@@ -3,12 +3,14 @@
 // components read all of their strings from this file. The matching
 // geometry (camera views, focus points, water paths) is in three/systems.js.
 //
-// The wording is the client's own, taken from purewaterfiltration.com.au:
-// the product tiles on the home page, each product page, and the two
-// blog posts that walk through a unit stage by stage ("How Whole-House
-// Water Filtration Systems Work" and "Reverse Osmosis Water Filters
-// Explained"). Where a card needed a sentence trimmed to fit, the words
-// are still theirs.
+// The wording is the client's own. The whole-house stages come from their
+// Whole Home Filtration System Technical Datasheet (V1.0, 2025) — see
+// data/datasheet.js for the full sheet. The under-sink and rainwater stages
+// come from purewaterfiltration.com.au: the product tiles on the home page,
+// each product page, and the two blog posts that walk through a unit stage
+// by stage ("How Whole-House Water Filtration Systems Work" and "Reverse
+// Osmosis Water Filters Explained"). Where a card needed a sentence trimmed
+// to fit, the words are still theirs.
 // ============================================================
 
 export const STAGE_ORDER = ['sediment', 'carbon', 'ro', 'tap']
@@ -29,28 +31,30 @@ export const STAGE_ORDER = ['sediment', 'carbon', 'ro', 'tap']
  */
 
 export const STAGE_DATA_BY_SYSTEM = {
-  // blog: "The three core stages"
+  // datasheet: "How Your System Protects Every Tap", stages 1–3
   whole: {
     sediment: {
-      title: 'Sediment Filtration',
-      desc: 'Catches the visible stuff — rust flakes, sand and grit — down to about 5 microns, so the carbon filter behind it doesn’t clog prematurely.',
+      title: 'Sediment & Pre-Filtration',
+      desc: 'A 3-layer polypropylene cartridge rated to 1 micron: coarse particles are trapped on the outer layer and finer sediment toward the core, protecting plumbing, appliances and the filters behind it.',
       action: 'Catches',
       tone: 'grit',
-      removes: ['Rust flakes', 'Sand', 'Grit'],
+      removes: ['Rust', 'Silt & sand', 'Pipe flakes', 'Microplastics'],
     },
     carbon: {
-      title: 'Carbon Block Filtration',
-      desc: 'The filter doing most of the taste, smell and chemistry work: activated carbon grabs hold of chlorine, chloramines and dissolved organics.',
+      title: 'Chemical & Metal Filtration',
+      desc: 'KDF-55 copper–zinc alloy converts free chlorine into chloride and binds dissolved metals like lead and copper; the coconut carbon block behind it adsorbs chloramines, PFAS, VOCs and pesticides.',
       action: 'Reduces',
       tone: 'chlorine',
-      removes: ['Chlorine', 'Chloramines', 'Dissolved organics'],
+      removes: ['Chlorine', 'Chloramines', 'Heavy metals', 'PFAS'],
     },
+    // the scene's third stage reshapes a mineral blob rather than removing
+    // one — which is what salt-free anti-scale media actually does
     ro: {
-      title: 'Carbon Polish',
-      desc: 'A second carbon polish gives the water extra contact time with activated carbon, catching any remaining traces of chlorine and odour.',
-      action: 'Catches',
-      tone: 'chlorine',
-      removes: ['Chlorine traces', 'Odour', 'Dissolved organics'],
+      title: 'Scale Reduction & Carbon Polish',
+      desc: 'Salt-free anti-scale media turns calcium and magnesium into microscopic crystals that stay suspended instead of sticking to surfaces, and a final coconut carbon layer polishes taste and odour.',
+      action: 'Reduces',
+      tone: 'mineral',
+      removes: ['Limescale', 'Calcium', 'Magnesium'],
     },
     tap: {
       title: 'Every Tap and Shower',
@@ -128,13 +132,24 @@ export const SITE = 'https://purewaterfiltration.com.au'
 
 /**
  * The site's two calls to action, paired the way it pairs them everywhere:
- * ask for a quote, or ring. Its "Instant Quote" button opens a form rather
- * than a page, so the contact page is the nearest thing to link to.
+ * ask for a quote, or ring. The quote form lives on this page at #contact.
  */
 export const CTA = {
-  quote: { label: 'Instant quote', href: `${SITE}/contact` },
+  quote: { label: 'Instant quote', href: '#contact' },
   phone: { label: '1300 720 031', href: 'tel:1300720031' },
+  email: { label: 'admin@purewaterfiltration.com.au', href: 'mailto:admin@purewaterfiltration.com.au' },
   learnMore: 'Learn more',
+}
+
+/** The business's contact details, as published on its site. */
+export const CONTACT = {
+  address: ['34 Welshpool Road', 'Welshpool, WA'],
+  mapsUrl: 'https://maps.app.goo.gl/vi7qyCHqfiCL5Ckj9',
+  hours: { weekdays: 'Mon – Fri: 8am – 4pm', weekends: 'Closed weekends' },
+  socials: [
+    { label: 'Facebook', href: 'https://www.facebook.com/profile.php?id=61566833481984' },
+    { label: 'Instagram', href: 'https://www.instagram.com/purewaterfiltration' },
+  ],
 }
 
 export const SYSTEM_DATA = {
@@ -147,14 +162,15 @@ export const SYSTEM_DATA = {
     placement:
       'Plumbed into the mains line where the water enters your home — typically near the water meter or against an external wall.',
     /**
-     * The figures the site itself puts on this product, for the facts card.
-     * Nothing here is a claim the site does not make: the client publishes
-     * no spend, savings or bottle counts, so the cards carry none.
+     * The figures the client publishes on this product, for the facts card —
+     * here from the technical datasheet. Nothing here is a claim they do not
+     * make: they publish no spend, savings or bottle counts, so the cards
+     * carry none.
      */
     facts: [
-      { value: '5 micron', text: 'Sediment filter catches rust, sand and grit' },
-      { value: '3 stages', text: 'Sediment, carbon block, carbon polish' },
-      { value: '6–12 months', text: 'Between filter changes' },
+      { value: '1 micron', text: 'Sediment cartridge catches rust, silt, sand and pipe flakes' },
+      { value: '3 stages', text: 'Sediment, KDF-55 + carbon, scale reduction' },
+      { value: '12 months', text: 'Recommended filter change (18 months max)' },
     ],
     learnMore: `${SITE}/blog/how-whole-house-water-filtration-works`,
   },
@@ -231,12 +247,12 @@ export const STAGE_DOT_LABELS = {
 
 /**
  * Where a system's stage is not the default one, the word the bar shows for
- * it instead: the whole-house unit's third cartridge is a carbon polish, the
+ * it instead: the whole-house unit's third cartridge is scale reduction, the
  * rainwater unit has no carbon stage at all, and the third stage is a
  * membrane for one and a UV lamp for another.
  */
 export const STAGE_DOT_OVERRIDES = {
-  whole: { ro: 'Polish' },
+  whole: { ro: 'Scale' },
   undersink: { ro: 'RO' },
   rain: { carbon: 'Multi-stage', ro: 'UV' },
 }

@@ -21,3 +21,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local environment (the quote endpoint key lives here)
+.env
+.env.local
+.env.*.local
+
+# Full-size texture sources (Poly Haven EXRs, ~90 MB); the baked WebPs in src/assets/textures are what ships
+textures-src

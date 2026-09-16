@@ -10,7 +10,7 @@
    itself the right shape. See the RESPONSIVE section at the end.
    ============================================================ */
 
-:root{
+.app{
   --bg:#eef1f5;
   --bg-2:#f8f9fb;
   /* the same colour as channels, for the chrome scrim to fade out of */
@@ -52,19 +52,19 @@
 .app[data-system="undersink"]{--accent:#17B3C6; --accent-rgb:23,179,198;}
 .app[data-system="rain"]{--accent:#2FB872; --accent-rgb:47,184,114;}
 
-*{box-sizing:border-box; margin:0; padding:0;}
-html,body,#root{height:100%;}
-body{
+.app, .app *{box-sizing:border-box; margin:0; padding:0;}
+/* the page that hosts the viewer owns html/body; see site/styles/site.css */
+.app{
   font-family:'Inter',sans-serif;
   background:var(--bg);
   color:var(--ink);
   overflow:hidden;
-  /* the whole app is one fixed screen: no rubber-banding behind it */
-  overscroll-behavior:none;
+  /* the viewer is one fixed screen: no rubber-banding inside it */
+  overscroll-behavior:contain;
   -webkit-font-smoothing:antialiased;
 }
-h1,h2,h3,.display{font-family:'Space Grotesk',sans-serif;}
-button{font-family:inherit; cursor:pointer; border:none; background:none; color:inherit;}
+.app h1,.app h2,.app h3,.app .display{font-family:'Space Grotesk',sans-serif;}
+.app button{font-family:inherit; cursor:pointer; border:none; background:none; color:inherit;}
 
 /**
  * Present to a screen reader, absent to the eye. Used by content that exists
@@ -87,7 +87,7 @@ button{font-family:inherit; cursor:pointer; border:none; background:none; color:
  * (see hooks/useUiInsets) rather than against the layout's leftovers.
  */
 .app{
-  height:100vh;
+  height:100%;
   display:grid; grid-template-rows:1fr; overflow:hidden;
   background:
     radial-gradient(ellipse 1100px 700px at 62% 42%, #ffffff 0%, rgba(255,255,255,0) 65%),
@@ -96,36 +96,29 @@ button{font-family:inherit; cursor:pointer; border:none; background:none; color:
     linear-gradient(180deg, var(--bg-2), var(--bg));
 }
 /**
- * 100vh on a phone is the height the page would have with the browser toolbar
- * retracted, and it keeps that value while the toolbar is on screen — which
- * here is always, because the app never scrolls. That pushes the play bar
- * below the fold by the height of the toolbar. dvh is the height actually
- * visible right now.
- *
- * This has to be an @supports block rather than a second `height` on .app:
- * the CSS minifier collapses a duplicated property to the winning one, so the
- * 100vh fallback does not survive `vite build`.
+ * The viewer fills whatever hosts it — the Water Lab modal on the marketing
+ * page, or any full-height element elsewhere — rather than measuring the
+ * viewport itself. The host owns the awkward part (a phone's 100vh includes
+ * the retracted browser toolbar, so the modal uses dvh); everything in here
+ * only has to be the right shape inside the box it is given.
  */
-@supports (height:100dvh){
-  .app{height:100dvh;}
-}
 
 /* ---------- HEADER ---------- */
-header{
+.app header{
   display:flex; align-items:flex-start; justify-content:space-between; gap:14px;
   padding:18px var(--gutter-r) 12px var(--gutter-l);
   flex-shrink:0;
 }
 /* lets the title column shrink instead of shoving the button off the edge */
-header > div{min-width:0;}
+.app header > div{min-width:0;}
 .brand{
   display:inline-flex; align-items:center; gap:7px; color:var(--navy);
   font-size:10.5px; font-weight:800; letter-spacing:0.12em; text-transform:uppercase;
   margin-bottom:8px;
 }
 .brand em{font-style:normal; font-weight:500; letter-spacing:0.22em; opacity:0.8;}
-header h1{font-size:19px; font-weight:600; letter-spacing:-0.01em; overflow-wrap:break-word;}
-header p{font-size:12.5px; color:var(--ink-dim); margin-top:4px; max-width:520px; line-height:1.5;}
+.app header h1{font-size:19px; font-weight:600; letter-spacing:-0.01em; overflow-wrap:break-word;}
+.app header p{font-size:12.5px; color:var(--ink-dim); margin-top:4px; max-width:520px; line-height:1.5;}
 /* One rule for both header actions, rather than a copy each: the phone
    button is the quote button with a number in it, and sharing the
    declaration is what stops the two drifting apart. */
@@ -151,7 +144,7 @@ header p{font-size:12.5px; color:var(--ink-dim); margin-top:4px; max-width:520px
 .call-btn svg{width:13px; height:13px;}
 
 /* ---------- MAIN LAYOUT ---------- */
-main{
+.app main{
   grid-area:1/1;
   position:relative; min-height:0; min-width:0;
 }
@@ -174,19 +167,6 @@ main{
   pointer-events:none;
 }
 .chrome a, .chrome button{pointer-events:auto;}
-/* A scrim, not a bar: the page colour at the top fading out by the foot of
-   the rail, so the title stays readable once the camera flies in and the
-   grass runs up behind it — without rebuilding the solid header this ticket
-   just deleted. */
-.chrome::before{
-  content:''; position:absolute; inset:0; z-index:-1;
-  background:linear-gradient(
-    180deg,
-    rgba(var(--bg-2-rgb),0.94) 0%,
-    rgba(var(--bg-2-rgb),0.72) 42%,
-    rgba(var(--bg-2-rgb),0) 100%
-  );
-}
 .chrome-row{
   display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
   padding-right:var(--gutter-r);
@@ -199,15 +179,19 @@ main{
 }
 .side-btn{
   display:flex; flex-direction:column; align-items:center; gap:6px;
-  padding:10px 6px; border-radius:12px; width:72px;
-  transition:background 0.2s ease;
+  padding:8px 6px; border-radius:12px; width:72px;
+  background:rgba(255,255,255,0.62); backdrop-filter:blur(8px);
+  border:1px solid rgba(15,28,51,0.06);
+  transition:background 0.2s ease, border-color 0.2s ease;
 }
+.side-btn:hover{background:rgba(255,255,255,0.8);}
+.side-btn.active{border-color:rgba(var(--accent-rgb),0.35);}
 .side-btn .ico{
   width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center;
-  border:1px solid var(--line); background:rgba(255,255,255,0.75); color:var(--ink-dim);
+  border:1px solid var(--line); background:rgba(255,255,255,0.9); color:var(--ink-dim);
   transition:all 0.25s ease;
 }
-.side-btn span{font-size:9.5px; color:var(--ink-dim); font-weight:600; text-align:center; line-height:1.2;}
+.side-btn span{font-size:9.5px; color:var(--ink); font-weight:600; text-align:center; line-height:1.2;}
 .side-btn:hover .ico{border-color:rgba(var(--accent-rgb),0.5); color:var(--accent);}
 .side-btn.active .ico{
   border-color:transparent; background:var(--accent); color:var(--accent-ink);
@@ -279,6 +263,63 @@ main{
   max-height:76%; overflow-y:auto; overscroll-behavior:contain;
   transition:opacity 0.35s ease, transform 0.35s ease;
 }
+/* The right-hand column: the stage card with the figures beneath it. One
+   flex column between the header and the play bar, so the two can never
+   overlap however long the stage copy runs — the stage card gives way and
+   scrolls, the figures keep their height. */
+.card-column{
+  position:absolute; z-index:5;
+  top:calc(var(--ui-top) + 14px); bottom:calc(var(--ui-bottom) + 10px);
+  right:calc(var(--ui-right) + 24px); width:236px;
+  display:flex; flex-direction:column; gap:10px; pointer-events:none;
+}
+.card-column .float-card{position:relative; top:auto; right:auto; bottom:auto; left:auto; width:auto;}
+.card-column .card-detail{flex:0 1 auto; min-height:0; max-height:none;}
+.card-column .card-stats{flex-shrink:0;}
+
+/* The figures, under the stage card in the same column. Three rows of a
+   label and its numbers; the panel is the facts card's, so the four cards
+   on screen read as one set. Hidden where the column has no room for both
+   (see RESPONSIVE); the phone folds it into the sheet. */
+.card-stats{
+  bottom:calc(var(--ui-bottom) + 10px); right:calc(var(--ui-right) + 24px);
+  width:236px;
+}
+.card-stats{pointer-events:auto; padding-top:12px; padding-bottom:12px;}
+.stats-toggle{
+  display:grid; grid-template-columns:1fr auto; column-gap:8px; align-items:center;
+  width:100%; text-align:left; padding:2px 0;
+}
+.stats-toggle .fc-label{margin-bottom:0;}
+.stats-summary{grid-column:1; font-size:11px; color:var(--ink); line-height:1.35; margin-top:5px;}
+.stats-chevron{grid-column:2; grid-row:1 / span 2; color:var(--ink-dim); transition:transform 0.25s ease;}
+.card-stats.open .stats-chevron{transform:rotate(180deg);}
+.card-stats.open .stats-toggle{margin-bottom:8px;}
+.stats-toggle:hover .fc-label, .stats-toggle:hover .stats-chevron{color:var(--accent);}
+.stat-row{padding:8px 0; border-top:1px solid var(--line);}
+.card-stats .stat-row:first-of-type{padding-top:10px;}
+.card-detail .stat-row:first-of-type{border-top:0; padding-top:0;}
+.stat-label{font-size:9.5px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-dim); margin-bottom:5px;}
+.stat-pair, .stat-triplet{display:flex; align-items:flex-end; gap:12px;}
+.stat-triplet{justify-content:space-between; gap:8px;}
+.stat-pair > span, .stat-triplet > span{display:flex; flex-direction:column; min-width:0;}
+.stat-pair b, .stat-triplet b{
+  font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:600; line-height:1.15;
+  color:var(--ink); font-variant-numeric:tabular-nums; white-space:nowrap;
+}
+.stat-triplet b{font-size:13px;}
+.stat-pair small, .stat-triplet small{font-size:9.5px; color:var(--ink-dim); line-height:1.3;}
+.stat-before{color:#c2761c;}
+.stat-after{color:#1f9a63;}
+.stat-saving{
+  margin-left:auto; align-self:center; font-size:10px; font-weight:700; white-space:nowrap;
+  color:var(--accent); background:rgba(var(--accent-rgb),0.12); padding:4px 8px; border-radius:6px;
+}
+.stat-note{font-size:9.5px; color:var(--ink-dim); margin-top:8px; padding-top:8px; border-top:1px solid var(--line);}
+/* inside the phone sheet the rows tighten to the sheet's scale */
+.card-detail .stat-row{padding:6px 0;}
+.card-detail .stat-note{margin-top:4px;}
+
 .card-detail .fc-eyebrow{font-size:10px; color:var(--accent); font-weight:700; margin-bottom:4px; letter-spacing:0.06em;}
 .card-detail h3{font-size:16px; font-weight:600; margin-bottom:8px;}
 .card-detail p{font-size:12px; line-height:1.55; color:var(--ink-dim); margin-bottom:12px;}
@@ -339,7 +380,7 @@ main{
   max-width:100%;
   background:var(--panel); backdrop-filter:blur(14px);
   border:1px solid var(--panel-border);
-  border-radius:999px; padding:8px 12px 8px 8px;
+  border-radius:999px; padding:8px 14px 8px 8px;
   box-shadow:var(--shadow);
 }
 .play-btn{
@@ -394,7 +435,7 @@ main{
    the marker sits at the button's left edge, lifted onto the track line
    (8px slider padding + half the 4px track), and the name is centred in the
    stretch. The live stage is the one the playhead is inside. */
-.progress-stages{position:relative; height:13px; z-index:1;}
+.progress-stages{position:relative; height:14px; z-index:1;}
 .progress-stage{
   position:absolute; top:0; height:100%;
   display:flex; align-items:flex-end; justify-content:center;
@@ -416,7 +457,7 @@ main{
 }
 .progress-label{
   display:block; max-width:100%;
-  font-size:10px; font-weight:600; line-height:1; color:var(--ink-dim);
+  font-size:10px; font-weight:600; line-height:1; color:var(--ink);
   white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   transition:color 0.25s ease;
 }
@@ -447,7 +488,8 @@ main{
 /* --- cards: one size down --- */
 @media (max-width:1180px){
   .card-facts, .card-why{width:168px; padding:13px 15px;}
-  .card-detail{width:212px; padding:14px 16px;}
+  .card-column{width:212px;}
+  .card-detail, .card-stats{width:212px; padding:14px 16px;}
   .fact-row b{font-size:15px;}
   .card-why .fact-row b{font-size:12.5px;}
   .card-detail h3{font-size:15px;}
@@ -457,14 +499,14 @@ main{
        anchors, which a 900px-tall laptop does not have. Pull each card
        towards its own edge first... --- */
 @media (max-height:900px){
-  .card-facts, .card-detail{top:calc(var(--ui-top) + 8px);}
-  .card-why{bottom:calc(var(--ui-bottom) + 6px);}
+  .card-facts, .card-detail, .card-column{top:calc(var(--ui-top) + 8px);}
+  .card-why, .card-stats, .card-column{bottom:calc(var(--ui-bottom) + 6px);}
 }
 
 /* --- ...and only once even that will not fit, drop the lower one. It is
        the secondary card; facts and detail carry the product. --- */
 @media (max-width:900px), (max-height:780px){
-  .card-why{display:none;}
+  .card-why, .card-stats{display:none;}
   /* the number goes to the header rather than off the page entirely */
   .call-btn{display:inline-flex;}
 }
@@ -475,7 +517,7 @@ main{
      chrome column and Reset view drops to its own line beneath. */
   /* first-paint seeds again: no rail down the side, a taller band across the
      top. Measured over within a frame. */
-  :root{--ui-left:0px; --ui-top:150px;}
+  .app{--ui-left:0px; --ui-top:150px;}
   .chrome-row{flex-direction:column; align-items:stretch;}
   .view-controls{align-self:flex-end;}
   .sidebar{
@@ -488,7 +530,7 @@ main{
     flex:1 1 0; min-width:0; width:auto; max-width:190px;
     flex-direction:row; justify-content:flex-start; align-items:center; gap:8px;
     padding:7px 11px; border-radius:11px;
-    border:1px solid var(--line); background:rgba(255,255,255,0.55);
+    border:1px solid var(--line); background:rgba(255,255,255,0.78);
   }
   .side-btn .ico{width:28px; height:28px; border-radius:9px; flex-shrink:0;}
   .side-btn .ico svg{width:15px; height:15px;}
@@ -496,14 +538,14 @@ main{
     font-size:10.5px; text-align:left; min-width:0;
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
-  .side-btn.active{border-color:rgba(var(--accent-rgb),0.45); background:rgba(var(--accent-rgb),0.10);}
+  .side-btn.active{border-color:rgba(var(--accent-rgb),0.45); background:rgba(255,255,255,0.92);}
   .side-btn.active .ico{box-shadow:0 4px 10px rgba(var(--accent-rgb),0.30);}
 }
 
 /* --- play bar: fixed timeline -> fluid --- */
 @media (max-width:760px){
   /* shorter bar, so the cards above it can sit lower */
-  :root{--playbar-h:calc(80px + env(safe-area-inset-bottom));}
+  .app{--playbar-h:calc(80px + env(safe-area-inset-bottom));}
   .playbar-wrap{padding:0 12px calc(14px + env(safe-area-inset-bottom));}
   .playbar{width:100%; max-width:460px; gap:10px; padding:7px 12px 7px 7px;}
   .progress{flex:1 1 auto; width:auto; min-width:120px;}
@@ -516,9 +558,9 @@ main{
        Two 150px cards either side of a ~360px canvas leaves them almost
        touching, and the taller one has nowhere to grow. --- */
 @media (max-width:620px){
-  header{padding:13px var(--gutter-r) 9px var(--gutter-l); gap:10px;}
-  header h1{font-size:16px;}
-  header p{
+  .app header{padding:13px var(--gutter-r) 9px var(--gutter-l); gap:10px;}
+  .app header h1{font-size:16px;}
+  .app header p{
     font-size:11.5px; margin-top:3px;
     display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
   }
@@ -604,11 +646,11 @@ main{
 
 /* --- narrowest phones --- */
 @media (max-width:400px){
-  :root{
+  .app{
     --gutter-l:max(14px, env(safe-area-inset-left));
     --gutter-r:max(14px, env(safe-area-inset-right));
   }
-  header h1{font-size:15px;}
+  .app header h1{font-size:15px;}
   .brand{font-size:9.5px;}
   .browse-btn, .call-btn{font-size:11px; padding:7px 11px;}
   .sidebar{
@@ -643,9 +685,9 @@ main{
        so the chrome gives it back to the canvas. Last block in the file
        so it wins wherever it overlaps the ones above. --- */
 @media (max-height:560px){
-  header{padding:9px var(--gutter-r) 5px var(--gutter-l);}
-  header h1{font-size:15.5px;}
-  header p{display:none;}
+  .app header{padding:9px var(--gutter-r) 5px var(--gutter-l);}
+  .app header h1{font-size:15.5px;}
+  .app header p{display:none;}
   .brand{font-size:9.5px; margin-bottom:4px;}
   .sidebar{padding-top:0; padding-bottom:6px;}
   .side-btn{padding:5px 10px;}
@@ -660,7 +702,7 @@ main{
   }
   .detail-actions a{font-size:10px; padding:5px 8px;}
   /* everything shrinks when there is no height to spare */
-  :root{--playbar-h:calc(64px + env(safe-area-inset-bottom));}
+  .app{--playbar-h:calc(64px + env(safe-area-inset-bottom));}
   .playbar-wrap{padding-bottom:calc(9px + env(safe-area-inset-bottom));}
   .playbar{padding:5px 10px 5px 5px; gap:8px;}
   .play-btn{width:30px; height:30px;}
