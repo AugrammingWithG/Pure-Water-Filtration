@@ -1,36 +1,39 @@
 /**
- * Bake the hero wall's stucco maps from Poly Haven's 4k EXR set.
+ * Bake a Poly Haven 4k EXR PBR set down to the three WebP maps the hero
+ * room's surfaces use.
  *
- *   node scripts/bake-stucco.mjs [source-dir] [out-dir] [size]
+ *   node scripts/bake-pbr-set.mjs <set> [size]
  *
- * Defaults: textures-src/white-stucco → src/assets/textures/stucco, 1024.
+ * where <set> is a key of SETS below (`stucco` for the wall, `floor` for the
+ * tiles) and size defaults to 1024.
  *
- * The source is white_stucco (CC0, https://polyhaven.com/a/white_stucco),
- * seven 4096² EXRs totalling 88 MB. The wall wants three of them, and none
- * at anything like that size: the tile covers 2 m of wall, the hero shows
- * about 4.5 m of it across ~1400 px, so a 1k tile is already at texel
- * density on a 1.5-dpr screen. Each map is box-filtered down (4×4 texels
- * per output texel at 1k — an exact average, no ringing) and written as an
- * 8-bit WebP:
+ * Both sources are CC0 from Poly Haven — white_stucco
+ * (https://polyhaven.com/a/white_stucco) and brown_floor_tiles
+ * (https://polyhaven.com/a/brown_floor_tiles) — seven 4096² EXRs each,
+ * ~90 MB a set. A surface wants three of them, and none at anything like
+ * that size: the stucco tile covers 2 m of wall and the hero shows about
+ * 4.5 m of it across ~1400 px, so a 1k tile is already at texel density on
+ * a 1.5-dpr screen; the floor tile covers 1.7 m and is seen foreshortened,
+ * so the same holds. Each map is box-filtered down (4×4 texels per output
+ * texel at 1k — an exact average, no ringing) and written as an 8-bit WebP:
  *
- *  - diff → white-stucco-diff.webp, sRGB-encoded so it can be read back as
- *    a colour map (`colorSpace = SRGBColorSpace`).
- *  - nor_gl → white-stucco-nor.webp, kept linear and renormalised after
- *    the filter (averaging unit vectors shortens them). OpenGL convention,
- *    which is what three expects; the _dx file is the same map with Y
- *    flipped.
- *  - arm → white-stucco-arm.webp, kept linear. Three reads aoMap from R,
- *    roughnessMap from G and metalnessMap from B, which is exactly Poly
- *    Haven's ARM packing, so one texture serves all three slots.
+ *  - diff → *-diff.webp, sRGB-encoded so it can be read back as a colour
+ *    map (`colorSpace = SRGBColorSpace`).
+ *  - nor_gl → *-nor.webp, kept linear and renormalised after the filter
+ *    (averaging unit vectors shortens them). OpenGL convention, which is
+ *    what three expects; the _dx file is the same map with Y flipped.
+ *  - arm → *-arm.webp, kept linear. Three reads aoMap from R, roughnessMap
+ *    from G and metalnessMap from B, which is exactly Poly Haven's ARM
+ *    packing, so one texture serves all three slots.
  *
- * disp is left out: displacement on a flat wall facing the camera buys
- * nothing the normal map doesn't, and would need the plane tessellated.
- * ao and rough are the R and G channels of arm and aren't needed on their
- * own.
+ * disp is left out: displacement on a flat plane buys nothing the normal
+ * map doesn't, and would need the plane tessellated. ao and rough are the
+ * R and G channels of arm and aren't needed on their own.
  *
- * WebP is lossy at the qualities used; on stucco (already noise) the
- * artefacts are invisible, and the normal map gets the higher quality
- * because it is the one place blocking would show as a lighting seam.
+ * WebP is lossy at the qualities used; on stucco (already noise) and worn
+ * terracotta the artefacts are invisible, and the normal map gets the
+ * higher quality because it is the one place blocking would show as a
+ * lighting seam — on the floor, along the grout lines.
  *
  * Decoding is three's own EXRLoader (pure JS, handles the DWAA
  * compression these files use); encoding is sharp, already a devDependency.
@@ -42,17 +45,34 @@ import sharp from 'sharp'
 import { FloatType } from 'three'
 import { EXRLoader } from 'three/addons/loaders/EXRLoader.js'
 
-const [
-  sourceDir = 'textures-src/white-stucco',
-  outDir = 'src/assets/textures/stucco',
-  sizeArg = '1024',
-] = process.argv.slice(2)
+const SETS = {
+  stucco: {
+    sourceDir: 'textures-src/white-stucco',
+    outDir: 'src/assets/textures/stucco',
+    prefix: 'white_stucco',
+    out: 'white-stucco',
+  },
+  floor: {
+    sourceDir: 'textures-src/floor',
+    outDir: 'src/assets/textures/floor',
+    prefix: 'brown_floor_tiles',
+    out: 'brown-floor-tiles',
+  },
+}
+
+const [setName, sizeArg = '1024'] = process.argv.slice(2)
+const set = SETS[setName]
+if (!set) {
+  console.error(`usage: node scripts/bake-pbr-set.mjs <${Object.keys(SETS).join('|')}> [size]`)
+  process.exit(1)
+}
+const { sourceDir, outDir, prefix, out } = set
 const SIZE = Number(sizeArg)
 
 const MAPS = [
-  { file: 'white_stucco_diff_4k.exr', out: 'white-stucco-diff.webp', srgb: true, normal: false, quality: 86 },
-  { file: 'white_stucco_nor_gl_4k.exr', out: 'white-stucco-nor.webp', srgb: false, normal: true, quality: 92 },
-  { file: 'white_stucco_arm_4k.exr', out: 'white-stucco-arm.webp', srgb: false, normal: false, quality: 86 },
+  { file: `${prefix}_diff_4k.exr`, out: `${out}-diff.webp`, srgb: true, normal: false, quality: 86 },
+  { file: `${prefix}_nor_gl_4k.exr`, out: `${out}-nor.webp`, srgb: false, normal: true, quality: 92 },
+  { file: `${prefix}_arm_4k.exr`, out: `${out}-arm.webp`, srgb: false, normal: false, quality: 86 },
 ]
 
 function decode(file) {

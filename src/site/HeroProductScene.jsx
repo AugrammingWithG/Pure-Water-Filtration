@@ -12,6 +12,9 @@ import { SYSTEMS } from '../three/systems'
 import stuccoDiffUrl from '../assets/textures/stucco/white-stucco-diff.webp'
 import stuccoNorUrl from '../assets/textures/stucco/white-stucco-nor.webp'
 import stuccoArmUrl from '../assets/textures/stucco/white-stucco-arm.webp'
+import floorDiffUrl from '../assets/textures/floor/brown-floor-tiles-diff.webp'
+import floorNorUrl from '../assets/textures/floor/brown-floor-tiles-nor.webp'
+import floorArmUrl from '../assets/textures/floor/brown-floor-tiles-arm.webp'
 
 /**
  * Product-focused hero scene: the whole-house unit alone on a clean interior
@@ -38,20 +41,21 @@ const RISER_LOCAL_X = WHOLE_UNIT.riserX - WHOLE_UNIT.center.x
 const WALL_Z = BACK_Z - 0.02
 
 /**
- * Room colours. The wall's colour multiplies the stucco diffuse map, which is
- * itself a near-flat off-white (sRGB ~237), so a warm grey here lands the
- * rendered wall on the warm, slightly shaded render stucco of the brand
- * imagery rather than gallery white. The floor is a polished warm-grey tile:
- * darker than the wall so the cabinet's shadow reads, glossy enough that the
- * cabinet and the sunlit wall reflect in it (see Floor).
+ * Room colours. Both multiply a diffuse map. The stucco's is a near-flat
+ * off-white (sRGB ~237), so a warm grey here lands the rendered wall on the
+ * warm, slightly shaded render stucco of the brand imagery rather than
+ * gallery white. The floor's is a sandy terracotta (sRGB ~190,175,155), a
+ * good deal darker than the wall already, so its tint only pulls it a
+ * little cooler and greyer — the tiles should read as shaded, and sit under
+ * the cabinet rather than compete with it (see Floor).
  */
 const WALL_COLOR = 0xe3e1de
-const FLOOR_COLOR = 0xafb0b0
+const FLOOR_COLOR = 0xd8d9dc
 
 /**
  * The wall plane, and the stucco tile laid across it. The maps are baked
- * from Poly Haven's white_stucco by scripts/bake-stucco.mjs; the source set
- * covers 2 m × 2 m, so the repeat is simply the wall size over the tile.
+ * from Poly Haven's white_stucco by scripts/bake-pbr-set.mjs; the source
+ * set covers 2 m × 2 m, so the repeat is simply the wall size over the tile.
  *
  * The diffuse map is almost uniform — the material is read entirely through
  * its normal map, so NORMAL_SCALE is the knob for how coarse the trowelling
@@ -62,6 +66,19 @@ const FLOOR_COLOR = 0xafb0b0
 const WALL_SIZE = [14, 6]
 const STUCCO_TILE = 2
 const STUCCO_NORMAL_SCALE = 1.6
+
+/**
+ * The floor plane and its tile, the same way: Poly Haven's brown_floor_tiles
+ * through the same bake, a 1.7 m × 1.7 m scan of seven-by-seven ~24 cm
+ * ceramic tiles with grout lines. The normal map is mostly the grout
+ * channels and a little glaze wear; 1 keeps the grout as a real step under
+ * the raking key without turning the tile faces into orange peel, and the
+ * reflector uses the same map to break the reflection slightly along the
+ * grout (see Floor).
+ */
+const FLOOR_SIZE = [14, 10]
+const FLOOR_TILE = 1.7
+const FLOOR_NORMAL_SCALE = 1
 /**
  * The light is late-afternoon sun through a glass wall off-camera left: a
  * warm, fairly low key raking across the stucco from front-left, a cool sky
@@ -90,9 +107,9 @@ const CAMERA = {
     fov: 30,
   },
   stacked: {
-    position: [0.35, 1.5, 2.75],
+    position: [0.50, 2.7, 2.75],
     target: [0, 1.15, 0],
-    fov: 34,
+    fov: 56,
   },
 }
 
@@ -167,24 +184,26 @@ function StudioLighting() {
 }
 
 /**
- * The three stucco maps, tiled for the wall. Poly Haven's ARM packing is
- * three's channel layout — aoMap reads R, roughnessMap reads G, metalnessMap
- * reads B — so the one texture is handed to both ao and roughness slots.
- * Clones, as in Ground and House: useTexture caches by url and the wrap and
- * repeat settings shouldn't leak to any other user of the same file.
- * Anisotropy because the wall is seen at a glancing angle from the camera's
- * offset, and without it the grain smears into streaks toward frame right.
+ * A baked diff / nor / arm set, tiled across a plane of `size` metres at
+ * `tile` metres per repeat. Poly Haven's ARM packing is three's channel
+ * layout — aoMap reads R, roughnessMap reads G, metalnessMap reads B — so
+ * the one texture is handed to both ao and roughness slots. Clones, as in
+ * Ground and House: useTexture caches by url and the wrap and repeat
+ * settings shouldn't leak to any other user of the same file. Anisotropy
+ * because both surfaces are seen at a glancing angle — the wall from the
+ * camera's offset, the floor from its height — and without it the grain
+ * smears into streaks toward the far edge.
  */
-function useStuccoMaps() {
+function usePbrMaps(urls, size, tile) {
   const gl = useThree((s) => s.gl)
-  const [diff, nor, arm] = useTexture([stuccoDiffUrl, stuccoNorUrl, stuccoArmUrl])
+  const [diff, nor, arm] = useTexture(urls)
   return useMemo(() => {
     const anisotropy = Math.min(8, gl.capabilities.getMaxAnisotropy())
     const configure = (base, colorSpace) => {
       const map = base.clone()
       map.wrapS = THREE.RepeatWrapping
       map.wrapT = THREE.RepeatWrapping
-      map.repeat.set(WALL_SIZE[0] / STUCCO_TILE, WALL_SIZE[1] / STUCCO_TILE)
+      map.repeat.set(size[0] / tile, size[1] / tile)
       map.colorSpace = colorSpace
       map.anisotropy = anisotropy
       map.needsUpdate = true
@@ -195,7 +214,18 @@ function useStuccoMaps() {
       normalMap: configure(nor, THREE.NoColorSpace),
       armMap: configure(arm, THREE.NoColorSpace),
     }
-  }, [gl, diff, nor, arm])
+  }, [gl, diff, nor, arm, size, tile])
+}
+
+const STUCCO_URLS = [stuccoDiffUrl, stuccoNorUrl, stuccoArmUrl]
+const FLOOR_URLS = [floorDiffUrl, floorNorUrl, floorArmUrl]
+
+function useStuccoMaps() {
+  return usePbrMaps(STUCCO_URLS, WALL_SIZE, STUCCO_TILE)
+}
+
+function useFloorMaps() {
+  return usePbrMaps(FLOOR_URLS, FLOOR_SIZE, FLOOR_TILE)
 }
 
 /**
@@ -353,22 +383,38 @@ function Wall() {
 }
 
 /**
- * Polished tile. On the full tier the floor is a blurred planar reflection —
- * the cabinet and the sunlit wall mirrored softly beneath it, which is most
- * of what makes the brand renders read as a real room. That costs a second
- * render of the scene each frame, so the lower tiers (phones, and anything
- * the governor has stepped down) get a plain glossy material that only
- * reflects the environment map.
+ * Glazed ceramic tile. On the full tier the floor is a blurred planar
+ * reflection — the cabinet and the sunlit wall mirrored softly beneath it,
+ * which is most of what makes the brand renders read as a real room. That
+ * costs a second render of the scene each frame, so the lower tiers (phones,
+ * and anything the governor has stepped down) get a plain glossy material
+ * that only reflects the environment map.
+ *
+ * Both take the same tile maps as the wall takes its stucco. The reflector
+ * extends MeshStandardMaterial, so map / normalMap / aoMap go through
+ * three's own lighting; it also reads roughnessMap's G itself to decide how
+ * much of the blurred reflection to mix in, and offsets the reflection
+ * lookup by the normal map, so the mirror image breaks a little along the
+ * grout. The scan's roughness averages ~0.83 (unglazed terracotta), so
+ * `roughness` here is the multiplier that turns it into a glaze: 0.55 lands
+ * the effective value near the 0.45 the untextured floor used.
  */
 function Floor() {
   const { name } = useQuality()
+  const { map, normalMap, armMap } = useFloorMaps()
+  const normalScale = [FLOOR_NORMAL_SCALE, FLOOR_NORMAL_SCALE]
   return (
     <mesh position={[0, 0, 1.5]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-      <planeGeometry args={[14, 10]} />
+      <planeGeometry args={FLOOR_SIZE} />
       {name === 'full' ? (
         <MeshReflectorMaterial
           color={FLOOR_COLOR}
-          roughness={0.5}
+          map={map}
+          normalMap={normalMap}
+          normalScale={normalScale}
+          aoMap={armMap}
+          roughnessMap={armMap}
+          roughness={0.55}
           metalness={0.05}
           resolution={512}
           blur={[400, 120]}
@@ -381,7 +427,16 @@ function Floor() {
           maxDepthThreshold={1.5}
         />
       ) : (
-        <meshStandardMaterial color={FLOOR_COLOR} roughness={0.42} metalness={0.05} />
+        <meshStandardMaterial
+          color={FLOOR_COLOR}
+          map={map}
+          normalMap={normalMap}
+          normalScale={normalScale}
+          aoMap={armMap}
+          roughnessMap={armMap}
+          roughness={0.5}
+          metalness={0.05}
+        />
       )}
     </mesh>
   )
