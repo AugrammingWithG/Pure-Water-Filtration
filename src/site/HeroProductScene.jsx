@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import { MeshReflectorMaterial, useTexture } from '@react-three/drei'
 import * as THREE from 'three'
@@ -114,32 +114,82 @@ const CAMERA = {
 }
 
 /**
+ * How far the pointer can pull the camera off its base pose, in world units,
+ * at the edge of the hero. Kept smaller than the breathing so it reads as
+ * the render leaning with you, not as orbit. The target shifts with it by a
+ * fraction so the unit stays anchored while the wall slides — that's what
+ * sells the parallax.
+ */
+const POINTER_PARALLAX = { x: 0.12, y: 0.06, targetFollow: 0.35 }
+
+/**
  * Places the camera each frame and applies a slow cinematic breathing —
  * ±0.06 units of parallax across roughly twelve seconds — so the render
  * feels alive without inviting interaction. The pose comes from `stacked`,
  * which changes on breakpoint.
+ *
+ * On hover-capable devices the pointer adds a gentle lean on top: the
+ * listener sits on the whole hero section rather than the canvas, because
+ * the copy overlay covers most of it and would otherwise swallow the move
+ * events. The offset eases toward the pointer and back to centre on leave.
  */
 function CinematicCamera({ stacked }) {
   const camera = useThree((s) => s.camera)
+  const gl = useThree((s) => s.gl)
   const config = stacked ? CAMERA.stacked : CAMERA.wide
   const baseRef = useRef(new THREE.Vector3())
   const targetRef = useRef(new THREE.Vector3())
+  /** Pointer position in the hero, -1..1 on each axis; 0,0 when away. */
+  const pointerRef = useRef({ x: 0, y: 0 })
+  /** The eased offset actually applied, so the lean never snaps. */
+  const leanRef = useRef({ x: 0, y: 0 })
 
-  useFrame(({ clock }) => {
+  useEffect(() => {
+    if (!window.matchMedia?.('(hover: hover) and (pointer: fine)').matches) {
+      return undefined
+    }
+    const host = gl.domElement.closest('.hero') ?? gl.domElement
+    const onMove = (event) => {
+      const rect = host.getBoundingClientRect()
+      pointerRef.current.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
+      pointerRef.current.y = ((event.clientY - rect.top) / rect.height) * 2 - 1
+    }
+    const onLeave = () => {
+      pointerRef.current.x = 0
+      pointerRef.current.y = 0
+    }
+    host.addEventListener('pointermove', onMove, { passive: true })
+    host.addEventListener('pointerleave', onLeave)
+    return () => {
+      host.removeEventListener('pointermove', onMove)
+      host.removeEventListener('pointerleave', onLeave)
+      onLeave()
+    }
+  }, [gl])
+
+  useFrame(({ clock }, delta) => {
     baseRef.current.set(...config.position)
     targetRef.current.set(...config.target)
     const t = clock.getElapsedTime()
     const drift = Math.sin(t * 0.5) * 0.06
     const lift = Math.sin(t * 0.35 + 1.2) * 0.03
+
+    const lean = leanRef.current
+    const ease = 1 - Math.exp(-delta * 4)
+    lean.x += (pointerRef.current.x * POINTER_PARALLAX.x - lean.x) * ease
+    lean.y += (-pointerRef.current.y * POINTER_PARALLAX.y - lean.y) * ease
+
     camera.position.set(
-      baseRef.current.x + drift,
-      baseRef.current.y + lift,
+      baseRef.current.x + drift + lean.x,
+      baseRef.current.y + lift + lean.y,
       baseRef.current.z,
     )
     if (camera.fov !== config.fov) {
       camera.fov = config.fov
       camera.updateProjectionMatrix()
     }
+    targetRef.current.x += lean.x * POINTER_PARALLAX.targetFollow
+    targetRef.current.y += lean.y * POINTER_PARALLAX.targetFollow
     camera.lookAt(targetRef.current)
   })
 
