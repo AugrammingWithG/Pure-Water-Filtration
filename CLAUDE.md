@@ -1,5 +1,7 @@
 ## graphify
 
+All visual tests must be handed to the user. You are not permitted to test it out yourself except if a written test has been made.
+
 This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
 
 Rules:

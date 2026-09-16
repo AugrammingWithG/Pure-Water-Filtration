@@ -1,5 +1,6 @@
-import { useRef } from 'react'
+import { useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
+import { useTexture } from '@react-three/drei'
 import * as THREE from 'three'
 import Precompile from '../three/Precompile'
 import QualityGovernor from '../three/QualityGovernor'
@@ -8,6 +9,9 @@ import WholeHouseUnit from '../three/products/WholeHouseUnit'
 import { useQuality } from '../three/quality'
 import { WHOLE_UNIT } from '../three/layout'
 import { SYSTEMS } from '../three/systems'
+import stuccoDiffUrl from '../assets/textures/stucco/white-stucco-diff.webp'
+import stuccoNorUrl from '../assets/textures/stucco/white-stucco-nor.webp'
+import stuccoArmUrl from '../assets/textures/stucco/white-stucco-arm.webp'
 
 /**
  * Product-focused hero scene: the whole-house unit alone on a clean interior
@@ -34,11 +38,29 @@ const RISER_LOCAL_X = WHOLE_UNIT.riserX - WHOLE_UNIT.center.x
 const WALL_Z = BACK_Z - 0.02
 
 /**
- * Room colours. Cool off-white for the wall to sit with the page's blue-tinted
- * hero gradient, a shade darker for the floor so the cabinet's shadow reads.
+ * Room colours. The wall's colour multiplies the stucco diffuse map, which is
+ * itself a near-flat off-white (sRGB ~237), so a warm grey here lands the
+ * rendered wall on the warm, slightly shaded render stucco of the brand
+ * imagery rather than gallery white. The floor stays a shade darker so the
+ * cabinet's shadow reads.
  */
-const WALL_COLOR = 0xeef2f6
+const WALL_COLOR = 0xe6e2dc
 const FLOOR_COLOR = 0xd9dee4
+
+/**
+ * The wall plane, and the stucco tile laid across it. The maps are baked
+ * from Poly Haven's white_stucco by scripts/bake-stucco.mjs; the source set
+ * covers 2 m × 2 m, so the repeat is simply the wall size over the tile.
+ *
+ * The diffuse map is almost uniform — the material is read entirely through
+ * its normal map, so NORMAL_SCALE is the knob for how coarse the trowelling
+ * looks under the raking key. 1 is the scan as measured; the 4k → 1k box
+ * filter softened it a little and the brand renders want it a little
+ * stronger than life, hence the push.
+ */
+const WALL_SIZE = [14, 6]
+const STUCCO_TILE = 2
+const STUCCO_NORMAL_SCALE = 1.6
 /** Warm sunlight, matching the KEY_COLOR used elsewhere in the scene. */
 const KEY_COLOR = 0xfff5dd
 const RIM_COLOR = 0xbcd7ff
@@ -133,12 +155,54 @@ function StudioLighting() {
   )
 }
 
+/**
+ * The three stucco maps, tiled for the wall. Poly Haven's ARM packing is
+ * three's channel layout — aoMap reads R, roughnessMap reads G, metalnessMap
+ * reads B — so the one texture is handed to both ao and roughness slots.
+ * Clones, as in Ground and House: useTexture caches by url and the wrap and
+ * repeat settings shouldn't leak to any other user of the same file.
+ * Anisotropy because the wall is seen at a glancing angle from the camera's
+ * offset, and without it the grain smears into streaks toward frame right.
+ */
+function useStuccoMaps() {
+  const gl = useThree((s) => s.gl)
+  const [diff, nor, arm] = useTexture([stuccoDiffUrl, stuccoNorUrl, stuccoArmUrl])
+  return useMemo(() => {
+    const anisotropy = Math.min(8, gl.capabilities.getMaxAnisotropy())
+    const configure = (base, colorSpace) => {
+      const map = base.clone()
+      map.wrapS = THREE.RepeatWrapping
+      map.wrapT = THREE.RepeatWrapping
+      map.repeat.set(WALL_SIZE[0] / STUCCO_TILE, WALL_SIZE[1] / STUCCO_TILE)
+      map.colorSpace = colorSpace
+      map.anisotropy = anisotropy
+      map.needsUpdate = true
+      return map
+    }
+    return {
+      map: configure(diff, THREE.SRGBColorSpace),
+      normalMap: configure(nor, THREE.NoColorSpace),
+      armMap: configure(arm, THREE.NoColorSpace),
+    }
+  }, [gl, diff, nor, arm])
+}
+
 function Room() {
+  const { map, normalMap, armMap } = useStuccoMaps()
   return (
     <>
       <mesh position={[0, 1.6, WALL_Z]} receiveShadow>
-        <planeGeometry args={[14, 6]} />
-        <meshStandardMaterial color={WALL_COLOR} roughness={0.92} metalness={0} />
+        <planeGeometry args={WALL_SIZE} />
+        <meshStandardMaterial
+          color={WALL_COLOR}
+          map={map}
+          normalMap={normalMap}
+          normalScale={[STUCCO_NORMAL_SCALE, STUCCO_NORMAL_SCALE]}
+          aoMap={armMap}
+          roughnessMap={armMap}
+          roughness={1}
+          metalness={0}
+        />
       </mesh>
       <mesh position={[0, 0, 1.5]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[14, 10]} />
