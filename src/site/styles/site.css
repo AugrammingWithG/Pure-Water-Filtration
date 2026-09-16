@@ -42,7 +42,7 @@
 
   --ease:cubic-bezier(.2,.7,.2,1);
   --section:110px;
-  --nav-h:82px;
+  --nav-h:64px;
 }
 
 /* ---------- BASE ---------- */
@@ -114,12 +114,13 @@ h1 em,h2 em{font-style:normal;color:var(--blue)}
 .nav{height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;gap:24px;padding:0 28px;background:rgba(255,255,255,.9);backdrop-filter:blur(16px);border-bottom:1px solid rgba(220,235,244,.7)}
 /* the client's own mark: a 550×200 lockup, so height alone sizes it */
 .logo{display:flex;align-items:center;flex-shrink:0}
-.logo img{height:46px;width:auto}
+.logo img{height:36px;width:auto}
 .navlinks{display:flex;gap:32px;font-size:13px;font-weight:600;color:#38556e}
 .navlinks a{position:relative;padding:6px 0}
 .navlinks a:after{content:"";position:absolute;left:0;right:100%;bottom:0;height:2px;background:var(--blue);transition:right .35s var(--ease)}
 .navlinks a:hover:after{right:0}
-.nav-actions{display:flex;align-items:center;gap:22px;font-size:13px;font-weight:700}
+.nav-actions{display:flex;align-items:center;gap:20px;font-size:13px;font-weight:700}
+.nav-actions .btn{padding:11px 18px;font-size:12.5px}
 .phone{display:inline-flex;align-items:center;gap:7px;color:var(--navy)}
 .menu-btn{display:none;border:0;background:none;color:var(--navy);width:44px;height:44px;border-radius:50%;place-items:center;margin-right:-10px}
 .menu-btn:hover{background:var(--pale)}
@@ -939,7 +940,7 @@ html:has(body.reduced-motion){scroll-snap-type:none}
 }
 
 @media (max-width:900px){
-  :root{--section:84px;--nav-h:70px}
+  :root{--section:84px;--nav-h:58px}
   .navlinks,.nav-actions{display:none}
   .menu-btn{display:grid}
   .nav{padding:0 20px}
