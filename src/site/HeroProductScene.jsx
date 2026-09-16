@@ -1,6 +1,6 @@
 import { useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
-import { useTexture } from '@react-three/drei'
+import { MeshReflectorMaterial, useTexture } from '@react-three/drei'
 import * as THREE from 'three'
 import Precompile from '../three/Precompile'
 import QualityGovernor from '../three/QualityGovernor'
@@ -41,11 +41,12 @@ const WALL_Z = BACK_Z - 0.02
  * Room colours. The wall's colour multiplies the stucco diffuse map, which is
  * itself a near-flat off-white (sRGB ~237), so a warm grey here lands the
  * rendered wall on the warm, slightly shaded render stucco of the brand
- * imagery rather than gallery white. The floor stays a shade darker so the
- * cabinet's shadow reads.
+ * imagery rather than gallery white. The floor is a polished warm-grey tile:
+ * darker than the wall so the cabinet's shadow reads, glossy enough that the
+ * cabinet and the sunlit wall reflect in it (see Floor).
  */
-const WALL_COLOR = 0xe6e2dc
-const FLOOR_COLOR = 0xd9dee4
+const WALL_COLOR = 0xe3e1de
+const FLOOR_COLOR = 0xafb0b0
 
 /**
  * The wall plane, and the stucco tile laid across it. The maps are baked
@@ -61,10 +62,19 @@ const FLOOR_COLOR = 0xd9dee4
 const WALL_SIZE = [14, 6]
 const STUCCO_TILE = 2
 const STUCCO_NORMAL_SCALE = 1.6
-/** Warm sunlight, matching the KEY_COLOR used elsewhere in the scene. */
-const KEY_COLOR = 0xfff5dd
+/**
+ * The light is late-afternoon sun through a glass wall off-camera left: a
+ * warm, fairly low key raking across the stucco from front-left, a cool sky
+ * fill from the same side (the glass), and a faint cool rim from behind so
+ * the cabinet's right edge separates from the wall. Warm key, cool shade is
+ * the whole look — everything in shadow leans blue, everything in sun leans
+ * gold.
+ */
+const KEY_COLOR = 0xfff3e2
+const SKY_COLOR = 0xc9dbf2
 const RIM_COLOR = 0xbcd7ff
-const FILL_COLOR = 0xd7e2ee
+const FILL_COLOR = 0xd2e0f4
+const GROUND_BOUNCE = 0xb3aa9c
 
 /**
  * Where the camera sits and looks, for wide and stacked layouts. Both point
@@ -123,23 +133,24 @@ function StudioLighting() {
   const { shadowMap } = useQuality()
   return (
     <>
-      <hemisphereLight args={[0xdfe9f6, 0xb9a98c, 0.55]} />
+      <hemisphereLight args={[SKY_COLOR, GROUND_BOUNCE, 0.5]} />
       {/*
-        Warm key raking in from front-left-above, throwing the cabinet's
-        silhouette and the copper riser onto the wall behind it. Frustum
+        Warm key from front-left, lower than a studio key so shadows fall
+        right and a little down — the copper riser's shadow lands beside it
+        on the wall, the cabinet's on the wall and the floor. Frustum
         tightened around the visible product so shadow resolution isn't wasted
-        on empty room.
+        on empty room; radius softens the edge the way a big window would.
       */}
       <directionalLight
         color={KEY_COLOR}
-        intensity={3.6}
-        position={[-2.4, 3.6, 2.8]}
+        intensity={4.4}
+        position={[-3.2, 3.4, 2.6]}
         castShadow
         shadow-mapSize={[shadowMap, shadowMap]}
         shadow-bias={-0.0004}
         shadow-normalBias={0.02}
-        shadow-radius={4}
-        shadow-intensity={0.9}
+        shadow-radius={6}
+        shadow-intensity={0.92}
         shadow-camera-left={-3}
         shadow-camera-right={3}
         shadow-camera-top={3}
@@ -147,10 +158,10 @@ function StudioLighting() {
         shadow-camera-near={1}
         shadow-camera-far={10}
       />
-      {/* Cool rim from behind-right to separate the stainless from the wall. */}
-      <directionalLight color={RIM_COLOR} intensity={0.55} position={[2.2, 2.2, -2]} />
-      {/* Soft fill from camera right so shaded faces keep their shape. */}
-      <directionalLight color={FILL_COLOR} intensity={0.35} position={[3, 1.4, 3]} />
+      {/* Skylight through the glass wall at left, lifting the shaded faces cool. */}
+      <directionalLight color={FILL_COLOR} intensity={0.85} position={[-3, 1.6, 2.4]} />
+      {/* Cool rim from behind-right to separate the cabinet from the wall. */}
+      <directionalLight color={RIM_COLOR} intensity={0.45} position={[2.2, 2.4, -1.6]} />
     </>
   )
 }
@@ -187,11 +198,128 @@ function useStuccoMaps() {
   }, [gl, diff, nor, arm])
 }
 
-function Room() {
+/**
+ * Maps a world (x, y) on the wall plane to the shade canvas. The plane is
+ * WALL_SIZE centred at (0, WALL_Y), so its uv origin sits at the bottom-left
+ * corner; canvas rows run the other way.
+ */
+const WALL_Y = 1.6
+const SHADE_PX = [1024, 512]
+const PX_PER_M = SHADE_PX[0] / WALL_SIZE[0]
+function toCanvas(x, y) {
+  return [
+    ((x + WALL_SIZE[0] / 2) / WALL_SIZE[0]) * SHADE_PX[0],
+    (1 - (y - WALL_Y + WALL_SIZE[1] / 2) / WALL_SIZE[1]) * SHADE_PX[1],
+  ]
+}
+
+/**
+ * The sun on the wall, as a window throws it: the wall sits in cool shade
+ * and the light arrives as a shape — one big pane of sun behind the cabinet
+ * and a sliver of the next pane at the top left — with the dappled shadow
+ * of foliage outside the glass inside the patch on the right. A shadow map
+ * can't draw any of this (nothing in the scene is the window), so it is
+ * painted once into a canvas and multiplied over the wall: white leaves the
+ * lit wall alone, the shade pulls it down and towards the sky's blue.
+ * Multiplying rather than blending keeps the stucco grain and the cast
+ * shadows underneath it.
+ *
+ * Coordinates are world metres on the wall. The panes are drawn as slightly
+ * skewed quads — a rectangle of glass projected by a low sun off to the
+ * left — and feathered with a canvas blur so the edge has the width of the
+ * sun disc's penumbra, not a razor. Browsers without canvas filters (none
+ * current) simply draw them sharp.
+ */
+const SHADE_TOP = 'rgba(130,140,160,1)'
+const SHADE_BOTTOM = 'rgba(150,158,174,1)'
+const PANE_EDGE_M = 0.12
+const PANES = [
+  /* Main pane: behind the cabinet, past the riser, down to the floor. */
+  { quad: [[-0.76, 1.72], [1.26, 1.57], [1.36, 0.15], [-0.68, 0.28]], brightness: 1 },
+  /* Next pane over, cut by the top of frame, behind the copy. */
+  { quad: [[-2.9, 2.2], [-1.05, 2.1], [-0.98, 1.55], [-2.85, 1.62]], brightness: 0.82 },
+]
+
+function useShadeTexture() {
+  return useMemo(() => {
+    const canvas = document.createElement('canvas')
+    canvas.width = SHADE_PX[0]
+    canvas.height = SHADE_PX[1]
+    const ctx = canvas.getContext('2d')
+
+    /* Base shade: cool grey, a touch darker toward the ceiling. */
+    {
+      const shade = ctx.createLinearGradient(0, 0, 0, canvas.height)
+      shade.addColorStop(0, SHADE_TOP)
+      shade.addColorStop(1, SHADE_BOTTOM)
+      ctx.fillStyle = shade
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+    }
+
+    /* The panes of sun, feathered. */
+    ctx.save()
+    if ('filter' in ctx) ctx.filter = `blur(${Math.round(PANE_EDGE_M * PX_PER_M)}px)`
+    for (const { quad, brightness } of PANES) {
+      ctx.beginPath()
+      quad.forEach(([x, y], i) => {
+        const [cx, cy] = toCanvas(x, y)
+        if (i === 0) ctx.moveTo(cx, cy)
+        else ctx.lineTo(cx, cy)
+      })
+      ctx.closePath()
+      ctx.fillStyle = `rgba(255,255,255,${brightness})`
+      ctx.fill()
+    }
+    ctx.restore()
+
+    /*
+      Foliage dapple inside the main pane, on the right: soft leaf-sized
+      blobs, each a radial gradient so the edges are already the penumbra a
+      metre or two of sun-to-wall travel would give them. Seeded so the wall
+      is the same on every visit.
+    */
+    {
+      let seed = 7
+      const rand = () => {
+        seed = (seed * 16807) % 2147483647
+        return seed / 2147483647
+      }
+      ctx.save()
+      ctx.globalCompositeOperation = 'multiply'
+      for (let i = 0; i < 70; i++) {
+        const x = 0.7 + rand() * 0.9 + rand() * 0.6
+        const y = 0.6 + rand() * 1.0 + rand() * 0.5
+        const r = (0.12 + rand() * 0.22) * PX_PER_M
+        const [cx, cy] = toCanvas(x, y)
+        const depth = 0.3 + rand() * 0.25
+        const leaf = ctx.createRadialGradient(cx, cy, 0, cx, cy, r)
+        leaf.addColorStop(0, `rgba(158,170,190,${depth})`)
+        leaf.addColorStop(0.55, `rgba(158,170,190,${depth * 0.7})`)
+        leaf.addColorStop(1, 'rgba(158,170,190,0)')
+        ctx.fillStyle = leaf
+        ctx.save()
+        ctx.translate(cx, cy)
+        ctx.rotate(rand() * Math.PI)
+        ctx.scale(1, 0.45 + rand() * 0.5)
+        ctx.translate(-cx, -cy)
+        ctx.fillRect(cx - r, cy - r, r * 2, r * 2)
+        ctx.restore()
+      }
+      ctx.restore()
+    }
+
+    const texture = new THREE.CanvasTexture(canvas)
+    texture.colorSpace = THREE.SRGBColorSpace
+    return texture
+  }, [])
+}
+
+function Wall() {
   const { map, normalMap, armMap } = useStuccoMaps()
+  const shade = useShadeTexture()
   return (
     <>
-      <mesh position={[0, 1.6, WALL_Z]} receiveShadow>
+      <mesh position={[0, WALL_Y, WALL_Z]} receiveShadow>
         <planeGeometry args={WALL_SIZE} />
         <meshStandardMaterial
           color={WALL_COLOR}
@@ -204,11 +332,58 @@ function Room() {
           metalness={0}
         />
       </mesh>
-      <mesh position={[0, 0, 1.5]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
-        <planeGeometry args={[14, 10]} />
-        <meshStandardMaterial color={FLOOR_COLOR} roughness={0.75} metalness={0.02} />
+      {/*
+        The shade decal, a hair in front of the wall. Transparent so it draws
+        after the opaque pass (a multiply over nothing is nothing), no depth
+        write so the cabinet and pipes in front of it are untouched.
+      */}
+      <mesh position={[0, WALL_Y, WALL_Z + 0.004]}>
+        <planeGeometry args={WALL_SIZE} />
+        <meshBasicMaterial
+          map={shade}
+          blending={THREE.MultiplyBlending}
+          premultipliedAlpha
+          transparent
+          depthWrite={false}
+          toneMapped={false}
+        />
       </mesh>
     </>
+  )
+}
+
+/**
+ * Polished tile. On the full tier the floor is a blurred planar reflection —
+ * the cabinet and the sunlit wall mirrored softly beneath it, which is most
+ * of what makes the brand renders read as a real room. That costs a second
+ * render of the scene each frame, so the lower tiers (phones, and anything
+ * the governor has stepped down) get a plain glossy material that only
+ * reflects the environment map.
+ */
+function Floor() {
+  const { name } = useQuality()
+  return (
+    <mesh position={[0, 0, 1.5]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+      <planeGeometry args={[14, 10]} />
+      {name === 'full' ? (
+        <MeshReflectorMaterial
+          color={FLOOR_COLOR}
+          roughness={0.5}
+          metalness={0.05}
+          resolution={512}
+          blur={[400, 120]}
+          mixBlur={1}
+          mixStrength={0.45}
+          mixContrast={1}
+          mirror={0}
+          depthScale={1.1}
+          minDepthThreshold={0.45}
+          maxDepthThreshold={1.5}
+        />
+      ) : (
+        <meshStandardMaterial color={FLOOR_COLOR} roughness={0.42} metalness={0.05} />
+      )}
+    </mesh>
   )
 }
 
@@ -222,9 +397,10 @@ export default function HeroProductScene({ stacked, onReady }) {
   return (
     <>
       <QualityGovernor />
-      <SceneEnvironment intensity={0.35} />
+      <SceneEnvironment intensity={0.4} />
       <StudioLighting />
-      <Room />
+      <Wall />
+      <Floor />
 
       <group position={CENTER_OFFSET}>
         <WholeHouseUnit
