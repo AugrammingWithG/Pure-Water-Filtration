@@ -7,16 +7,20 @@ const STEEL = { color: 0xc9ccd0, roughness: 0.2, metalness: 0.9, envMapIntensity
 const OAK = { color: 0xd6b48a, roughness: 0.7, metalness: 0 }
 
 const { floorY } = HOUSE
-const { x0, x1, benchH, depth, zBack, zFront, counterY, sinkCabinet, sinkX, filterTapX, mixerTapX } =
+const { x0, x1, benchH, depth, zBack, zFront, counterY, sinkCabinet, sinkX, taps, tapNozzle, tapZ } =
   KITCHEN
 const zMid = (zBack + zFront) / 2
 const PANEL_T = 0.02
 
-/** A simple mixer tap: riser, swan neck, spout — all chrome cylinders. */
-function Tap({ x, height = 0.32, reach = 0.2, radius = 0.014, accent }) {
-  const z = zBack + 0.1
+/**
+ * A simple mixer tap: riser, swan neck, spout — all chrome cylinders. The
+ * proportions come from layout.js because the water route in systems.js runs
+ * up the inside of the riser and out of the nozzle; both must agree on where
+ * that is. A ball at each bend covers the route's corners, as Pipe does.
+ */
+function Tap({ x, height, reach, radius, accent }) {
   return (
-    <group position={[x, counterY, z]}>
+    <group position={[x, counterY, tapZ]}>
       <mesh position={[0, 0.012, 0]}>
         <cylinderGeometry args={[radius * 2.2, radius * 2.2, 0.024, 16]} />
         <meshStandardMaterial {...STEEL} />
@@ -33,8 +37,12 @@ function Tap({ x, height = 0.32, reach = 0.2, radius = 0.014, accent }) {
         <cylinderGeometry args={[radius, radius, reach, 12]} />
         <meshStandardMaterial {...STEEL} />
       </mesh>
-      <mesh position={[0, height - 0.03, reach]}>
-        <cylinderGeometry args={[radius, radius * 1.2, 0.06, 12]} />
+      <mesh position={[0, height, reach]}>
+        <sphereGeometry args={[radius * 1.1, 12, 12]} />
+        <meshStandardMaterial {...STEEL} />
+      </mesh>
+      <mesh position={[0, height - tapNozzle / 2, reach]}>
+        <cylinderGeometry args={[radius, radius * 1.2, tapNozzle, 12]} />
         <meshStandardMaterial {...STEEL} />
       </mesh>
       {accent !== undefined && (
@@ -119,8 +127,8 @@ export default function Kitchen({ accent }) {
         </mesh>
       ))}
 
-      <Tap x={mixerTapX} />
-      <Tap x={filterTapX} height={0.28} reach={0.17} radius={0.011} accent={accent} />
+      <Tap {...taps.mixer} />
+      <Tap {...taps.filter} accent={accent} />
 
       {/* shelves on the wall above the bench */}
       {[1.55, 1.95].map((y) => (

@@ -15,7 +15,7 @@ const TEAL_CAP = 0x1e7c8e
 const STAGE_KEYS = ['sediment', 'carbon', 'ro']
 const bracketX = (U.canisterXs[0] + U.canisterXs[2]) / 2
 const bracketW = U.canisterXs[0] - U.canisterXs[2] + 0.28
-const TANK_LEN = 0.22
+const TANK_LEN = U.tankLen
 /** The tubing is opaque and the route runs inside it; both thin out together. */
 const PIPE_XRAY = 0.3
 /** Filtered water is held in the tank, so the dwell there should be visible. */
@@ -74,12 +74,13 @@ export default function UnderSinkUnit({ active, revealed, selectedStage, accent,
         [U.tankX, tubeY, tubeZ],
         [U.tankX, tankTopY + 0.02, U.z + 0.02],
       ],
-      // tank -> up to the filtered tap
+      // tank -> up to the filtered tap. The route in systems.js runs inside
+      // this tube, so the two are written from the same points.
       [
         [U.tankX + 0.04, tankTopY + 0.02, U.z - 0.02],
         [U.tankX + 0.04, KITCHEN.counterY - 0.08, U.z - 0.02],
-        [KITCHEN.filterTapX, KITCHEN.counterY - 0.08, KITCHEN.zBack + 0.1],
-        [KITCHEN.filterTapX, KITCHEN.counterY - 0.01, KITCHEN.zBack + 0.1],
+        [KITCHEN.taps.filter.x, KITCHEN.counterY - 0.08, KITCHEN.tapZ],
+        [KITCHEN.taps.filter.x, KITCHEN.counterY - 0.01, KITCHEN.tapZ],
       ],
     ]
   }, [])

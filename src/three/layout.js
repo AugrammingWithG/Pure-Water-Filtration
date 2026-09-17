@@ -83,12 +83,23 @@ export const KITCHEN = {
   zBack: -HOUSE.d / 2 + HOUSE.wallT + 0.02,
   sinkCabinet: { x0: 0.85, x1: 1.75 },
   sinkX: 1.3,
-  /** dedicated filtered-water tap sits left of the mixer */
-  filterTapX: 1.12,
-  mixerTapX: 1.42,
+  /**
+   * The two taps on the bench: the dedicated filtered-water tap sits left of
+   * the mixer. Riser height, spout reach out over the sink, chrome radius.
+   * Kitchen.jsx builds the taps from these and systems.js threads the water
+   * through them, so they live here rather than in either.
+   */
+  taps: {
+    mixer: { x: 1.42, height: 0.32, reach: 0.2, radius: 0.014 },
+    filter: { x: 1.12, height: 0.28, reach: 0.17, radius: 0.011 },
+  },
+  /** The spout turns down through a nozzle this long; water leaves from its mouth. */
+  tapNozzle: 0.06,
 }
 KITCHEN.zFront = KITCHEN.zBack + KITCHEN.depth
 KITCHEN.counterY = HOUSE.floorY + KITCHEN.benchH
+/** Both taps stand on this line, just in from the splashback. */
+KITCHEN.tapZ = KITCHEN.zBack + 0.1
 
 /** Under-sink RO unit lives in the sink cabinet. */
 export const UNDERSINK_UNIT = {
@@ -101,6 +112,8 @@ export const UNDERSINK_UNIT = {
   bracketY: HOUSE.floorY + 0.02 + 0.56,
   tankX: 0.98,
   tankR: 0.14,
+  /** straight section of the capsule; the tank stands tankR * 2 + tankLen tall */
+  tankLen: 0.22,
   supplyValve: new THREE.Vector3(1.7, HOUSE.floorY + 0.42, KITCHEN.zBack + 0.05),
 }
 
