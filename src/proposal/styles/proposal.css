@@ -353,6 +353,12 @@
   margin-bottom: 18px;
 }
 
+/* The eyebrow is first defined against navy; on the off-white bands it needs a
+   shade that survives the light background. Everything else about it holds. */
+.pr-eyebrow.on-light {
+  color: var(--pr-eyebrow-light);
+}
+
 .pr-hero-lead {
   font-size: 17px;
   opacity: 0.85;
@@ -580,6 +586,226 @@
 @media (prefers-reduced-motion: reduce) {
   .pr-news-card {
     transition: none;
+  }
+}
+
+/* ---------- benefits ----------
+ * The first light band, and the first time the page shows white cards on
+ * off-white rather than glass on navy: a left-aligned head, the film full
+ * content width, then three outcomes across.
+ *
+ * The cards are equal height by construction, not by a fixed height — the grid
+ * stretches every item to the tallest row and each card is a column that lets
+ * its photo stay fixed and its body take the slack. Rewriting any body copy
+ * longer or shorter cannot knock a card out of line.
+ */
+
+.pr-benefits-head {
+  max-width: 44ch;
+}
+
+.pr-benefits-lead {
+  font-size: 17px;
+  color: var(--pr-muted);
+  margin: 0;
+}
+
+/* ---- the film ----
+ * The client's film is a 360x640 phone video, so the frame is portrait and
+ * capped at the width the file actually is. Stretching a 360px source across
+ * the 1080px band would buy nothing but softness, and 9:16 is the shape it was
+ * composed in — a landscape crop cuts the unit out of the side of the shot.
+ *
+ * The aspect ratio itself is set inline from `VIDEO.aspect`, not here, so
+ * swapping in a landscape film later is a one-line change in the section.
+ */
+
+/* The panel the film sits in: portrait frame on the left, a short intro beside
+   it. `align-items: center` rather than stretch — the copy is three short lines
+   against a 500px-tall frame, and pinning it to the top would leave it floating
+   in the corner of a mostly empty panel. */
+.pr-benefits-film {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 40px;
+  align-items: center;
+  margin-top: 72px;
+  padding: 30px;
+  border-radius: var(--pr-r-lg);
+  background: var(--pr-white);
+  border: 1px solid var(--pr-line);
+  box-shadow: 0 14px 34px rgba(4, 45, 78, 0.07);
+}
+
+.pr-benefits-film-copy {
+  max-width: 46ch;
+}
+
+.pr-benefits-film-copy p {
+  margin: 0;
+  color: var(--pr-muted);
+}
+
+.pr-benefits-film-copy h3 {
+  margin-bottom: 10px;
+}
+
+.pr-benefits-video {
+  position: relative;
+  width: min(280px, 100%);
+  margin: 0;
+  border-radius: var(--pr-r-md);
+  overflow: hidden;
+  background: var(--pr-navy);
+  box-shadow: 0 18px 40px rgba(4, 25, 48, 0.22);
+}
+
+.pr-benefits-video video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* A poster with `controls` on would stack the browser's play button under this
+   one, so the native set only appears once the video is running (see
+   BenefitsVideo). That makes this the only control before playback, which is
+   why it is a real <button> with its own label rather than an overlay div. */
+.pr-video-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+  width: 84px;
+  height: 84px;
+  padding: 0;
+  padding-left: 5px; /* optical centring — the triangle's mass sits left of its box */
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(3px);
+  color: var(--pr-blue-deep);
+  box-shadow: 0 10px 34px rgba(4, 25, 48, 0.36);
+  cursor: pointer;
+  transition:
+    scale 0.25s var(--pr-ease),
+    background 0.25s var(--pr-ease);
+}
+
+.pr-video-play:hover {
+  scale: 1.06;
+  background: var(--pr-white);
+}
+
+.pr-video-play:focus-visible {
+  outline: 3px solid var(--pr-blue);
+  outline-offset: 4px;
+}
+
+/* ---- the three outcomes ---- */
+
+.pr-benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 26px;
+  list-style: none;
+  /* Measured off the reference: the cards start a little under the subhead, not
+     a full section's worth below it. The head and the cards read as one block. */
+  margin: 60px 0 0;
+  padding: 0;
+}
+
+.pr-benefit-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--pr-r-md);
+  overflow: hidden;
+  background: var(--pr-white);
+  border: 1px solid var(--pr-line);
+  box-shadow: 0 14px 34px rgba(4, 45, 78, 0.07);
+}
+
+/* 5:3, off the reference — a touch wider than a 4:3 tile. It matters: two of
+   the three stand-in photos are portrait phone shots, and every step wider
+   crops more off the top and bottom of them. */
+.pr-benefit-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 5 / 3;
+  object-fit: cover;
+  /* Doubles as the empty slot: a photo that has not landed yet leaves this
+     tint rather than a broken-image glyph or a white gap. */
+  background: var(--pr-line);
+}
+
+.pr-benefit-card.is-missing img {
+  visibility: hidden;
+}
+
+/* `flex: 1` is what makes the cards equal height do something useful: the grid
+   already stretches each card to the tallest in the row, and this hands that
+   spare space to the body so the photos stay aligned across all three. */
+.pr-benefit-body {
+  flex: 1;
+  padding: 24px 22px 26px;
+}
+
+.pr-benefit-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  margin-bottom: 18px;
+  /* A rounded square, which is what the reference shows — the ticket's wording
+     says circular, and the comp wins on a question of shape. */
+  border-radius: 13px;
+  background: var(--pr-line);
+  color: var(--pr-blue-deep);
+}
+
+.pr-benefit-body h3 {
+  margin-bottom: 8px;
+}
+
+.pr-benefit-body p {
+  margin: 0;
+  font-size: 15px;
+  color: var(--pr-muted);
+}
+
+/* Single column below 768px, so the middle card never ends up a lone orphan
+   on a narrow tablet and the photos keep a usable width on a phone. */
+@media (max-width: 767px) {
+  .pr-benefits-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  /* Stacked, and the frame is centred with the copy underneath it — a 280px
+     portrait video pinned left with text beside it has nowhere to go on a
+     phone. */
+  .pr-benefits-film {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: 24px;
+    margin-top: 48px;
+    padding: 22px;
+    text-align: center;
+  }
+  .pr-video-play {
+    width: 68px;
+    height: 68px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pr-video-play {
+    transition: none;
+  }
+  .pr-video-play:hover {
+    scale: 1;
   }
 }
 

@@ -25,6 +25,10 @@
   --pr-blue: #2b8fdb; /* ACCEPT pill, primary buttons, active stage */
   --pr-blue-deep: #1f7ac0;
   --pr-eyebrow-dark: #5fb6e8; /* eyebrow text on a navy band */
+  /* The same eyebrow on the off-white band. `--pr-blue` and `--pr-blue-deep`
+     both land under 4.5:1 on #f4f6f8, and an eyebrow is 12px — small, and the
+     first thing read in a section. This is the shade that clears it. */
+  --pr-eyebrow-light: #1a6aa8;
 
   --pr-savings: #17a06b; /* "$2,501 ahead" headline */
   --pr-savings-bg: #e4f5ec; /* "You save $900 off RRP" pill */

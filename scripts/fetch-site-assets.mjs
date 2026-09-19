@@ -51,6 +51,7 @@ import sharp from 'sharp'
 const ORIGIN = 'https://purewaterfiltration.com.au'
 const SITE = path.resolve('src/site/assets')
 const LIB = path.resolve('public/images')
+const VID = path.resolve('public/videos')
 const PUB = path.resolve('public')
 
 /** {src, out, root, max (longest side px), trimBottom (fraction), alpha} */
@@ -179,6 +180,25 @@ const ASSETS = [
   // it is only worth having if it stays readable, so it keeps its width and
   // its lossless encode. Nothing uses it yet.
   { src: '/images/filter-change-guide-poster.png', out: 'filter-change-guide.webp', root: LIB, max: 2000 },
+
+  /* ---------------------------------------------------------------------
+   * VID — the client's own films, copied byte for byte.
+   *
+   * These are not re-encoded. sharp does not do video, and re-encoding
+   * without being able to watch the result is how a film arrives at the
+   * customer softer than the client shipped it. They are already web-sized
+   * (1.4–1.6 MB), so the only thing a transcode would buy here is risk.
+   *
+   * `why-choose-us.mp4` is the film the proposal's benefits section plays.
+   * Its poster is the client's own choice of frame, already pulled above as
+   * `under-sink-install-04.webp` — kept in step deliberately, so swapping the
+   * film means swapping one row here and one line in Benefits.jsx.
+   *
+   * Two more exist on the site and are not pulled, because nothing uses them
+   * yet: `/videos/hero-bg.mp4` (the homepage's muted background loop) and
+   * `/videos/filter-change-guide-v2.mp4` (the servicing walkthrough).
+   * ------------------------------------------------------------------- */
+  { src: '/videos/why-choose-us.mp4', out: 'why-choose-us.mp4', root: VID, copy: true },
 ]
 
 async function fetchBytes(url) {
@@ -193,7 +213,9 @@ async function processOne(asset) {
   await fs.mkdir(path.dirname(outPath), { recursive: true })
   const input = await fetchBytes(url)
 
-  if (asset.out.endsWith('.svg')) {
+  /* Straight through, no sharp: vectors would be rasterised and video is not
+     something sharp can open at all. */
+  if (asset.copy || asset.out.endsWith('.svg')) {
     await fs.writeFile(outPath, input)
     return { outPath, bytes: input.length }
   }

@@ -24,6 +24,10 @@ import { img } from '../assets'
 | `water-*.webp` | 3 | client site — the only non-product photography they own |
 | `filter-change-guide.webp` | 1 | client site — a poster of small type, not a photo |
 | `news/` | 8 | press screenshots, **not yet supplied** — see `news/README.md` |
+| `benefits/` | 1 | the proposal film's poster frame, cut from the film itself — see `benefits/README.md` |
+
+Films live alongside this folder in `public/videos/`, pulled by the same script
+and read through `video()` rather than `img()`.
 
 The client photos are pulled and re-encoded by `scripts/fetch-site-assets.mjs`
 (`npm run assets:fetch`), which is the whole pipeline — nothing here is

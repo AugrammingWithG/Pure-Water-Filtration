@@ -16,3 +16,14 @@
 export function img(name) {
   return `${import.meta.env.BASE_URL}images/${name}`
 }
+
+/**
+ * The same arrangement for the client's films, which live in `public/videos/`
+ * and are copied byte for byte rather than re-encoded (see the VID block in
+ * scripts/fetch-site-assets.mjs).
+ *
+ *   <video src={video('why-choose-us.mp4')} />
+ */
+export function video(name) {
+  return `${import.meta.env.BASE_URL}videos/${name}`
+}
