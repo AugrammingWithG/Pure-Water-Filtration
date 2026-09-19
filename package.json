@@ -8,7 +8,8 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "assets:fetch": "node scripts/fetch-site-assets.mjs"
+    "assets:fetch": "node scripts/fetch-site-assets.mjs",
+    "news:fetch": "node scripts/fetch-news-thumbnails.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.8",
