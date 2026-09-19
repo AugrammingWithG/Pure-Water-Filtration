@@ -7,6 +7,7 @@ import House from './House'
 import Kitchen from './Kitchen'
 import Lighting from './Lighting'
 import Precompile from './Precompile'
+import Rainfall from './Rainfall'
 import QualityGovernor from './QualityGovernor'
 import SceneEnvironment from './SceneEnvironment'
 import StageMarkers from './StageMarkers'
@@ -183,6 +184,8 @@ export default function Scene({
       {currentSystem === 'whole' && <WholeHouseEffects system={system} />}
       {currentSystem === 'undersink' && <UnderSinkEffects system={system} />}
       {currentSystem === 'rain' && <RainwaterEffects system={system} />}
+      {/* the weather the rainwater unit runs on — only while it is the subject */}
+      {currentSystem === 'rain' && <Rainfall />}
 
       <Precompile onReady={onReady} />
     </>
