@@ -233,6 +233,7 @@ export default function App() {
             paused={status === 'paused'}
             subscribe={walkthrough.subscribe}
             onPick={handleScenePick}
+            onResetView={handleResetView}
             rigRef={rigRef}
           />
 
@@ -292,6 +293,15 @@ export default function App() {
           <Sidebar currentSystem={currentSystem} onSelectSystem={handleSelectSystem} />
 
           <div className="view-controls">
+            {/*
+              Nobody finds a right-drag on their own, and the pan is the one
+              control that turns "I can spin this" into "I can look at the
+              thing I want to look at". Mouse-only, by the media query in the
+              stylesheet: on a touch screen every word of it is a lie.
+            */}
+            <p className="view-hint" aria-hidden="true">
+              Drag to orbit <span>·</span> right-drag to pan <span>·</span> scroll to zoom
+            </p>
             <button className="chip-btn" onClick={handleResetView}>
               Reset view
             </button>

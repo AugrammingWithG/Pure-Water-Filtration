@@ -88,6 +88,7 @@ export default function LabStage({ lab }) {
 
   const mounted = near && !viewerOpen
   const handleReady = useCallback(() => setReady(true), [])
+  const handleReset = useCallback(() => lab.reset(), [lab])
   /* taking the canvas down takes its readiness with it, in the same render */
   const [wasMounted, setWasMounted] = useState(mounted)
   if (wasMounted !== mounted) {
@@ -148,7 +149,7 @@ export default function LabStage({ lab }) {
       <div
         className="lab-scene"
         role="img"
-        aria-label="Interactive 3D model of a home showing where the whole house, under sink and rainwater filtration systems are installed. Drag to look around; click a unit to fly to it."
+        aria-label="Interactive 3D model of a home showing where the whole house, under sink and rainwater filtration systems are installed. Drag to look around, right-drag to pan; click a unit to fly to it."
         onPointerDownCapture={() => setTouched(true)}
       >
         {mounted && (
@@ -180,7 +181,7 @@ export default function LabStage({ lab }) {
       <button
         type="button"
         className="lab-reset"
-        onClick={() => lab.reset()}
+        onClick={handleReset}
         hidden={!lab.focused}
       >
         Reset view
@@ -188,8 +189,9 @@ export default function LabStage({ lab }) {
 
       <div className="lab-hud">
         <p className="lab-hint" aria-hidden={lab.focused || touched}>
-          <span className="lab-hint-drag" /> Drag to look around <span className="lab-hint-dot">·</span>{' '}
-          click any unit
+          <span className="lab-hint-drag" /> Drag to look around{' '}
+          <span className="lab-hint-dot">·</span> right-drag to pan{' '}
+          <span className="lab-hint-dot">·</span> click any unit
         </p>
         <div className="lab-readout" aria-live="polite" key={`${lab.currentSystem}-${lab.currentStage}`}>
           <small>

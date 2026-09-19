@@ -17,6 +17,10 @@ const SYSTEM_FLY_MS = 1100
  *
  *  - the wheel belongs to the page, so the rig does not zoom on it
  *    (`wheelZoom={false}`); pinch still zooms on touch
+ *  - the arrow keys belong to the page too, so the canvas is not a tab stop
+ *    and has no keyboard camera (`keyboard={false}`). The section's own cards
+ *    and Reset view are the keyboard route in here; the full Lab, which owns
+ *    the screen, is where the camera itself can be flown from the keyboard
  *  - `running` drives the frame loop, so the scene draws nothing while it
  *    is off screen or under the open Lab
  *
@@ -81,6 +85,7 @@ export default function LabCanvas({
           onReady={onReady}
           rigRef={rigRef}
           wheelZoom={false}
+          keyboard={false}
           start={INTRO_VIEW}
         />
       </Suspense>

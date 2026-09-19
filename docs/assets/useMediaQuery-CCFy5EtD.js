@@ -1,0 +1,1 @@
+import{O as e,T as t}from"./index-BcA-taHp.js";var n=e(t(),1);function r(e){let t=(0,n.useCallback)(t=>{let n=window.matchMedia(e);return n.addEventListener(`change`,t),()=>n.removeEventListener(`change`,t)},[e]),r=(0,n.useCallback)(()=>window.matchMedia(e).matches,[e]);return(0,n.useSyncExternalStore)(t,r,()=>!1)}export{r as t};
