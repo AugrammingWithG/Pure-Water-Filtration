@@ -1,0 +1,79 @@
+{
+  "ref": "ILHWC-EZR2P-QFRYM-SH46T",
+  "headline": "Simple family care for skin and hair.",
+  "customer": {
+    "name": "Katie Wells",
+    "address": "47A Whitlock Street",
+    "suburb": "South Kalgoorlie",
+    "state": "WA",
+    "postcode": "6430",
+    "mobile": "0498 999 503",
+    "email": "katie.wells1@mail.com"
+  },
+  "specialist": {
+    "name": "Adrian",
+    "phone": "1300 720 031",
+    "email": "adrian@purewaterfiltration.com.au"
+  },
+  "preparedOn": "2026-09-01",
+  "heldUntil": "2026-09-30",
+  "recommendedSystem": "whole",
+  "savingsDefaults": {
+    "bottledPerWeek": 20,
+    "cartridgesPerYear": 120,
+    "years": 5
+  },
+  "lineItems": [
+    {
+      "id": "whole-house-3-stage",
+      "label": "Premium 3-Stage Whole Home System",
+      "price": 1799,
+      "rrp": 2699,
+      "selected": true,
+      "optional": false,
+      "billing": "once",
+      "inclusions": [
+        "3-Stage whole house filtration system with stainless steel cover and 20 inch filters",
+        "Lifetime warranty on workmanship and product while on the Care Plan",
+        "72 hour fix or replace guarantee",
+        "12 month filter replacements, included in your Care Plan"
+      ]
+    },
+    {
+      "id": "under-sink-ro",
+      "label": "Under Sink Reverse Osmosis",
+      "price": "on-request",
+      "selected": false,
+      "optional": true,
+      "billing": "once",
+      "inclusions": [
+        "Add drinking water filtration at the kitchen tap",
+        "Can be added now or at any time later",
+        "Removes heavy metals, chlorine, fluoride and general hardness"
+      ]
+    },
+    {
+      "id": "care-plan-monthly",
+      "label": "Filter Care Plan (monthly)",
+      "price": 25,
+      "selected": true,
+      "optional": true,
+      "billing": "monthly",
+      "inclusions": [
+        "Your lifetime warranty, the 72 hour fix or replace guarantee and your 12 month filter replacements all sit inside the Care Plan"
+      ]
+    },
+    {
+      "id": "care-plan-yearly",
+      "label": "Filter Care Plan (yearly)",
+      "price": 270,
+      "selected": true,
+      "optional": true,
+      "billing": "yearly",
+      "inclusions": [
+        "Your lifetime warranty, the 72 hour fix or replace guarantee and your 12 month filter replacements all sit inside the Care Plan",
+        "Two months free versus paying monthly"
+      ]
+    }
+  ]
+}
