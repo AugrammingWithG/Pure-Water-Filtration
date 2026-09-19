@@ -72,6 +72,9 @@ export default function Proposal() {
   return (
     <ProposalContext.Provider value={value}>
       <div className="proposal">
+        <a className="pr-skip-link" href="#proposal-main">
+          Skip to main content
+        </a>
         <ProposalHeader />
         <SectionDots />
 

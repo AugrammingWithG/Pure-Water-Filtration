@@ -26,6 +26,10 @@
   --pr-blue-deep: #1f7ac0;
   --pr-eyebrow-dark: #5fb6e8; /* eyebrow text on a navy band */
 
+  /* keyboard focus ring — blue reads on the off-white band; blue-on-navy
+     doesn't, so band-navy/.pr-header/.pr-footer override this to white */
+  --pr-focus: var(--pr-blue);
+
   --pr-savings: #17a06b; /* "$2,501 ahead" headline */
   --pr-savings-bg: #e4f5ec; /* "You save $900 off RRP" pill */
   --pr-savings-ink: #1b8a5f;
@@ -52,10 +56,20 @@
   --pr-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
-@media (max-width: 720px) {
+/* 768px, not the site's usual 900/760: this is the DoD's own tablet
+   checkpoint, and the proposal's breakpoints are set to match it rather
+   than the marketing site's. */
+@media (max-width: 768px) {
   .proposal {
     --pr-section: 64px;
     --pr-header-h: 64px;
     --pr-bottom-bar-h: 64px;
+  }
+}
+
+@media (max-width: 480px) {
+  .proposal {
+    --pr-header-h: 56px;
+    --pr-bottom-bar-h: 60px;
   }
 }
