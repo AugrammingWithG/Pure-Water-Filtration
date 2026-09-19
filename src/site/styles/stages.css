@@ -166,13 +166,12 @@ body.reduced-motion .stage{--in:1;--out:0}
 @keyframes track-grow{from{scale:0 1}to{scale:1 1}}
 /* light moving along the filled track */
 .track-fill:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.75),transparent);translate:-100% 0}
-.is-in .track-fill:after{animation:sheen-pass 2.6s ease-in-out 1.6s infinite}
 .water-dot{opacity:var(--in);scale:calc(1 - var(--out) * .6);transition:background .5s,color .5s,box-shadow .5s,opacity .25s,scale .3s var(--ease);transition-delay:0s,0s,0s,calc(var(--i) * .03s),calc(var(--i) * .03s)}
 .is-in .water-dot{transition:background .25s,color .25s,box-shadow .35s,opacity .2s ease calc(.3s + var(--i) * .12s),scale .33s var(--ease-pop) calc(.3s + var(--i) * .12s)}
 .water-labels>div{opacity:var(--in);translate:0 calc(var(--out) * 10px);transition:opacity .25s,translate .3s var(--ease),color .4s;transition-delay:calc(var(--i) * .03s),calc(var(--i) * .03s),0s}
 .is-in .water-labels>div{transition-duration:.28s,.33s,.22s;transition-delay:calc(.36s + var(--i) * .12s),calc(.36s + var(--i) * .12s),0s}
 /* the lit stops breathe */
-.is-in .water-dot.lit{animation:dot-breathe 3.2s ease-in-out 1.8s infinite}
+.is-in .water-dot.lit{box-shadow:0 0 0 7px rgba(66,201,255,.3),0 0 26px rgba(66,201,255,.85)}
 @keyframes dot-breathe{0%,100%{box-shadow:0 0 0 7px rgba(66,201,255,.3),0 0 26px rgba(66,201,255,.85)}50%{box-shadow:0 0 0 11px rgba(66,201,255,.16),0 0 36px rgba(66,201,255,1)}}
 
 /* ============================================================
@@ -199,14 +198,12 @@ body.reduced-motion .stage{--in:1;--out:0}
 .cw-label text{opacity:var(--in);translate:0 calc(var(--out) * 6px);transition:opacity .25s,translate .3s}
 .is-in .cw-label text{transition:opacity .28s ease calc(.94s + var(--i) * .06s),translate .33s var(--ease-out) calc(.94s + var(--i) * .06s)}
 .cw-grit circle{fill:#8ea7b9;opacity:0}
-.is-in .cw-grit circle{animation:grit 2.6s linear calc(1.9s + var(--g) * .55s) infinite}
 @keyframes grit{0%{translate:0 0;opacity:0}9%{opacity:1}86%{translate:130px 0;opacity:1}100%{translate:135px 0;opacity:0}}
 /* what is in the water: three pills under the paragraph that names them */
 .water-ills{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
 .water-ills li{display:inline-flex;align-items:center;gap:8px;padding:8px 13px 8px 10px;border-radius:999px;background:#fff;border:1px solid var(--line);font-size:12px;font-weight:700;color:var(--navy);opacity:var(--in);translate:calc(var(--out) * -14px) 0;transition:opacity .25s,translate .3s;transition-delay:calc(var(--i) * .03s)}
 .is-in .water-ills li{transition-duration:.28s,.33s;transition-timing-function:ease,var(--ease-out);transition-delay:calc(.41s + var(--i) * .06s)}
 .water-ills svg{color:#8ea7b9}
-.is-in .water-ills svg{animation:ill-drift 4.5s ease-in-out calc(var(--i) * .8s) infinite}
 @keyframes ill-drift{0%,100%{translate:0 0;rotate:0deg}50%{translate:0 -2px;rotate:-6deg}}
 
 /* ============================================================
@@ -329,7 +326,6 @@ body.reduced-motion .stage{--in:1;--out:0}
 .specs-stages:before{content:"";position:absolute;left:8px;top:32px;bottom:32px;width:2px;border-radius:2px;background:linear-gradient(180deg,#8ea7b9,var(--cyan) 55%,#fff);scale:1 var(--in);transform-origin:top;transition:scale .3s}
 .is-in .specs-stages:before{transition:scale .94s var(--ease-out) .3s}
 .specs-drop{position:absolute;left:5px;top:32px;width:8px;height:8px;border-radius:50%;background:#fff;box-shadow:0 0 12px var(--cyan),0 0 4px #fff;opacity:0;z-index:1}
-.is-in .specs-drop{animation:drop-run 3s cubic-bezier(.45,0,.55,1) 2.3s infinite}
 @keyframes drop-run{0%{top:32px;opacity:0}8%{opacity:1}90%{opacity:1}100%{top:calc(100% - 36px);opacity:0}}
 .specs-stage{position:relative;opacity:var(--in);translate:calc(var(--out) * 40px) 0;transition:opacity .3s,translate .35s var(--ease),background .3s,border-color .3s;transition-delay:calc(var(--i) * .03s),calc(var(--i) * .03s),0s,0s}
 .is-in .specs-stage{transition-duration:.33s,.5s,.3s,.3s;transition-timing-function:ease,var(--ease-out),ease,ease;transition-delay:calc(.36s + var(--i) * .23s),calc(.36s + var(--i) * .23s),0s,0s}
@@ -407,14 +403,12 @@ body.reduced-motion .stage{--in:1;--out:0}
    ============================================================ */
 .bubbles{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1}
 .bubbles i{position:absolute;left:var(--x);bottom:-30px;width:var(--size);height:var(--size);border-radius:50%;border:1px solid rgba(255,255,255,.38);background:radial-gradient(circle at 35% 35%,rgba(255,255,255,.42),rgba(255,255,255,.04) 60%);opacity:0}
-.is-in .bubbles i{animation:bubble var(--d) linear calc(var(--i) * -1.4s) infinite}
 @keyframes bubble{0%{translate:0 0;opacity:0}8%{opacity:.75}50%{translate:var(--sway) -460px}92%{opacity:.55}100%{translate:0 -920px;opacity:0}}
 .stage .stars svg{opacity:var(--in);scale:calc(1 - var(--out) * .7);--sd:calc(var(--sb,.35s) + var(--s,0) * .05s);transition:opacity .2s,scale .25s;transition-delay:calc(var(--s,0) * .02s)}
 .stage .stars svg:nth-child(2){--s:1}.stage .stars svg:nth-child(3){--s:2}.stage .stars svg:nth-child(4){--s:3}.stage .stars svg:nth-child(5){--s:4}
 .is-in .stars svg{transition:opacity .2s ease var(--sd),scale .28s var(--ease-pop) var(--sd)}
 .rating .stars{--sb:.4s}
 .review .stars{--sb:calc(.55s + var(--i) * .09s)}
-.is-in .rating .stars svg{animation:glint 4.8s ease-in-out calc(2s + var(--s,0) * .14s) infinite}
 .review{
   position:relative;overflow:hidden;opacity:var(--in);translate:0 calc(var(--out) * var(--from) * 100px);rotate:calc(var(--out) * (var(--i) - 1) * 3deg);
   transition:opacity .3s,translate .35s var(--ease),rotate .35s var(--ease),transform .35s var(--ease),background .25s;
