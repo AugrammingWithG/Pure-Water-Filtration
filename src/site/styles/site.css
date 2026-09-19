@@ -303,6 +303,10 @@ h1 em,h2 em{font-style:normal;color:var(--blue)}
 .lab-scene canvas{display:block;width:100%!important;height:100%!important;touch-action:pan-y;opacity:0;transition:opacity 1s ease}
 .lab-visual[data-ready] .lab-scene canvas{opacity:1}
 .lab-scene canvas.dragging{cursor:grabbing}
+.lab-scene canvas.panning{cursor:move}
+/* tabbable for the keyboard camera; ringed only when it was reached by tab */
+.lab-scene canvas.orbit-keyboard:focus{outline:none}
+.lab-scene canvas.orbit-keyboard:focus-visible{outline:2px solid var(--cyan);outline-offset:-4px}
 /* a soft scrim along the bottom so the readout and the button sit on something */
 .lab-visual:after{content:"";position:absolute;inset:0;z-index:2;background:linear-gradient(180deg,rgba(3,26,43,0) 64%,rgba(3,26,43,.48));pointer-events:none}
 

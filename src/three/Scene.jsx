@@ -109,6 +109,14 @@ export default function Scene({
   rigRef,
   /** Off for the hero, where the wheel belongs to the page. See useOrbitRig. */
   wheelZoom = true,
+  /** Off for the hero, where the arrows belong to the page. See useOrbitRig. */
+  keyboard = true,
+  /**
+   * What "0" on the keyboard asks for. Reset closes the cards and stops the
+   * tour as well as moving the camera, so the caller owns it; without one the
+   * rig just flies home. See useOrbitRig.
+   */
+  onResetView = null,
   /**
    * The opening framing, and where Reset view returns to. The viewer takes
    * the home view; the hero, with less room and nothing to click, sits
@@ -127,6 +135,8 @@ export default function Scene({
     start,
     distanceScale,
     wheelZoom,
+    keyboard,
+    onResetView,
   })
   const system = SYSTEMS[currentSystem]
   const cutaway = useNearHouse(rig, focused && currentSystem === 'undersink', distanceScale)

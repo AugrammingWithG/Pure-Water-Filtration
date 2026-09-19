@@ -208,12 +208,32 @@
 /* held blank while the scene's shaders build, then faded in (SimCanvas) */
 .sim-canvas-wrap canvas{opacity:0; transition:opacity .6s ease;}
 .sim-canvas-wrap.is-ready canvas{opacity:1;}
-/* the orbit rig toggles .dragging on the canvas element it listens to */
+/* the orbit rig toggles these on the canvas element it listens to: .dragging
+   while the view is being swung round, .panning while it is being slid about
+   on the right, middle or shift-drag */
 .sim-canvas-wrap canvas.dragging{cursor:grabbing;}
+.sim-canvas-wrap canvas.panning{cursor:move;}
+/* the rig makes the canvas tabbable so the camera can be driven from the
+   keyboard; only a keyboard focus is worth a ring, and only a keyboard focus
+   takes the arrows away from the stage transport */
+.sim-canvas-wrap canvas.orbit-keyboard:focus{outline:none;}
+.sim-canvas-wrap canvas.orbit-keyboard:focus-visible{outline:2px solid var(--accent, #42c9ff); outline-offset:-4px;}
 
 /* In the chrome column, level with the top of the rail, so it cannot land on
    the header's own buttons the way a top-right absolute position would. */
-.view-controls{display:flex; gap:8px;}
+.view-controls{display:flex; gap:8px; align-items:center;}
+/* the mouse legend: shown only where there is a mouse to read it with */
+.view-hint{display:none;}
+@media (hover:hover) and (pointer:fine){
+  .view-hint{
+    display:flex; align-items:center; gap:6px; margin:0;
+    font-size:11px; font-weight:500; color:var(--ink-dim);
+    background:rgba(255,255,255,0.6); backdrop-filter:blur(6px);
+    padding:7px 12px; border-radius:8px; border:1px solid var(--line);
+    white-space:nowrap; opacity:.85;
+  }
+  .view-hint span{opacity:.4;}
+}
 .chip-btn{
   font-size:11px; font-weight:600; color:var(--ink-dim);
   background:rgba(255,255,255,0.75); backdrop-filter:blur(6px);

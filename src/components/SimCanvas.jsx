@@ -34,6 +34,7 @@ export default function SimCanvas({
   paused,
   subscribe,
   onPick,
+  onResetView,
   rigRef,
 }) {
   const { dpr } = useQuality()
@@ -83,6 +84,7 @@ export default function SimCanvas({
             subscribe={subscribe}
             onPick={onPick}
             onReady={handleReady}
+            onResetView={onResetView}
             rigRef={rigRef}
           />
         </Suspense>
