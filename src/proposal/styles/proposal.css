@@ -65,6 +65,18 @@
   margin-inline: auto;
 }
 
+/* Read aloud, never drawn — for context a sighted reader gets from the layout. */
+.pr-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 /* ---------- section bands ---------- */
 
 .pr-section {
@@ -372,6 +384,202 @@
 @media (max-width: 700px) {
   .pr-hero-meta {
     grid-template-columns: repeat(2, auto);
+  }
+}
+
+/* ---------- news ----------
+ * A contact sheet of press screenshots on the navy band: centred head, a
+ * 4/2/1 grid of eight cards, then a quieter panel that takes the pressure
+ * back off. Eight divides by 4, 2 and 1, so no breakpoint leaves an orphan
+ * row — changing the count means rechecking that.
+ *
+ * The cards sit at small alternating angles, like prints dropped on a desk.
+ * The angle is the only thing the tilt rules set, so hover can straighten a
+ * card without fighting a second transform.
+ */
+
+.pr-news-head {
+  max-width: 44ch;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.pr-news-lead {
+  font-size: 17px;
+  opacity: 0.82;
+  margin: 0;
+}
+
+.pr-news-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+  list-style: none;
+  margin: 56px 0 0;
+  padding: 0;
+}
+
+.pr-news-card {
+  display: block;
+  position: relative;
+  border-radius: var(--pr-r-sm);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: 0 18px 38px rgba(2, 14, 28, 0.38);
+  text-decoration: none;
+  color: inherit;
+  transform: rotate(var(--pr-news-tilt, 0deg));
+  transition: transform 0.3s var(--pr-ease);
+}
+
+.pr-news-card figure {
+  position: relative;
+  margin: 0;
+}
+
+.pr-news-card:focus-visible {
+  outline: 2px solid var(--pr-eyebrow-dark);
+  outline-offset: 3px;
+}
+
+.pr-news-grid li:nth-child(4n + 1) .pr-news-card {
+  --pr-news-tilt: -1.4deg;
+}
+.pr-news-grid li:nth-child(4n + 2) .pr-news-card {
+  --pr-news-tilt: 1.1deg;
+}
+.pr-news-grid li:nth-child(4n + 3) .pr-news-card {
+  --pr-news-tilt: -0.7deg;
+}
+.pr-news-grid li:nth-child(4n + 4) .pr-news-card {
+  --pr-news-tilt: 1.5deg;
+}
+
+.pr-news-card:hover {
+  --pr-news-tilt: 0deg;
+}
+
+/* Every source is a broadcast frame or an article hero, so the slot is 16:9 —
+   the shape the picture was composed in. Cropping these to a squarer tile cuts
+   the presenter or the chyron out of the side of the frame. */
+.pr-news-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+/* No screenshot on disk yet — keep the tile, drop the broken-image glyph. */
+.pr-news-card.is-missing img {
+  visibility: hidden;
+}
+
+/* These are broadcast frames, so the picture under the caption is whatever the
+ * bulletin cut to — a bright studio, a white sink, a sunlit lawn — and white
+ * text was landing on several of them unreadably. Two layers fix it without
+ * flattening the photograph:
+ *
+ *   ::after   a vignette, darkest at the edges and the foot of the frame,
+ *             clear through the middle where the subject is.
+ *   figcaption its own scrim, deeper and taller than the vignette, so the
+ *             caption always has a dark field whatever it is sitting on.
+ *
+ * The vignette is painted OVER the image (it is the figure's last child) which
+ * is also why the caption needs `z-index: 1` — otherwise the layer meant to
+ * make the text readable would dim the text as well.
+ */
+.pr-news-card figure::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(118% 88% at 50% 32%, rgba(11, 37, 69, 0) 44%, rgba(11, 37, 69, 0.6) 100%),
+    linear-gradient(180deg, rgba(11, 37, 69, 0.36) 0%, rgba(11, 37, 69, 0) 30%);
+  transition: opacity 0.3s var(--pr-ease);
+}
+
+/* Hovering a card is a deliberate look at that one frame, so the vignette
+   steps back and lets the picture come through. */
+.pr-news-card:hover figure::after {
+  opacity: 0.55;
+}
+
+.pr-news-card figcaption {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 1;
+  padding: 52px 13px 13px;
+  /* The scrim is the band's own navy rather than a neutral black: against a
+     blue the white reads as white and stays crisp, where black just greys the
+     frame down and takes the caption with it. It reaches full opacity before
+     the last line of text, so the bottom of every card is solid navy — white
+     on #0b2545 is about 14:1, which no broadcast frame can erode. */
+  background: linear-gradient(
+    180deg,
+    rgba(11, 37, 69, 0) 0%,
+    rgba(11, 37, 69, 0.58) 32%,
+    rgba(10, 33, 62, 0.94) 62%,
+    var(--pr-navy) 88%
+  );
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--pr-white);
+  /* Holds the first line together where it crosses the soft top of the ramp. */
+  text-shadow: 0 1px 3px rgba(4, 16, 32, 0.9);
+}
+
+.pr-news-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-top: 56px;
+  padding: 22px 26px;
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: var(--pr-r-md);
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.pr-news-callout-icon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.09);
+  color: var(--pr-eyebrow-dark);
+}
+
+.pr-news-callout p {
+  margin: 0;
+  font-size: 15px;
+  opacity: 0.84;
+}
+
+@media (max-width: 900px) {
+  .pr-news-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .pr-news-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    margin-top: 40px;
+  }
+  .pr-news-callout {
+    margin-top: 40px;
+    padding: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pr-news-card {
+    transition: none;
   }
 }
 
