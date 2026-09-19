@@ -13,6 +13,12 @@ import { useProposal } from '../ProposalContext'
  * The ABN has no home in src/data/constants.js yet, so it stays local
  * here rather than pulling this ticket into editing a marketing-site
  * data file for one new field.
+ *
+ * The landmark gets its own visually-hidden heading rather than being
+ * `aria-labelledby` the "Contact" column's <h3> — that would announce the
+ * whole footer landmark as just "Contact", and it also kept h2 out of the
+ * page's heading order at this point (every other section has an h2; the
+ * footer previously jumped straight to h3).
  */
 const ABN = '98 681 184 798'
 
@@ -22,6 +28,9 @@ export default function Footer() {
 
   return (
     <footer id="footer" className="pr-section band-navy pr-footer" aria-labelledby="footer-h">
+      <h2 id="footer-h" className="pr-sr-only">
+        Contact and proposal details
+      </h2>
       <div className="pr-wrap pr-footer-grid">
         <div className="pr-footer-brand">
           <img src={logo} alt="Pure Water Filtration" width="180" height="65" />
@@ -29,7 +38,7 @@ export default function Footer() {
         </div>
 
         <div className="pr-footer-col">
-          <h3 id="footer-h">Contact</h3>
+          <h3>Contact</h3>
           <a href={CTA.phone.href}>{CTA.phone.label}</a>
           <a href={CTA.email.href}>{CTA.email.label}</a>
           <a href={SITE} target="_blank" rel="noopener">

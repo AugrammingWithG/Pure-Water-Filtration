@@ -1,6 +1,7 @@
 import { money } from '../format'
 import { useHeroPassed } from '../hooks'
 import { useProposal } from '../ProposalContext'
+import { scrollToSection } from '../scroll'
 
 /**
  * The sticky bottom bar: "YOUR TOTAL $x" on the left, ACCEPT PROPOSAL on
@@ -11,6 +12,8 @@ import { useProposal } from '../ProposalContext'
  * The total is the one-off investment only (see quote.js for why the Care
  * Plan's recurring fee is kept out of it); `hasOnRequest` renders as a "+"
  * so a hidden cost is never implied as zero.
+ *
+ * ACCEPT PROPOSAL scrolls rather than navigates — see src/proposal/scroll.js.
  */
 export default function ProposalBottomBar() {
   const { totals } = useProposal()
@@ -26,7 +29,15 @@ export default function ProposalBottomBar() {
             {totals.hasOnRequest && <span className="pr-bottom-bar-plus">+</span>}
           </span>
         </div>
-        <a className="pr-btn" href="#accept" tabIndex={visible ? 0 : -1}>
+        <a
+          className="pr-btn"
+          href="#accept"
+          tabIndex={visible ? 0 : -1}
+          onClick={(e) => {
+            e.preventDefault()
+            scrollToSection('accept')
+          }}
+        >
           Accept proposal
         </a>
       </div>
