@@ -1,0 +1,435 @@
+@import './tokens.css';
+
+/**
+ * The proposal is a standalone document, not a marketing page: it does
+ * not import site.css (which sets html{scroll-snap-type:y mandatory} and
+ * a page-wide element reset) or index.css (the Lab's own system). It
+ * carries its own base rules instead of inheriting either, and every
+ * selector here is written under `.proposal` so it can never leak onto a
+ * page that happens to render both.
+ *
+ * Class naming follows the rest of the app: flat, lowercase-hyphenated,
+ * block-prefixed (`pr-` for "proposal", to avoid the site's unprefixed
+ * `.header`/`.section` names), state and variants as bare chained classes
+ * (`.pr-header.solid`, `.pr-section.band-navy`).
+ */
+
+.proposal {
+  font-family: var(--pr-font-body);
+  font-size: var(--pr-body);
+  line-height: 1.6;
+  color: var(--pr-ink);
+  background: var(--pr-band);
+  -webkit-font-smoothing: antialiased;
+}
+
+.proposal *,
+.proposal *::before,
+.proposal *::after {
+  box-sizing: border-box;
+}
+
+.proposal h1,
+.proposal h2,
+.proposal h3 {
+  font-family: var(--pr-font-display);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.4em;
+  color: inherit;
+}
+
+.proposal h1 {
+  font-size: var(--pr-h1);
+  line-height: 1;
+}
+.proposal h2 {
+  font-size: var(--pr-h2);
+  line-height: 1.08;
+}
+.proposal h3 {
+  font-size: var(--pr-h3);
+  line-height: 1.2;
+}
+
+.proposal p {
+  margin: 0 0 1em;
+}
+
+.proposal a {
+  color: inherit;
+}
+
+.pr-wrap {
+  width: min(var(--pr-max), calc(100% - 48px));
+  margin-inline: auto;
+}
+
+/* ---------- section bands ---------- */
+
+.pr-section {
+  padding: var(--pr-section) 0;
+  scroll-margin-top: var(--pr-header-h);
+}
+
+.pr-section.band-navy {
+  background: linear-gradient(180deg, var(--pr-navy), var(--pr-navy-deep));
+  color: var(--pr-white);
+}
+
+.pr-section.band-off {
+  background: var(--pr-band);
+  color: var(--pr-ink);
+}
+
+/* ---------- sticky header ---------- */
+
+.pr-header {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  height: var(--pr-header-h);
+  display: flex;
+  align-items: center;
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition:
+    background-color 0.3s var(--pr-ease),
+    border-color 0.3s var(--pr-ease),
+    box-shadow 0.3s var(--pr-ease);
+}
+
+.pr-header.solid {
+  background: rgba(11, 37, 69, 0.92);
+  backdrop-filter: blur(16px);
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+  box-shadow: var(--pr-shadow);
+}
+
+.pr-header-inner {
+  width: min(var(--pr-max), calc(100% - 48px));
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  color: var(--pr-white);
+}
+
+.pr-logo img {
+  display: block;
+  height: 32px;
+  width: auto;
+}
+
+.pr-header-mid {
+  flex: 1;
+  min-width: 0;
+}
+
+.pr-prepared-for {
+  font-size: 14px;
+  opacity: 0.85;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pr-prepared-for strong {
+  font-weight: 700;
+}
+
+.pr-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.pr-phone {
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.pr-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 9px 20px;
+  border-radius: 999px;
+  background: var(--pr-blue);
+  color: var(--pr-white);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background-color 0.2s var(--pr-ease);
+}
+
+.pr-pill:hover {
+  background: var(--pr-blue-deep);
+}
+
+/* ---------- sticky bottom bar ---------- */
+
+.pr-bottom-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 80;
+  height: var(--pr-bottom-bar-h);
+  background: var(--pr-white);
+  border-top: 1px solid var(--pr-line);
+  box-shadow: 0 -12px 30px rgba(4, 45, 78, 0.1);
+  padding-bottom: env(safe-area-inset-bottom);
+  transform: translateY(110%);
+  opacity: 0;
+  transition:
+    transform 0.35s var(--pr-ease),
+    opacity 0.35s var(--pr-ease);
+}
+
+.pr-bottom-bar.visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.pr-bottom-bar-inner {
+  width: min(var(--pr-max), calc(100% - 48px));
+  margin-inline: auto;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.pr-bottom-bar-total {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.pr-bottom-bar-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--pr-muted);
+}
+
+.pr-bottom-bar-amount {
+  font-family: var(--pr-font-display);
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--pr-navy);
+}
+
+.pr-bottom-bar-plus {
+  color: var(--pr-blue);
+}
+
+.pr-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 13px 26px;
+  border-radius: var(--pr-r-sm);
+  background: var(--pr-blue);
+  color: var(--pr-white);
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.2s var(--pr-ease);
+}
+
+.pr-btn:hover {
+  background: var(--pr-blue-deep);
+}
+
+/* ---------- scroll-spy dot nav ---------- */
+
+.pr-dots {
+  position: fixed;
+  right: 22px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 70;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.pr-dot {
+  position: relative;
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(8, 43, 76, 0.25);
+  cursor: pointer;
+  transition:
+    background-color 0.2s var(--pr-ease),
+    transform 0.2s var(--pr-ease);
+}
+
+.pr-dot:hover {
+  transform: scale(1.2);
+}
+
+.pr-dot.on {
+  background: var(--pr-blue);
+  transform: scale(1.3);
+}
+
+.pr-dot span {
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-right: 12px;
+  padding: 5px 10px;
+  border-radius: var(--pr-r-sm);
+  background: var(--pr-navy);
+  color: var(--pr-white);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s var(--pr-ease);
+}
+
+.pr-dot:hover span,
+.pr-dot:focus-visible span {
+  opacity: 1;
+}
+
+@media (max-width: 900px) {
+  .pr-dots {
+    display: none;
+  }
+}
+
+/* ---------- hero ----------
+ * Single column over a full-bleed band — the reference is a photo, not a
+ * two-column grid. The hero content ticket adds the photo background,
+ * trust pills and CTAs; this is the fixture-driven spine only. No 3D
+ * house slot: PWF-015 decides where that lands.
+ */
+
+.pr-hero {
+  padding-top: calc(var(--pr-header-h) + 64px);
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+}
+
+.pr-hero-copy {
+  max-width: 640px;
+}
+
+.pr-eyebrow {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--pr-eyebrow-dark);
+  margin-bottom: 18px;
+}
+
+.pr-hero-lead {
+  font-size: 17px;
+  opacity: 0.85;
+  max-width: 52ch;
+}
+
+.pr-hero-meta {
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  gap: 28px;
+  margin-top: 32px;
+}
+
+.pr-hero-meta dt {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.6;
+  margin-bottom: 4px;
+}
+
+.pr-hero-meta dd {
+  margin: 0;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+@media (max-width: 700px) {
+  .pr-hero-meta {
+    grid-template-columns: repeat(2, auto);
+  }
+}
+
+/* ---------- footer ---------- */
+
+.pr-footer-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+  gap: 32px;
+}
+
+.pr-footer-brand img {
+  display: block;
+  height: 32px;
+  width: auto;
+  margin-bottom: 14px;
+}
+
+.pr-footer-brand p {
+  font-size: 14px;
+  opacity: 0.75;
+  max-width: 32ch;
+}
+
+.pr-footer-col h3 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.6;
+  margin-bottom: 14px;
+}
+
+.pr-footer-col a,
+.pr-footer-col p {
+  display: block;
+  font-size: 14px;
+  text-decoration: none;
+  margin-bottom: 6px;
+  opacity: 0.9;
+}
+
+.pr-footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 56px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 13px;
+  opacity: 0.6;
+}
+
+@media (max-width: 700px) {
+  .pr-footer-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .pr-footer-bottom {
+    flex-direction: column;
+  }
+}

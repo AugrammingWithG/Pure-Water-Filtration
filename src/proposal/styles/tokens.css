@@ -1,0 +1,61 @@
+/**
+ * Proposal design tokens, scoped to `.proposal` so nothing here reaches
+ * the marketing page (site.css) or the 3D Lab (index.css) — both define
+ * their own `--navy`/`--ink`/`--line` at different values, and the two
+ * pages never load in the same document, but keeping this scoped means a
+ * future change that DOES load them together stays safe.
+ *
+ * Values read off the reference screenshots (PWF-001 revision). JPEG
+ * compression means these are within a few points, not eyedropper-exact —
+ * nudge here, not per-component, if a rendered page looks off against the
+ * reference. `--pr-savings*` has no equivalent anywhere in the app;
+ * DESIGN.md's "accent stays in the Lab" rule (#2FB872) is about the
+ * marketing page, not this one, so a new green was minted rather than
+ * borrowed.
+ */
+.proposal {
+  --pr-navy: #0b2545; /* hero + dark bands — lighter/bluer than site.css's #06284a */
+  --pr-navy-deep: #081c33; /* footer, gradient floor */
+  --pr-band: #f4f6f8; /* off-white content band */
+  --pr-white: #fff; /* cards sit white ON the band */
+  --pr-ink: #082b4c;
+  --pr-line: #dcebf4;
+  --pr-muted: #5f7891;
+
+  --pr-blue: #2b8fdb; /* ACCEPT pill, primary buttons, active stage */
+  --pr-blue-deep: #1f7ac0;
+  --pr-eyebrow-dark: #5fb6e8; /* eyebrow text on a navy band */
+
+  --pr-savings: #17a06b; /* "$2,501 ahead" headline */
+  --pr-savings-bg: #e4f5ec; /* "You save $900 off RRP" pill */
+  --pr-savings-ink: #1b8a5f;
+
+  /* type scale */
+  --pr-font-display: 'Manrope', sans-serif;
+  --pr-font-body: 'DM Sans', sans-serif;
+  --pr-h1: clamp(38px, 5vw, 62px);
+  --pr-h2: clamp(30px, 3.4vw, 44px);
+  --pr-h3: 19px;
+  --pr-body: 16px;
+
+  /* layout */
+  --pr-section: 110px;
+  --pr-header-h: 76px;
+  --pr-bottom-bar-h: 72px;
+  --pr-max: 1080px;
+
+  /* shape/motion — reused from site.css */
+  --pr-r-sm: 12px;
+  --pr-r-md: 16px;
+  --pr-r-lg: 24px;
+  --pr-shadow: 0 24px 70px rgba(4, 45, 78, 0.12);
+  --pr-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@media (max-width: 720px) {
+  .proposal {
+    --pr-section: 64px;
+    --pr-header-h: 64px;
+    --pr-bottom-bar-h: 64px;
+  }
+}
